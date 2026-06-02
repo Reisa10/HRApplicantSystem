@@ -2,7 +2,9 @@
 using System.Data;
 using System.Data.OleDb;
 using System.Windows.Forms;
-using HRApplicantSystem.Database; // Connects to your database helper namespace
+using HRApplicantSystem.Database;
+using HRApplicantSystem.Classes;
+using HRApplicantSystem.Forms.Login;
 
 namespace HRApplicantSystem.Forms.Applicant
 {
@@ -21,19 +23,14 @@ namespace HRApplicantSystem.Forms.Applicant
             LoadJobVacancies();
         }
 
-        // Retrieves all open job vacancies from your database helper
         private void LoadJobVacancies()
         {
             try
             {
                 using (OleDbConnection conn = DBConnection.GetConnection())
                 {
-                    if (conn == null)
-                    {
-                        return; // DBConnection already warns the user if connection fails
-                    }
+                    if (conn == null) return;
 
-                    // Query matches your exact columns: JobID, JobTitle, Department, Description, Status
                     string query = "SELECT JobID, JobTitle, Department, Description, Status " +
                                    "FROM JobVacancies WHERE Status = 'Open'";
 
@@ -43,12 +40,10 @@ namespace HRApplicantSystem.Forms.Applicant
                         adapter.Fill(dtJobs);
                         dgvJobs.DataSource = dtJobs;
 
-                        // Hide technical columns from display
                         if (dgvJobs.Columns["JobID"] != null) dgvJobs.Columns["JobID"].Visible = false;
                         if (dgvJobs.Columns["Description"] != null) dgvJobs.Columns["Description"].Visible = false;
                         if (dgvJobs.Columns["Status"] != null) dgvJobs.Columns["Status"].Visible = false;
 
-                        // Customize visible column headers
                         if (dgvJobs.Columns["JobTitle"] != null) dgvJobs.Columns["JobTitle"].HeaderText = "Job Title";
                         if (dgvJobs.Columns["Department"] != null) dgvJobs.Columns["Department"].HeaderText = "Department";
                     }
@@ -60,7 +55,6 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
-        // Populates search dropdown filter with unique departments from active vacancies
         private void LoadDepartments()
         {
             cmbDepartment.Items.Clear();
@@ -92,7 +86,6 @@ namespace HRApplicantSystem.Forms.Applicant
             }
             catch
             {
-                // Fallback options in case table contains no records yet
                 cmbDepartment.Items.Add("IT");
                 cmbDepartment.Items.Add("HR");
                 cmbDepartment.Items.Add("Finance");
@@ -101,7 +94,6 @@ namespace HRApplicantSystem.Forms.Applicant
             cmbDepartment.SelectedIndex = 0;
         }
 
-        // Logic for search filtering of the local grid data
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string keyword = txtSearch.Text.Trim().Replace("'", "''");
@@ -135,7 +127,6 @@ namespace HRApplicantSystem.Forms.Applicant
             LoadJobVacancies();
         }
 
-        // Populates the detail viewing section when a grid row is clicked
         private void dgvJobs_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvJobs.SelectedRows.Count > 0)
@@ -155,6 +146,84 @@ namespace HRApplicantSystem.Forms.Applicant
                 txtDescription.Clear();
                 grpJobDetails.Enabled = false;
             }
+        }
+
+        // Apply Button Click logic implementing your business rules
+        // Apply Button Click logic with explicit OleDbTypes to prevent mismatch errors
+        private void btnApply_Click(object sender, EventArgs e)
+        {
+            if (dgvJobs.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Please select a job vacancy from the list first.", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Retrieve structural IDs
+            DataGridViewRow row = dgvJobs.SelectedRows[0];
+            int jobId = Convert.ToInt32(row.Cells["JobID"].Value);
+            int applicantId = UserSession.UserID; // Set during login
+
+            OleDbConnection conn = DBConnection.GetConnection();
+            if (conn == null) return;
+
+            try
+            {
+                conn.Open();
+
+                // 1. DUPLICATE CHECK: Prevent same applicant from applying twice to the same job [4]
+                string checkQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND JobID = ?";
+                using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, conn))
+                {
+                    // Explicitly defining Integer parameters
+                    checkCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = applicantId;
+                    checkCmd.Parameters.Add("@JobID", OleDbType.Integer).Value = jobId;
+
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        // Block duplicate application attempt [4]
+                        MessageBox.Show("You have already applied for this job opening.", "Duplicate Application", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+
+                // 2. INSERT: Save record to Applications table
+                // We use explicit OleDbTypes (especially OleDbType.Date for DateApplied) to prevent type mismatches
+                string insertQuery = "INSERT INTO Applications (ApplicantID, JobID, [Status], DateApplied) VALUES (?, ?, ?, ?)";
+                using (OleDbCommand insertCmd = new OleDbCommand(insertQuery, conn))
+                {
+                    insertCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = applicantId;
+                    insertCmd.Parameters.Add("@JobID", OleDbType.Integer).Value = jobId;
+                    insertCmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = "Submitted"; // Escaped [Status]
+                    insertCmd.Parameters.Add("@DateApplied", OleDbType.Date).Value = DateTime.Now; // Correct Date format for Access
+
+                    insertCmd.ExecuteNonQuery();
+                }
+
+                MessageBox.Show("Your application has been submitted successfully!", "Application Submitted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while submitting your application:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
+            }
+        }
+
+        private void btnLogout_Click(object sender, EventArgs e)
+        {
+            UserSession.UserID = 0;
+            UserSession.Username = null;
+            UserSession.FullName = null;
+            UserSession.Role = null;
+
+            LoginForm loginForm = new LoginForm();
+            loginForm.Show();
+
+            this.Close();
         }
     }
 }

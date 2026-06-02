@@ -19,6 +19,7 @@
         {
             this.pnlSearch = new System.Windows.Forms.Panel();
             this.btnReset = new System.Windows.Forms.Button();
+            this.btnLogout = new System.Windows.Forms.Button();
             this.btnSearch = new System.Windows.Forms.Button();
             this.cmbDepartment = new System.Windows.Forms.ComboBox();
             this.txtSearch = new System.Windows.Forms.TextBox();
@@ -26,6 +27,7 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.dgvJobs = new System.Windows.Forms.DataGridView();
             this.grpJobDetails = new System.Windows.Forms.GroupBox();
+            this.btnApply = new System.Windows.Forms.Button(); // Instantiated Apply Button
             this.txtDescription = new System.Windows.Forms.TextBox();
             this.lblDept = new System.Windows.Forms.Label();
             this.lblTitle = new System.Windows.Forms.Label();
@@ -40,6 +42,7 @@
             // 
             // pnlSearch
             // 
+            this.pnlSearch.Controls.Add(this.btnLogout);
             this.pnlSearch.Controls.Add(this.btnReset);
             this.pnlSearch.Controls.Add(this.btnSearch);
             this.pnlSearch.Controls.Add(this.cmbDepartment);
@@ -60,6 +63,16 @@
             this.btnReset.Text = "Reset";
             this.btnReset.UseVisualStyleBackColor = true;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
+            // 
+            // btnLogout
+            // 
+            this.btnLogout.Location = new System.Drawing.Point(635, 17);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(85, 25);
+            this.btnLogout.TabIndex = 5;
+            this.btnLogout.Text = "Logout";
+            this.btnLogout.UseVisualStyleBackColor = true;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
             // 
             // btnSearch
             // 
@@ -135,6 +148,7 @@
             // 
             // grpJobDetails
             // 
+            this.grpJobDetails.Controls.Add(this.btnApply); // Added Apply button to details panel group
             this.grpJobDetails.Controls.Add(this.txtDescription);
             this.grpJobDetails.Controls.Add(this.lblDept);
             this.grpJobDetails.Controls.Add(this.lblTitle);
@@ -147,6 +161,18 @@
             this.grpJobDetails.TabStop = false;
             this.grpJobDetails.Text = "Job Specifications";
             // 
+            // btnApply
+            // 
+            this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnApply.Location = new System.Drawing.Point(20, 410);
+            this.btnApply.Name = "btnApply";
+            this.btnApply.Size = new System.Drawing.Size(416, 45);
+            this.btnApply.TabIndex = 3;
+            this.btnApply.Text = "Apply for this Job";
+            this.btnApply.UseVisualStyleBackColor = true;
+            this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
+            // 
             // txtDescription
             // 
             this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
@@ -158,7 +184,7 @@
             this.txtDescription.Name = "txtDescription";
             this.txtDescription.ReadOnly = true;
             this.txtDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDescription.Size = new System.Drawing.Size(416, 365);
+            this.txtDescription.Size = new System.Drawing.Size(416, 310); // Reduced height slightly to accommodate button
             this.txtDescription.TabIndex = 2;
             // 
             // lblDept
@@ -207,6 +233,8 @@
 
         #endregion
 
+        private System.Windows.Forms.Button btnLogout;
+        private System.Windows.Forms.Button btnApply; // Declared Apply Button
         private System.Windows.Forms.Panel pnlSearch;
         private System.Windows.Forms.Label lblSearch;
         private System.Windows.Forms.TextBox txtSearch;

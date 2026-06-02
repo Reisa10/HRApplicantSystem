@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using HRApplicantSystem.Forms.HR;
+using HRApplicantSystem.Classes;       // Added to reference UserSession
+using HRApplicantSystem.Forms.Login;     // Added to reference LoginForm
 
 namespace HRApplicantSystem.Forms.HR
 {
@@ -34,6 +27,7 @@ namespace HRApplicantSystem.Forms.HR
 
             MessageBox.Show("Coming in Day 4");
         }
+
         private void InterviewSchedule_Click(object sender, EventArgs e)
         {
             InterviewScheduleForm frm = new InterviewScheduleForm();
@@ -49,6 +43,7 @@ namespace HRApplicantSystem.Forms.HR
 
             MessageBox.Show("Coming in Day 4");
         }
+
         private void HiringDecision_Click(object sender, EventArgs e)
         {
             HiringDecisionForm frm = new HiringDecisionForm();
@@ -56,6 +51,7 @@ namespace HRApplicantSystem.Forms.HR
 
             MessageBox.Show("Coming in Day 4");
         }
+
         private void Reports_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Coming in Day 4");
@@ -63,9 +59,18 @@ namespace HRApplicantSystem.Forms.HR
 
         private void Logout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Coming in Day 4");
-        }
+            // 1. Clear session variables
+            UserSession.UserID = 0;
+            UserSession.Username = null;
+            UserSession.FullName = null;
+            UserSession.Role = null;
 
-        
+            // 2. Open the LoginForm
+            LoginForm loginForm = new LoginForm();
+            loginForm.Show();
+
+            // 3. Close the current dashboard
+            this.Close();
+        }
     }
 }
