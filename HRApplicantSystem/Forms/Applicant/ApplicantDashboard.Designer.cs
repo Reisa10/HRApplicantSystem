@@ -2,15 +2,8 @@
 {
     partial class ApplicantDashboard
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,16 +15,14 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             this.lblHeader = new System.Windows.Forms.Label();
             this.lblWelcome = new System.Windows.Forms.Label();
             this.btnProfile = new System.Windows.Forms.Button();
             this.btnJobVacancies = new System.Windows.Forms.Button();
+            this.btnMyApplications = new System.Windows.Forms.Button();
+            this.btnStatusTracking = new System.Windows.Forms.Button();
             this.btnLogout = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -42,7 +33,7 @@
             this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
             this.lblHeader.Location = new System.Drawing.Point(30, 25);
             this.lblHeader.Name = "lblHeader";
-            this.lblHeader.Size = new System.Drawing.Size(282, 32);
+            this.lblHeader.Size = new System.Drawing.Size(248, 32);
             this.lblHeader.TabIndex = 0;
             this.lblHeader.Text = "APPLICANT PORTAL";
             // 
@@ -59,9 +50,9 @@
             // 
             // btnProfile
             // 
-            this.btnProfile.Location = new System.Drawing.Point(50, 130);
+            this.btnProfile.Location = new System.Drawing.Point(40, 115);
             this.btnProfile.Name = "btnProfile";
-            this.btnProfile.Size = new System.Drawing.Size(220, 140);
+            this.btnProfile.Size = new System.Drawing.Size(235, 110);
             this.btnProfile.TabIndex = 2;
             this.btnProfile.Text = "MY PROFILE\r\n\r\n[View && Edit Personal Info]";
             this.btnProfile.UseVisualStyleBackColor = true;
@@ -69,20 +60,40 @@
             // 
             // btnJobVacancies
             // 
-            this.btnJobVacancies.Location = new System.Drawing.Point(310, 130);
+            this.btnJobVacancies.Location = new System.Drawing.Point(305, 115);
             this.btnJobVacancies.Name = "btnJobVacancies";
-            this.btnJobVacancies.Size = new System.Drawing.Size(220, 140);
+            this.btnJobVacancies.Size = new System.Drawing.Size(235, 110);
             this.btnJobVacancies.TabIndex = 3;
             this.btnJobVacancies.Text = "JOB VACANCIES\r\n\r\n[Browse && Apply for Jobs]";
             this.btnJobVacancies.UseVisualStyleBackColor = true;
             this.btnJobVacancies.Click += new System.EventHandler(this.btnJobVacancies_Click);
             // 
+            // btnMyApplications
+            // 
+            this.btnMyApplications.Location = new System.Drawing.Point(40, 245);
+            this.btnMyApplications.Name = "btnMyApplications";
+            this.btnMyApplications.Size = new System.Drawing.Size(235, 110);
+            this.btnMyApplications.TabIndex = 4;
+            this.btnMyApplications.Text = "MY APPLICATIONS\r\n\r\n[Track && Submit Drafts]";
+            this.btnMyApplications.UseVisualStyleBackColor = true;
+            this.btnMyApplications.Click += new System.EventHandler(this.btnMyApplications_Click);
+            // 
+            // btnStatusTracking
+            // 
+            this.btnStatusTracking.Location = new System.Drawing.Point(305, 245);
+            this.btnStatusTracking.Name = "btnStatusTracking";
+            this.btnStatusTracking.Size = new System.Drawing.Size(235, 110);
+            this.btnStatusTracking.TabIndex = 5;
+            this.btnStatusTracking.Text = "STATUS TRACKING\r\n\r\n[Timeline && Schedules]";
+            this.btnStatusTracking.UseVisualStyleBackColor = true;
+            this.btnStatusTracking.Click += new System.EventHandler(this.btnStatusTracking_Click);
+            // 
             // btnLogout
             // 
-            this.btnLogout.Location = new System.Drawing.Point(440, 25);
+            this.btnLogout.Location = new System.Drawing.Point(450, 25);
             this.btnLogout.Name = "btnLogout";
             this.btnLogout.Size = new System.Drawing.Size(90, 30);
-            this.btnLogout.TabIndex = 4;
+            this.btnLogout.TabIndex = 6;
             this.btnLogout.Text = "LOGOUT";
             this.btnLogout.UseVisualStyleBackColor = true;
             this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
@@ -91,8 +102,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 321);
+            this.ClientSize = new System.Drawing.Size(580, 395);
             this.Controls.Add(this.btnLogout);
+            this.Controls.Add(this.btnStatusTracking);
+            this.Controls.Add(this.btnMyApplications);
             this.Controls.Add(this.btnJobVacancies);
             this.Controls.Add(this.btnProfile);
             this.Controls.Add(this.lblWelcome);
@@ -115,6 +128,8 @@
         private System.Windows.Forms.Label lblWelcome;
         private System.Windows.Forms.Button btnProfile;
         private System.Windows.Forms.Button btnJobVacancies;
+        private System.Windows.Forms.Button btnMyApplications;
+        private System.Windows.Forms.Button btnStatusTracking;
         private System.Windows.Forms.Button btnLogout;
     }
 }

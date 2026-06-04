@@ -88,7 +88,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Loads all applications from the database for manual selection and testing.
+        /// Loads applications from the database, excluding 'Draft' status records.
         /// </summary>
         private void LoadApplications()
         {
@@ -99,6 +99,7 @@ namespace HRApplicantSystem.Forms.HR
                     if (con == null) return;
                     con.Open();
 
+                    // Modified query to exclude 'Draft' applications from HR visibility [2]
                     string query = @"
                         SELECT
                             Applications.ApplicationID,
@@ -110,7 +111,9 @@ namespace HRApplicantSystem.Forms.HR
                         FROM
                             (Applications
                             INNER JOIN Applicants ON Applications.ApplicantID = Applicants.ApplicantID)
-                            INNER JOIN JobVacancies ON Applications.JobID = JobVacancies.JobID";
+                            INNER JOIN JobVacancies ON Applications.JobID = JobVacancies.JobID
+                        WHERE
+                            Applications.Status <> 'Draft'";
 
                     using (OleDbDataAdapter da = new OleDbDataAdapter(query, con))
                     {
@@ -132,7 +135,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Dynamically highlights rows based on status (Amber for Under Review/Locked, Blue for Submitted).
+        /// Dynamically highlights rows based on status (Amber for Under Review, Blue for Submitted, Gray for Withdrawn).
         /// </summary>
         private void ApplyRowColoring()
         {
@@ -150,6 +153,11 @@ namespace HRApplicantSystem.Forms.HR
                     {
                         row.DefaultCellStyle.BackColor = Color.FromArgb(219, 234, 254);
                         row.DefaultCellStyle.ForeColor = Color.FromArgb(30, 58, 138);
+                    }
+                    else if (status == "Withdrawn")
+                    {
+                        row.DefaultCellStyle.BackColor = Color.FromArgb(243, 244, 246); // Light Gray
+                        row.DefaultCellStyle.ForeColor = Color.FromArgb(107, 114, 128); // Muted Text
                     }
                 }
             }
@@ -376,8 +384,8 @@ namespace HRApplicantSystem.Forms.HR
                 selectedApplicantID = Convert.ToInt32(row.Cells["ApplicantID"].Value);
                 selectedApplicationStatus = row.Cells["Status"].Value != DBNull.Value ? row.Cells["Status"].Value.ToString() : "";
 
-                // Enable locking for any status that is NOT already reviewed
-                btnLockApplication.Enabled = (selectedApplicationStatus != "Under Review" && selectedApplicationStatus != "Locked");
+                // Status Trap Logic (UI Layer): Enable locking ONLY if the application status is currently "Submitted"
+                btnLockApplication.Enabled = (selectedApplicationStatus == "Submitted");
 
                 // Auto-loading updates profile and documents list dynamically on selection
                 LoadProfile();
@@ -390,6 +398,28 @@ namespace HRApplicantSystem.Forms.HR
             if (selectedApplicationID == 0)
             {
                 MessageBox.Show("Please select an application first.", "Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Status Trap Logic (Execution Layer Check): Ensure we block actions on withdrawn or draft applications
+            if (selectedApplicationStatus == "Withdrawn")
+            {
+                MessageBox.Show("This application has been withdrawn by the applicant and cannot be locked for review.",
+                                "Action Blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (selectedApplicationStatus == "Draft")
+            {
+                MessageBox.Show("This application is still a Draft and has not been officially submitted yet.",
+                                "Action Blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (selectedApplicationStatus != "Submitted")
+            {
+                MessageBox.Show($"This application cannot be locked because its current status is '{selectedApplicationStatus}'.",
+                                "Action Blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 

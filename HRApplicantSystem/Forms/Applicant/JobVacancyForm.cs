@@ -166,8 +166,8 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 conn.Open();
 
-                // 1. DUPLICATE CHECK: Prevent duplicate submissions to the same opening [4]
-                string checkQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND JobID = ?";
+                // 1. DUPLICATE CHECK: Prevent duplicate active applications
+                string checkQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND JobID = ? AND Status <> 'Withdrawn'";
                 using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, conn))
                 {
                     checkCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = applicantId;
@@ -176,28 +176,49 @@ namespace HRApplicantSystem.Forms.Applicant
                     int count = Convert.ToInt32(checkCmd.ExecuteScalar());
                     if (count > 0)
                     {
-                        MessageBox.Show("You have already applied for this job opening.", "Duplicate Application", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("You have already started or submitted an application for this job opening.", "Duplicate Application", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }
 
-                // 2. INSERT: Submit Application
+                // 2. INSERT: Submit as 'Draft' status to allow user review/submission control
+                int generatedAppId = 0;
                 string insertQuery = "INSERT INTO Applications (ApplicantID, JobID, [Status], DateApplied) VALUES (?, ?, ?, ?)";
                 using (OleDbCommand insertCmd = new OleDbCommand(insertQuery, conn))
                 {
                     insertCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = applicantId;
                     insertCmd.Parameters.Add("@JobID", OleDbType.Integer).Value = jobId;
-                    insertCmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = "Submitted";
+                    insertCmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = "Draft";
                     insertCmd.Parameters.Add("@DateApplied", OleDbType.Date).Value = DateTime.Now;
 
                     insertCmd.ExecuteNonQuery();
+
+                    insertCmd.CommandText = "SELECT @@IDENTITY";
+                    generatedAppId = Convert.ToInt32(insertCmd.ExecuteScalar());
                 }
 
-                MessageBox.Show("Your application has been submitted successfully!", "Application Submitted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // 3. LOG STATUS HISTORY: Log the initial draft state
+                string historyQuery = "INSERT INTO ApplicationStatusHistory (ApplicationID, [Status], DateChanged) VALUES (?, ?, ?)";
+                using (OleDbCommand historyCmd = new OleDbCommand(historyQuery, conn))
+                {
+                    historyCmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = generatedAppId;
+                    historyCmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = "Draft";
+                    historyCmd.Parameters.Add("@DateChanged", OleDbType.Date).Value = DateTime.Now;
+
+                    historyCmd.ExecuteNonQuery();
+                }
+
+                DialogResult result = MessageBox.Show("Application draft created successfully! Would you like to view your applications list to submit it now?",
+                    "Draft Saved", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    this.Close();
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred while submitting your application:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("An error occurred while initiating your application:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -206,9 +227,6 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
-        /// <summary>
-        /// Safely closes this form to return back to the Applicant Dashboard form [3].
-        /// </summary>
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
