@@ -1,14 +1,14 @@
-﻿namespace ProfileForm
+﻿namespace HRApplicantSystem.Forms.Applicant
 {
     partial class ProfileForm
     {
         /// <summary>
-        ///  Required designer variable.
+        /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        ///  Clean up any resources being used.
+        /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
@@ -23,244 +23,336 @@
         #region Windows Form Designer generated code
 
         /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            txtFirstName = new TextBox();
-            CreateProfLabel = new Label();
-            txtLastName = new TextBox();
-            dtpBirthdate = new DateTimePicker();
-            cmbGender = new ComboBox();
-            txtPhoneNum = new TextBox();
-            txtAddress = new TextBox();
-            labelEduc = new Label();
-            labelSkills = new Label();
-            txtEduc = new RichTextBox();
-            txtSkills = new RichTextBox();
-            btnSave = new Button();
-            btnUpdate = new Button();
-            btnClear = new Button();
-            txtApplicantID = new TextBox();
-            labelExp = new Label();
-            txtWorkExp = new RichTextBox();
-            SuspendLayout();
+            this.lblHeader = new System.Windows.Forms.Label();
+            this.lblFirstName = new System.Windows.Forms.Label();
+            this.txtFirstName = new System.Windows.Forms.TextBox();
+            this.lblMiddleName = new System.Windows.Forms.Label();
+            this.txtMiddleName = new System.Windows.Forms.TextBox();
+            this.lblLastName = new System.Windows.Forms.Label();
+            this.txtLastName = new System.Windows.Forms.TextBox();
+            this.lblBirthday = new System.Windows.Forms.Label();
+            this.dtpBirthday = new System.Windows.Forms.DateTimePicker();
+            this.lblGender = new System.Windows.Forms.Label();
+            this.cmbGender = new System.Windows.Forms.ComboBox();
+            this.lblContactNumber = new System.Windows.Forms.Label();
+            this.txtContactNumber = new System.Windows.Forms.TextBox();
+            this.lblAddress = new System.Windows.Forms.Label();
+            this.txtAddress = new System.Windows.Forms.TextBox();
+            this.lblEducation = new System.Windows.Forms.Label();
+            this.txtEducation = new System.Windows.Forms.TextBox();
+            this.lblSkills = new System.Windows.Forms.Label();
+            this.txtSkills = new System.Windows.Forms.TextBox();
+            this.lblWorkExperience = new System.Windows.Forms.Label();
+            this.txtWorkExperience = new System.Windows.Forms.TextBox();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+            // 
+            // lblHeader
+            // 
+            this.lblHeader.AutoSize = true;
+            this.lblHeader.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.lblHeader.Location = new System.Drawing.Point(25, 15);
+            this.lblHeader.Name = "lblHeader";
+            this.lblHeader.Size = new System.Drawing.Size(221, 30);
+            this.lblHeader.TabIndex = 0;
+            this.lblHeader.Text = "APPLICANT PROFILE";
+            // 
+            // lblFirstName
+            // 
+            this.lblFirstName.AutoSize = true;
+            this.lblFirstName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblFirstName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblFirstName.Location = new System.Drawing.Point(30, 60);
+            this.lblFirstName.Name = "lblFirstName";
+            this.lblFirstName.Size = new System.Drawing.Size(70, 15);
+            this.lblFirstName.TabIndex = 1;
+            this.lblFirstName.Text = "First Name:";
             // 
             // txtFirstName
             // 
-            txtFirstName.ForeColor = SystemColors.GrayText;
-            txtFirstName.Location = new Point(256, 87);
-            txtFirstName.Name = "txtFirstName";
-            txtFirstName.Size = new Size(234, 31);
-            txtFirstName.TabIndex = 0;
-            txtFirstName.Text = "First Name";
+            this.txtFirstName.Location = new System.Drawing.Point(30, 78);
+            this.txtFirstName.Name = "txtFirstName";
+            this.txtFirstName.Size = new System.Drawing.Size(110, 22);
+            this.txtFirstName.TabIndex = 2;
             // 
-            // CreateProfLabel
+            // lblMiddleName
             // 
-            CreateProfLabel.AutoSize = true;
-            CreateProfLabel.Font = new Font("Segoe UI", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            CreateProfLabel.Location = new Point(246, 9);
-            CreateProfLabel.Name = "CreateProfLabel";
-            CreateProfLabel.Size = new Size(264, 38);
-            CreateProfLabel.TabIndex = 1;
-            CreateProfLabel.Text = "Create your Profile";
-            CreateProfLabel.TextAlign = ContentAlignment.MiddleLeft;
+            this.lblMiddleName.AutoSize = true;
+            this.lblMiddleName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblMiddleName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblMiddleName.Location = new System.Drawing.Point(155, 60);
+            this.lblMiddleName.Name = "lblMiddleName";
+            this.lblMiddleName.Size = new System.Drawing.Size(84, 15);
+            this.lblMiddleName.TabIndex = 3;
+            this.lblMiddleName.Text = "Middle Name:";
+            // 
+            // txtMiddleName
+            // 
+            this.txtMiddleName.Location = new System.Drawing.Point(155, 78);
+            this.txtMiddleName.Name = "txtMiddleName";
+            this.txtMiddleName.Size = new System.Drawing.Size(110, 22);
+            this.txtMiddleName.TabIndex = 4;
+            // 
+            // lblLastName
+            // 
+            this.lblLastName.AutoSize = true;
+            this.lblLastName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblLastName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblLastName.Location = new System.Drawing.Point(280, 60);
+            this.lblLastName.Name = "lblLastName";
+            this.lblLastName.Size = new System.Drawing.Size(68, 15);
+            this.lblLastName.TabIndex = 5;
+            this.lblLastName.Text = "Last Name:";
             // 
             // txtLastName
             // 
-            txtLastName.ForeColor = SystemColors.GrayText;
-            txtLastName.Location = new Point(256, 124);
-            txtLastName.Name = "txtLastName";
-            txtLastName.Size = new Size(234, 31);
-            txtLastName.TabIndex = 2;
-            txtLastName.Text = "Last Name";
+            this.txtLastName.Location = new System.Drawing.Point(280, 78);
+            this.txtLastName.Name = "txtLastName";
+            this.txtLastName.Size = new System.Drawing.Size(110, 22);
+            this.txtLastName.TabIndex = 6;
             // 
-            // dtpBirthdate
+            // lblBirthday
             // 
-            dtpBirthdate.CalendarForeColor = SystemColors.GrayText;
-            dtpBirthdate.Location = new Point(137, 162);
-            dtpBirthdate.Name = "dtpBirthdate";
-            dtpBirthdate.Size = new Size(300, 31);
-            dtpBirthdate.TabIndex = 4;
+            this.lblBirthday.AutoSize = true;
+            this.lblBirthday.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblBirthday.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblBirthday.Location = new System.Drawing.Point(30, 115);
+            this.lblBirthday.Name = "lblBirthday";
+            this.lblBirthday.Size = new System.Drawing.Size(57, 15);
+            this.lblBirthday.TabIndex = 7;
+            this.lblBirthday.Text = "Birthday:";
+            // 
+            // dtpBirthday
+            // 
+            this.dtpBirthday.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpBirthday.Location = new System.Drawing.Point(30, 133);
+            this.dtpBirthday.Name = "dtpBirthday";
+            this.dtpBirthday.Size = new System.Drawing.Size(170, 22);
+            this.dtpBirthday.TabIndex = 8;
+            // 
+            // lblGender
+            // 
+            this.lblGender.AutoSize = true;
+            this.lblGender.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblGender.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblGender.Location = new System.Drawing.Point(220, 115);
+            this.lblGender.Name = "lblGender";
+            this.lblGender.Size = new System.Drawing.Size(51, 15);
+            this.lblGender.TabIndex = 9;
+            this.lblGender.Text = "Gender:";
             // 
             // cmbGender
             // 
-            cmbGender.ForeColor = SystemColors.GrayText;
-            cmbGender.FormattingEnabled = true;
-            cmbGender.Items.AddRange(new object[] { "Male", "Female" });
-            cmbGender.Location = new Point(452, 160);
-            cmbGender.Name = "cmbGender";
-            cmbGender.Size = new Size(146, 33);
-            cmbGender.TabIndex = 6;
-            cmbGender.Text = "Gender";
+            this.cmbGender.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbGender.FormattingEnabled = true;
+            this.cmbGender.Location = new System.Drawing.Point(220, 133);
+            this.cmbGender.Name = "cmbGender";
+            this.cmbGender.Size = new System.Drawing.Size(170, 21);
+            this.cmbGender.TabIndex = 10;
             // 
-            // txtPhoneNum
+            // lblContactNumber
             // 
-            txtPhoneNum.ForeColor = SystemColors.GrayText;
-            txtPhoneNum.Location = new Point(256, 199);
-            txtPhoneNum.Name = "txtPhoneNum";
-            txtPhoneNum.Size = new Size(234, 31);
-            txtPhoneNum.TabIndex = 9;
-            txtPhoneNum.Text = "Phone Number";
+            this.lblContactNumber.AutoSize = true;
+            this.lblContactNumber.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblContactNumber.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblContactNumber.Location = new System.Drawing.Point(30, 170);
+            this.lblContactNumber.Name = "lblContactNumber";
+            this.lblContactNumber.Size = new System.Drawing.Size(102, 15);
+            this.lblContactNumber.TabIndex = 11;
+            this.lblContactNumber.Text = "Contact Number:";
+            // 
+            // txtContactNumber
+            // 
+            this.txtContactNumber.Location = new System.Drawing.Point(30, 188);
+            this.txtContactNumber.Name = "txtContactNumber";
+            this.txtContactNumber.Size = new System.Drawing.Size(360, 22);
+            this.txtContactNumber.TabIndex = 12;
+            // 
+            // lblAddress
+            // 
+            this.lblAddress.AutoSize = true;
+            this.lblAddress.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblAddress.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblAddress.Location = new System.Drawing.Point(30, 225);
+            this.lblAddress.Name = "lblAddress";
+            this.lblAddress.Size = new System.Drawing.Size(54, 15);
+            this.lblAddress.TabIndex = 13;
+            this.lblAddress.Text = "Address:";
             // 
             // txtAddress
             // 
-            txtAddress.ForeColor = SystemColors.GrayText;
-            txtAddress.Location = new Point(256, 236);
-            txtAddress.Name = "txtAddress";
-            txtAddress.Size = new Size(234, 31);
-            txtAddress.TabIndex = 11;
-            txtAddress.Text = "Address";
+            this.txtAddress.Location = new System.Drawing.Point(30, 243);
+            this.txtAddress.Multiline = true;
+            this.txtAddress.Name = "txtAddress";
+            this.txtAddress.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtAddress.Size = new System.Drawing.Size(360, 130);
+            this.txtAddress.TabIndex = 14;
             // 
-            // labelEduc
+            // lblEducation
             // 
-            labelEduc.AutoSize = true;
-            labelEduc.Font = new Font("Segoe UI", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelEduc.Location = new Point(48, 286);
-            labelEduc.Name = "labelEduc";
-            labelEduc.Size = new Size(147, 38);
-            labelEduc.TabIndex = 16;
-            labelEduc.Text = "Education";
-            labelEduc.TextAlign = ContentAlignment.MiddleLeft;
+            this.lblEducation.AutoSize = true;
+            this.lblEducation.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblEducation.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblEducation.Location = new System.Drawing.Point(430, 60);
+            this.lblEducation.Name = "lblEducation";
+            this.lblEducation.Size = new System.Drawing.Size(64, 15);
+            this.lblEducation.TabIndex = 15;
+            this.lblEducation.Text = "Education:";
             // 
-            // labelSkills
+            // txtEducation
             // 
-            labelSkills.AutoSize = true;
-            labelSkills.Font = new Font("Segoe UI", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelSkills.Location = new Point(638, 286);
-            labelSkills.Name = "labelSkills";
-            labelSkills.Size = new Size(85, 38);
-            labelSkills.TabIndex = 17;
-            labelSkills.Text = "Skills";
-            labelSkills.TextAlign = ContentAlignment.MiddleLeft;
+            this.txtEducation.Location = new System.Drawing.Point(430, 78);
+            this.txtEducation.Multiline = true;
+            this.txtEducation.Name = "txtEducation";
+            this.txtEducation.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtEducation.Size = new System.Drawing.Size(380, 80);
+            this.txtEducation.TabIndex = 16;
             // 
-            // txtEduc
+            // lblSkills
             // 
-            txtEduc.Location = new Point(12, 339);
-            txtEduc.Name = "txtEduc";
-            txtEduc.Size = new Size(215, 144);
-            txtEduc.TabIndex = 18;
-            txtEduc.Text = "";
+            this.lblSkills.AutoSize = true;
+            this.lblSkills.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblSkills.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblSkills.Location = new System.Drawing.Point(430, 170);
+            this.lblSkills.Name = "lblSkills";
+            this.lblSkills.Size = new System.Drawing.Size(38, 15);
+            this.lblSkills.TabIndex = 17;
+            this.lblSkills.Text = "Skills:";
             // 
             // txtSkills
             // 
-            txtSkills.Location = new Point(569, 339);
-            txtSkills.Name = "txtSkills";
-            txtSkills.Size = new Size(219, 144);
-            txtSkills.TabIndex = 19;
-            txtSkills.Text = "";
+            this.txtSkills.Location = new System.Drawing.Point(430, 188);
+            this.txtSkills.Multiline = true;
+            this.txtSkills.Name = "txtSkills";
+            this.txtSkills.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtSkills.Size = new System.Drawing.Size(380, 80);
+            this.txtSkills.TabIndex = 18;
+            // 
+            // lblWorkExperience
+            // 
+            this.lblWorkExperience.AutoSize = true;
+            this.lblWorkExperience.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblWorkExperience.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblWorkExperience.Location = new System.Drawing.Point(430, 280);
+            this.lblWorkExperience.Name = "lblWorkExperience";
+            this.lblWorkExperience.Size = new System.Drawing.Size(104, 15);
+            this.lblWorkExperience.TabIndex = 19;
+            this.lblWorkExperience.Text = "Work Experience:";
+            // 
+            // txtWorkExperience
+            // 
+            this.txtWorkExperience.Location = new System.Drawing.Point(430, 298);
+            this.txtWorkExperience.Multiline = true;
+            this.txtWorkExperience.Name = "txtWorkExperience";
+            this.txtWorkExperience.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtWorkExperience.Size = new System.Drawing.Size(380, 75);
+            this.txtWorkExperience.TabIndex = 20;
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(220, 517);
-            btnSave.Name = "btnSave";
-            btnSave.Size = new Size(112, 34);
-            btnSave.TabIndex = 20;
-            btnSave.Text = "Save";
-            btnSave.UseVisualStyleBackColor = true;
-            btnSave.Click += btnSave_Click;
-            // 
-            // btnUpdate
-            // 
-            btnUpdate.Location = new Point(338, 517);
-            btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(112, 34);
-            btnUpdate.TabIndex = 21;
-            btnUpdate.Text = "Update";
-            btnUpdate.UseVisualStyleBackColor = true;
-            btnUpdate.Click += btnUpdate_Click;
+            this.btnSave.Location = new System.Drawing.Point(690, 395);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(120, 32);
+            this.btnSave.TabIndex = 21;
+            this.btnSave.Text = "Save Profile";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // btnClear
             // 
-            btnClear.Location = new Point(456, 517);
-            btnClear.Name = "btnClear";
-            btnClear.Size = new Size(112, 34);
-            btnClear.TabIndex = 22;
-            btnClear.Text = "Clear";
-            btnClear.UseVisualStyleBackColor = true;
-            btnClear.Click += btnClear_Click;
+            this.btnClear.Location = new System.Drawing.Point(550, 395);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(120, 32);
+            this.btnClear.TabIndex = 22;
+            this.btnClear.Text = "Clear Fields";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
-            // txtApplicantID
+            // btnBack
             // 
-            txtApplicantID.ForeColor = SystemColors.GrayText;
-            txtApplicantID.Location = new Point(256, 50);
-            txtApplicantID.Name = "txtApplicantID";
-            txtApplicantID.Size = new Size(234, 31);
-            txtApplicantID.TabIndex = 23;
-            txtApplicantID.Text = "Applicant ID";
-            // 
-            // labelExp
-            // 
-            labelExp.AutoSize = true;
-            labelExp.Font = new Font("Segoe UI", 14F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelExp.Location = new Point(273, 286);
-            labelExp.Name = "labelExp";
-            labelExp.Size = new Size(237, 38);
-            labelExp.TabIndex = 24;
-            labelExp.Text = "Work Experience";
-            labelExp.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txtWorkExp
-            // 
-            txtWorkExp.Location = new Point(282, 339);
-            txtWorkExp.Name = "txtWorkExp";
-            txtWorkExp.Size = new Size(219, 144);
-            txtWorkExp.TabIndex = 25;
-            txtWorkExp.Text = "";
+            this.btnBack.Location = new System.Drawing.Point(410, 395);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(120, 32);
+            this.btnBack.TabIndex = 23;
+            this.btnBack.Text = "Back";
+            this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             // 
             // ProfileForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 964);
-            Controls.Add(txtWorkExp);
-            Controls.Add(labelExp);
-            Controls.Add(txtApplicantID);
-            Controls.Add(btnClear);
-            Controls.Add(btnUpdate);
-            Controls.Add(btnSave);
-            Controls.Add(txtSkills);
-            Controls.Add(txtEduc);
-            Controls.Add(labelSkills);
-            Controls.Add(labelEduc);
-            Controls.Add(txtAddress);
-            Controls.Add(txtPhoneNum);
-            Controls.Add(cmbGender);
-            Controls.Add(dtpBirthdate);
-            Controls.Add(txtLastName);
-            Controls.Add(CreateProfLabel);
-            Controls.Add(txtFirstName);
-            Name = "ProfileForm";
-            Text = "ProfileForm";
-            ResumeLayout(false);
-            PerformLayout();
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(850, 450);
+            this.Controls.Add(this.btnBack);
+            this.Controls.Add(this.btnClear);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.txtWorkExperience);
+            this.Controls.Add(this.lblWorkExperience);
+            this.Controls.Add(this.txtSkills);
+            this.Controls.Add(this.lblSkills);
+            this.Controls.Add(this.txtEducation);
+            this.Controls.Add(this.lblEducation);
+            this.Controls.Add(this.txtAddress);
+            this.Controls.Add(this.lblAddress);
+            this.Controls.Add(this.txtContactNumber);
+            this.Controls.Add(this.lblContactNumber);
+            this.Controls.Add(this.cmbGender);
+            this.Controls.Add(this.lblGender);
+            this.Controls.Add(this.dtpBirthday);
+            this.Controls.Add(this.lblBirthday);
+            this.Controls.Add(this.txtLastName);
+            this.Controls.Add(this.lblLastName);
+            this.Controls.Add(this.txtMiddleName);
+            this.Controls.Add(this.lblMiddleName);
+            this.Controls.Add(this.txtFirstName);
+            this.Controls.Add(this.lblFirstName);
+            this.Controls.Add(this.lblHeader);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.Name = "ProfileForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "My Profile";
+            this.Load += new System.EventHandler(this.ProfileForm_Load);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
         }
 
         #endregion
 
-        private TextBox txtFirstName;
-        private Label CreateProfLabel;
-        private TextBox txtLastName;
-        private TextBox txtMiddleName;
-        private DateTimePicker dtpBirthdate;
-        private ComboBox cmbGender;
-        private TextBox txtPhoneNum;
-        private Label labelAddress;
-        private TextBox txtProvince;
-        private TextBox txtCity;
-        private TextBox txtAddress;
-        private TextBox txtCountry;
-        private TextBox txtZipCode;
-        private Label labelEduc;
-        private Label labelSkills;
-        private RichTextBox txtEduc;
-        private RichTextBox txtSkills;
-        private Button btnSave;
-        private Button btnUpdate;
-        private Button btnClear;
-        private TextBox txtApplicantID;
-        private Label labelExp;
-        private RichTextBox txtWorkExp;
+        private System.Windows.Forms.Label lblHeader;
+        private System.Windows.Forms.Label lblFirstName;
+        private System.Windows.Forms.TextBox txtFirstName;
+        private System.Windows.Forms.Label lblMiddleName;
+        private System.Windows.Forms.TextBox txtMiddleName;
+        private System.Windows.Forms.Label lblLastName;
+        private System.Windows.Forms.TextBox txtLastName;
+        private System.Windows.Forms.Label lblBirthday;
+        private System.Windows.Forms.DateTimePicker dtpBirthday;
+        private System.Windows.Forms.Label lblGender;
+        private System.Windows.Forms.ComboBox cmbGender;
+        private System.Windows.Forms.Label lblContactNumber;
+        private System.Windows.Forms.TextBox txtContactNumber;
+        private System.Windows.Forms.Label lblAddress;
+        private System.Windows.Forms.TextBox txtAddress;
+        private System.Windows.Forms.Label lblEducation;
+        private System.Windows.Forms.TextBox txtEducation;
+        private System.Windows.Forms.Label lblSkills;
+        private System.Windows.Forms.TextBox txtSkills;
+        private System.Windows.Forms.Label lblWorkExperience;
+        private System.Windows.Forms.TextBox txtWorkExperience;
+
+        // Form Controls declarations matching backend mapping [3]
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.Button btnBack; // Declared missing Back control [3]
     }
 }

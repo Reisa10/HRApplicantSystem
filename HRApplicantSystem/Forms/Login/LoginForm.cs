@@ -1,9 +1,11 @@
 ﻿using HRApplicantSystem.Database;
 using HRApplicantSystem.Forms.HR;
-using HRApplicantSystem.Forms.Applicant; // Ensure this matches your namespace for JobVacancyForm
+using HRApplicantSystem.Forms.Applicant;
 using HRApplicantSystem.Classes;
 using System;
+using System.Data; // Ensure ConnectionState is fully resolved
 using System.Data.OleDb;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace HRApplicantSystem.Forms.Login
@@ -13,13 +15,19 @@ namespace HRApplicantSystem.Forms.Login
         public LoginForm()
         {
             InitializeComponent();
+
+            // Set default state
+            rdoApplicant.Checked = true;
+            UpdateUiLayout();
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
+            string usernamePrompt = rdoAdmin.Checked ? "username" : "email address";
+
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
-                MessageBox.Show("Please enter your username/email.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please enter your " + usernamePrompt + ".", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -36,70 +44,96 @@ namespace HRApplicantSystem.Forms.Login
             {
                 con.Open();
 
-                // 1. Check Users table first (HR / Manager / Admin)
-                // Note the square brackets around [Full Name] and [Password] because they are reserved keywords or contain spaces
-                string hrQuery = "SELECT * FROM Users WHERE Username = ? AND [Password] = ?";
-                using (OleDbCommand hrCmd = new OleDbCommand(hrQuery, con))
+                // 1. Check HR / Manager / Admin Users table
+                if (rdoAdmin.Checked)
                 {
-                    hrCmd.Parameters.AddWithValue("@Username", txtUsername.Text.Trim());
-                    hrCmd.Parameters.AddWithValue("@Password", txtPassword.Text);
-
-                    using (OleDbDataReader reader = hrCmd.ExecuteReader())
+                    string hrQuery = "SELECT * FROM Users WHERE Username = ? AND [Password] = ?";
+                    using (OleDbCommand hrCmd = new OleDbCommand(hrQuery, con))
                     {
-                        if (reader.Read())
+                        hrCmd.Parameters.AddWithValue("@Username", txtUsername.Text.Trim());
+                        hrCmd.Parameters.AddWithValue("@Password", txtPassword.Text);
+
+                        using (OleDbDataReader reader = hrCmd.ExecuteReader())
                         {
-                            // Save user to session
-                            UserSession.UserID = Convert.ToInt32(reader["UserID"]);
-                            UserSession.Username = reader["Username"].ToString();
-                            UserSession.FullName = reader["Full Name"].ToString(); // Matches your current table column name
-                            UserSession.Role = reader["Role"].ToString();
+                            if (reader.Read())
+                            {
+                                // Save user details to active session
+                                UserSession.UserID = Convert.ToInt32(reader["UserID"]);
+                                UserSession.Username = reader["Username"].ToString();
+                                UserSession.FullName = reader["Full Name"].ToString();
+                                UserSession.Role = reader["Role"].ToString();
 
-                            MessageBox.Show($"Welcome, {UserSession.FullName}!", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                MessageBox.Show("Welcome, " + UserSession.FullName + "!", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                            HRDashboard dashboard = new HRDashboard();
-                            dashboard.Show();
-                            this.Hide();
-                            return; // Exit method
+                                HRDashboard dashboard = new HRDashboard();
+                                dashboard.Show();
+                                this.Hide();
+                                return; // Exit method
+                            }
                         }
                     }
-                }
+                } // End if (rdoAdmin.Checked)
 
-                // 2. If not found in Users, check ApplicantAccounts table
-                string appQuery = "SELECT * FROM ApplicantAccounts WHERE Email = ? AND [Password] = ?";
-                using (OleDbCommand appCmd = new OleDbCommand(appQuery, con))
+                // 2. Check ApplicantAccounts table
+                if (rdoApplicant.Checked)
                 {
-                    appCmd.Parameters.AddWithValue("@Email", txtUsername.Text.Trim());
-                    appCmd.Parameters.AddWithValue("@Password", txtPassword.Text);
-
-                    using (OleDbDataReader reader = appCmd.ExecuteReader())
+                    string appQuery = "SELECT * FROM ApplicantAccounts WHERE Email = ? AND [Password] = ?";
+                    using (OleDbCommand appCmd = new OleDbCommand(appQuery, con))
                     {
-                        if (reader.Read())
+                        appCmd.Parameters.AddWithValue("@Email", txtUsername.Text.Trim());
+                        appCmd.Parameters.AddWithValue("@Password", txtPassword.Text);
+
+                        using (OleDbDataReader reader = appCmd.ExecuteReader())
                         {
-                            if (reader["AccountStatus"].ToString() != "Active")
+                            if (reader.Read())
                             {
-                                MessageBox.Show("Your account is currently inactive. Please contact HR.", "Account Inactive", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                if (reader["AccountStatus"].ToString() != "Active")
+                                {
+                                    MessageBox.Show("Your account is currently inactive. Please contact HR.", "Account Inactive", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    return;
+                                }
+
+                                // Save core credentials to active session
+                                UserSession.UserID = Convert.ToInt32(reader["ApplicantID"]);
+                                UserSession.Username = reader["Email"].ToString();
+                                UserSession.Role = "Applicant";
+
+                                // Attempt to pull their real name from the Applicants table if profile exists
+                                string nameQuery = "SELECT FirstName, LastName FROM Applicants WHERE ApplicantID = ?";
+                                using (OleDbCommand nameCmd = new OleDbCommand(nameQuery, con))
+                                {
+                                    nameCmd.Parameters.AddWithValue("?", UserSession.UserID);
+                                    using (OleDbDataReader nameReader = nameCmd.ExecuteReader())
+                                    {
+                                        if (nameReader.Read())
+                                        {
+                                            string fName = (nameReader["FirstName"] != DBNull.Value && nameReader["FirstName"] != null) ? nameReader["FirstName"].ToString() : "";
+                                            string lName = (nameReader["LastName"] != DBNull.Value && nameReader["LastName"] != null) ? nameReader["LastName"].ToString() : "";
+                                            UserSession.FullName = (fName + " " + lName).Trim();
+                                        }
+
+                                        // Fallback if they haven't filled out a profile yet
+                                        if (string.IsNullOrWhiteSpace(UserSession.FullName))
+                                        {
+                                            UserSession.FullName = "Applicant";
+                                        }
+                                    }
+                                }
+
+                                MessageBox.Show("Login Successful! Welcome, " + UserSession.FullName + ".", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                                // Redirect to applicant portal dashboard
+                                ApplicantDashboard dashboard = new ApplicantDashboard();
+                                dashboard.Show();
+                                this.Hide();
                                 return;
                             }
-
-                            // Save applicant details to session
-                            UserSession.UserID = Convert.ToInt32(reader["ApplicantID"]);
-                            UserSession.Username = reader["Email"].ToString();
-                            UserSession.FullName = "Applicant"; // Placeholder until profile is filled
-                            UserSession.Role = "Applicant";
-
-                            MessageBox.Show("Login Successful! Redirecting to Job Vacancies.", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                            // Redirect to applicant side
-                            JobVacancyForm jobForm = new JobVacancyForm();
-                            jobForm.Show();
-                            this.Hide();
-                            return;
                         }
                     }
-                }
+                } // End if (rdoApplicant.Checked)
 
                 // If neither query succeeds
-                MessageBox.Show("Invalid Username/Email or Password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Invalid " + usernamePrompt + " or Password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
@@ -107,10 +141,10 @@ namespace HRApplicantSystem.Forms.Login
             }
             finally
             {
-                if (con.State == System.Data.ConnectionState.Open)
+                if (con.State == ConnectionState.Open)
                     con.Close();
             }
-        }
+        } // End btnLogin_Click method
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -123,7 +157,35 @@ namespace HRApplicantSystem.Forms.Login
             Application.Exit();
         }
 
-        // Empty event handlers left to avoid designer breakage
+        private void RoleSelection_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateUiLayout();
+        }
+
+        /// <summary>
+        /// Dynamically alters UI labels, hides register controls, and adjusts form height [3].
+        /// </summary>
+        private void UpdateUiLayout()
+        {
+            if (rdoApplicant.Checked)
+            {
+                lblUsername.Text = "Email Address:";
+                label1.Visible = true;
+                btnRegister.Visible = true;
+                btnExit.Location = new Point(10, 340);
+                this.ClientSize = new Size(350, 385);
+            }
+            else // HR / Management Login Mode
+            {
+                lblUsername.Text = "Username:";
+                label1.Visible = false;
+                btnRegister.Visible = false;
+                btnExit.Location = new Point(10, 265);
+                this.ClientSize = new Size(350, 310);
+            }
+        }
+
+        // Empty event handlers kept to avoid designer breakage
         private void label1_Click(object sender, EventArgs e) { }
         private void label1_Click_1(object sender, EventArgs e) { }
         private void label1_Click_2(object sender, EventArgs e) { }

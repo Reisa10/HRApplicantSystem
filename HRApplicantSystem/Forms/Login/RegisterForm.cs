@@ -10,16 +10,20 @@ namespace HRApplicantSystem.Forms.Login
         public RegisterForm()
         {
             InitializeComponent();
+
+            // Programmatically populate Gender Dropdown
+            cmbGender.Items.Clear();
+            cmbGender.Items.AddRange(new object[] { "Male", "Female", "Other" });
+            cmbGender.SelectedIndex = 0;
+
+            // Set max date limit for birthday input
+            dtpBirthday.MaxDate = DateTime.Today;
+            dtpBirthday.Value = DateTime.Today.AddYears(-18); // Default to 18 years ago
         }
 
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtFullName.Text))
-            {
-                MessageBox.Show("Please enter your full name.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
+            // 1. Mandatory Field Validations
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
                 MessageBox.Show("Please enter an email address for your username.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -38,23 +42,17 @@ namespace HRApplicantSystem.Forms.Login
                 return;
             }
 
-            // --- Split the Full Name into FirstName and LastName for your database ---
-            string fullName = txtFullName.Text.Trim();
-            string firstName = "";
-            string lastName = "";
+            if (string.IsNullOrWhiteSpace(txtFirstName.Text) || string.IsNullOrWhiteSpace(txtLastName.Text))
+            {
+                MessageBox.Show("First Name and Last Name are required.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-            int spaceIndex = fullName.IndexOf(' ');
-            if (spaceIndex > 0)
+            if (string.IsNullOrWhiteSpace(txtContactNum.Text))
             {
-                firstName = fullName.Substring(0, spaceIndex).Trim();
-                lastName = fullName.Substring(spaceIndex + 1).Trim();
+                MessageBox.Show("Please enter your Contact Number.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-            else
-            {
-                firstName = fullName;
-                lastName = "N/A"; // Fallback placeholder if only one name is typed
-            }
-            // ------------------------------------------------------------------------
 
             OleDbConnection con = DBConnection.GetConnection();
             if (con == null) return;
@@ -65,10 +63,10 @@ namespace HRApplicantSystem.Forms.Login
             {
                 con.Open();
 
-                // Start a transaction to ensure both account and profile are created together
+                // Start transaction to verify account creation integrity across both tables
                 transaction = con.BeginTransaction();
 
-                // 1. Check if the Email already exists in ApplicantAccounts
+                // 2. Check if the Email already exists in ApplicantAccounts
                 string checkQuery = "SELECT COUNT(*) FROM ApplicantAccounts WHERE Email = ?";
                 using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, con, transaction))
                 {
@@ -82,7 +80,7 @@ namespace HRApplicantSystem.Forms.Login
                     }
                 }
 
-                // 2. Insert into ApplicantAccounts
+                // 3. Insert into ApplicantAccounts
                 string insertAccountQuery = "INSERT INTO ApplicantAccounts (Email, [Password], AccountStatus) VALUES (?, ?, ?)";
                 using (OleDbCommand insertAccCmd = new OleDbCommand(insertAccountQuery, con, transaction))
                 {
@@ -93,7 +91,7 @@ namespace HRApplicantSystem.Forms.Login
                     insertAccCmd.ExecuteNonQuery();
                 }
 
-                // 3. Get the newly generated ApplicantID AutoNumber [1, 2]
+                // 4. Retrieve the auto-incremented Identity ID [1, 2]
                 int newApplicantId = 0;
                 string identityQuery = "SELECT @@IDENTITY";
                 using (OleDbCommand identityCmd = new OleDbCommand(identityQuery, con, transaction))
@@ -101,19 +99,30 @@ namespace HRApplicantSystem.Forms.Login
                     newApplicantId = Convert.ToInt32(identityCmd.ExecuteScalar());
                 }
 
-                // 4. Insert corresponding Profile record into the Applicants table
-                // This satisfies the Foreign Key Constraint required by your database layout [4]
-                string insertProfileQuery = "INSERT INTO Applicants (ApplicantID, FirstName, LastName) VALUES (?, ?, ?)";
+                // 5. Insert full profile record into the Applicants table
+                // Note: 'WorkExperience' is used to match your exact Access database column header
+                string insertProfileQuery = "INSERT INTO Applicants (ApplicantID, FirstName, MiddleName, LastName, Birthday, Gender, Address, ContactNumber, Education, Skills, WorkExperience) " +
+                                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
                 using (OleDbCommand insertProfileCmd = new OleDbCommand(insertProfileQuery, con, transaction))
                 {
+                    // Access matches parameters by strict order of declaration (?)
                     insertProfileCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = newApplicantId;
-                    insertProfileCmd.Parameters.Add("@FirstName", OleDbType.VarWChar).Value = firstName;
-                    insertProfileCmd.Parameters.Add("@LastName", OleDbType.VarWChar).Value = lastName;
+                    insertProfileCmd.Parameters.Add("@FirstName", OleDbType.VarWChar).Value = txtFirstName.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@MiddleName", OleDbType.VarWChar).Value = txtMiddleName.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@LastName", OleDbType.VarWChar).Value = txtLastName.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@Birthday", OleDbType.Date).Value = dtpBirthday.Value.Date;
+                    insertProfileCmd.Parameters.Add("@Gender", OleDbType.VarWChar).Value = cmbGender.SelectedItem?.ToString() ?? "";
+                    insertProfileCmd.Parameters.Add("@Address", OleDbType.VarWChar).Value = txtAddress.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@ContactNumber", OleDbType.VarWChar).Value = txtContactNum.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@Education", OleDbType.VarWChar).Value = txtEducation.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@Skills", OleDbType.VarWChar).Value = txtSkills.Text.Trim();
+                    insertProfileCmd.Parameters.Add("@WorkExperience", OleDbType.VarWChar).Value = txtWorkExperience.Text.Trim();
 
                     insertProfileCmd.ExecuteNonQuery();
                 }
 
-                // Commit both insertions successfully
+                // Commit transaction
                 transaction.Commit();
 
                 MessageBox.Show("Registration Successful! You can now log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -123,7 +132,7 @@ namespace HRApplicantSystem.Forms.Login
             {
                 if (transaction != null)
                 {
-                    try { transaction.Rollback(); } catch { /* Ignore rollback failure */ }
+                    try { transaction.Rollback(); } catch { /* Ignore transaction cleanup issues */ }
                 }
                 MessageBox.Show("An error occurred during registration:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -139,7 +148,7 @@ namespace HRApplicantSystem.Forms.Login
             this.Close();
         }
 
-        // Keep remaining empty event handlers to prevent designer errors
+        // Left to maintain designer structure
         private void lblTitle_Click(object sender, EventArgs e) { }
         private void lblPassword_Click(object sender, EventArgs e) { }
         private void lblUsername_Click(object sender, EventArgs e) { }
