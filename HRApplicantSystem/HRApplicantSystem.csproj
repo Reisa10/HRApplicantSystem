@@ -147,6 +147,9 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\HR\ApplicantReviewForm.resx">
+      <DependentUpon>ApplicantReviewForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\HR\HRDashboard.resx">
       <DependentUpon>HRDashboard.cs</DependentUpon>
     </EmbeddedResource>

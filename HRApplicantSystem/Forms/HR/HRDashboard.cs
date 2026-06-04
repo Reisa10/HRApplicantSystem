@@ -16,8 +16,6 @@ namespace HRApplicantSystem.Forms.HR
         {
             ApplicantReviewForm frm = new ApplicantReviewForm();
             frm.Show();
-
-            MessageBox.Show("Coming in Day 4");
         }
 
         private void Screening_Click(object sender, EventArgs e)
