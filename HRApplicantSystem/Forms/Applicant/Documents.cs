@@ -48,7 +48,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 cmbRequirementType.DisplayMember = "RequirementName";
                 cmbRequirementType.ValueMember = "RequirementTypeID";
                 cmbRequirementType.DataSource = dt;
-            }
+        }
         }
         private void EnsureApplicantExists()
         {

@@ -30,6 +30,9 @@
         {
             this.lblApplicantID = new System.Windows.Forms.Label();
             this.dgvDocuments = new System.Windows.Forms.DataGridView();
+            this.DocumentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DocumentName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblMissingRequirements = new System.Windows.Forms.Label();
             this.txtDocumentName = new System.Windows.Forms.TextBox();
             this.btnAdd = new System.Windows.Forms.Button();
@@ -82,6 +85,30 @@
             this.dgvDocuments.Size = new System.Drawing.Size(640, 200);
             this.dgvDocuments.TabIndex = 1;
             this.dgvDocuments.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDocuments_CellContentClick);
+            // 
+            // DocumentID
+            // 
+            this.DocumentID.HeaderText = "DocumentID";
+            this.DocumentID.MinimumWidth = 8;
+            this.DocumentID.Name = "DocumentID";
+            this.DocumentID.ReadOnly = true;
+            this.DocumentID.Width = 150;
+            // 
+            // DocumentName
+            // 
+            this.DocumentName.HeaderText = "DocumentName";
+            this.DocumentName.MinimumWidth = 8;
+            this.DocumentName.Name = "DocumentName";
+            this.DocumentName.ReadOnly = true;
+            this.DocumentName.Width = 150;
+            // 
+            // Status
+            // 
+            this.Status.HeaderText = "Status";
+            this.Status.MinimumWidth = 8;
+            this.Status.Name = "Status";
+            this.Status.ReadOnly = true;
+            this.Status.Width = 150;
             // 
             // lblMissingRequirements
             // 
@@ -280,6 +307,9 @@
 
         private System.Windows.Forms.Label lblApplicantID;
         private System.Windows.Forms.DataGridView dgvDocuments;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DocumentID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DocumentName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Status;
         private System.Windows.Forms.Label lblMissingRequirements;
         private System.Windows.Forms.TextBox txtDocumentName;
         private System.Windows.Forms.Button btnAdd;
