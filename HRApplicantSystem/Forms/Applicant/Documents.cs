@@ -14,7 +14,7 @@ namespace HRApplicantSystem.Forms.Applicant
 {
     public partial class DocumentsForm : Form
     {
-        private string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=HRDatabase.accdb;";
+        private string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=Database/HRDatabase.accdb;";
         private int _applicantId = 0;
 
         //private string[] requiredDocs = { "Resume.pdf", "Diploma.pdf", "ValidID.pdf" };

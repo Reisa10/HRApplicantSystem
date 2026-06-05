@@ -44,11 +44,11 @@
             this.lblDocumentName = new System.Windows.Forms.Label();
             this.lblRequirementType = new System.Windows.Forms.Label();
             this.cmbRequirementType = new System.Windows.Forms.ComboBox();
-            this.DocumentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            //.DocumentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RequirementID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DocumentName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            //this.DocumentName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RequirementName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            //this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.HRRemarks = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDocuments)).BeginInit();
             this.SuspendLayout();
@@ -307,9 +307,9 @@
 
         private System.Windows.Forms.Label lblApplicantID;
         private System.Windows.Forms.DataGridView dgvDocuments;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DocumentID;
+        /*private System.Windows.Forms.DataGridViewTextBoxColumn DocumentID;
         private System.Windows.Forms.DataGridViewTextBoxColumn DocumentName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Status;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Status;*/
         private System.Windows.Forms.Label lblMissingRequirements;
         private System.Windows.Forms.TextBox txtDocumentName;
         private System.Windows.Forms.Button btnAdd;
