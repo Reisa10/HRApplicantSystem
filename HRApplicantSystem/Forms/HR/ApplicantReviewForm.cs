@@ -6,6 +6,8 @@ using System.Data.OleDb;
 using HRApplicantSystem.Database;
 using HRApplicantSystem.Classes;
 using System.Collections.Generic;
+using System.IO;          // Added for File path handling
+using System.Diagnostics; // Added for Process execution
 
 namespace HRApplicantSystem.Forms.HR
 {
@@ -30,6 +32,56 @@ namespace HRApplicantSystem.Forms.HR
             InitializeSearchField();
             ConfigureGridViewStyle();
             LoadApplications();
+
+            // Programmatically wire the Double-Click event to avoid designer conflicts
+            lstApplicantDocuments.DoubleClick += LstApplicantDocuments_DoubleClick;
+
+            // Update the GroupBox title to guide the HR user on how to open files
+            groupBox2.Text = "Documents (Double-click file to open)";
+        }
+
+        /// <summary>
+        /// Programmatically opens the selected document using the OS default application.
+        /// </summary>
+        private void LstApplicantDocuments_DoubleClick(object sender, EventArgs e)
+        {
+            if (lstApplicantDocuments.SelectedItem == null) return;
+
+            string selectedFileName = lstApplicantDocuments.SelectedItem.ToString();
+
+            // Guard against the fallback text
+            if (selectedFileName == "No documents submitted." || selectedFileName == "No documents submitted")
+            {
+                return;
+            }
+
+            // Construct the exact path to the file inside the local portable directory
+            string uploadsDirectory = Path.Combine(Application.StartupPath, "UploadedDocuments");
+            string filePath = Path.Combine(uploadsDirectory, selectedFileName);
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    // Starts the system process to open the document natively
+                    Process.Start(new ProcessStartInfo(filePath)
+                    {
+                        UseShellExecute = true // Ensures compatibility across .NET frameworks
+                    });
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $"The physical file could not be found locally.\n\nExpected Location:\n{filePath}",
+                        "File Not Found",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Unable to open the selected document: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>

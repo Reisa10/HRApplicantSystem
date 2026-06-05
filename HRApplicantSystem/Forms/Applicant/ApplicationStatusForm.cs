@@ -32,11 +32,11 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                // Retrieve all submitted and closed applicant postings
+                // Removed "AND a.Status <> 'Draft'" to allow active Drafts to be tracked immediately [2]
                 string query = "SELECT a.ApplicationID, j.JobTitle, a.Status, a.DateApplied " +
                                "FROM Applications a " +
                                "INNER JOIN JobVacancies j ON a.JobID = j.JobID " +
-                               "WHERE a.ApplicantID = ? AND a.Status <> 'Draft' " +
+                               "WHERE a.ApplicantID = ? " +
                                "ORDER BY a.DateApplied DESC";
 
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
@@ -136,7 +136,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                // Flexible generic query reads columns dynamically
                 string query = "SELECT * FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
@@ -150,7 +149,6 @@ namespace HRApplicantSystem.Forms.Applicant
                             string rawTime = reader["InterviewTime"] != DBNull.Value ? reader["InterviewTime"].ToString() : "--";
                             string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
 
-                            // Search columns list dynamically for variable spellings (e.g., Location, Mode, Venue)
                             string location = "Online/Office Mode";
                             for (int i = 0; i < reader.FieldCount; i++)
                             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic; // Added for List support
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
@@ -123,6 +124,21 @@ namespace HRApplicantSystem.Forms.Applicant
         private void btnSubmit_Click(object sender, EventArgs e)
         {
             if (dgvApplications.SelectedRows.Count == 0) return;
+
+            // 1. Verify that all mandatory requirements are uploaded first [2]
+            List<string> missing = DatabaseHelper.GetMissingRequirements(currentApplicantId);
+            if (missing != null && missing.Count > 0)
+            {
+                MessageBox.Show(
+                    "You cannot submit this application yet because you are missing mandatory requirements:\n\n" +
+                    string.Join("\n", missing.ConvertAll(item => "• " + item)) +
+                    "\n\nPlease go to the 'My Documents' page to upload these missing documents first.",
+                    "Missing Requirements",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+                return;
+            }
 
             DataGridViewRow row = dgvApplications.SelectedRows[0];
             int applicationId = Convert.ToInt32(row.Cells["ApplicationID"].Value);

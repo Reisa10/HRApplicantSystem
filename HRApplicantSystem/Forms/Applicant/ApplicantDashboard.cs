@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using HRApplicantSystem.Classes;
+using HRApplicantSystem.Database;
 using HRApplicantSystem.Forms.Login;
 
 namespace HRApplicantSystem.Forms.Applicant
@@ -19,6 +21,31 @@ namespace HRApplicantSystem.Forms.Applicant
         private void ApplicantDashboard_Load(object sender, EventArgs e)
         {
             lblWelcome.Text = $"Welcome back, {UserSession.FullName ?? "Applicant"}!";
+            RefreshDashboardSummary();
+        }
+
+        private void RefreshDashboardSummary()
+        {
+            try
+            {
+                // Retrieve the list of missing mandatory files
+                List<string> missing = DatabaseHelper.GetMissingRequirements(UserSession.UserID);
+
+                // Dynamically update the button text to prevent DPI overlapping [1]
+                if (missing == null || missing.Count == 0)
+                {
+                    btnDocuments.Text = "MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]\r\n✅ All Uploaded";
+                }
+                else
+                {
+                    btnDocuments.Text = $"MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]\r\n⚠️ {missing.Count} File{(missing.Count > 1 ? "s" : "")} Missing";
+                }
+            }
+            catch
+            {
+                // Fallback to default text if database query fails
+                btnDocuments.Text = "MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]";
+            }
         }
 
         private void btnProfile_Click(object sender, EventArgs e)
@@ -28,6 +55,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 this.Hide();
                 profileForm.ShowDialog();
                 this.Show();
+                RefreshDashboardSummary();
             }
         }
 
@@ -38,6 +66,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 this.Hide();
                 jobForm.ShowDialog();
                 this.Show();
+                RefreshDashboardSummary();
             }
         }
 
@@ -48,6 +77,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 this.Hide();
                 appForm.ShowDialog();
                 this.Show();
+                RefreshDashboardSummary();
             }
         }
 
@@ -58,7 +88,18 @@ namespace HRApplicantSystem.Forms.Applicant
                 this.Hide();
                 statusForm.ShowDialog();
                 this.Show();
+                RefreshDashboardSummary();
             }
+        }
+
+        private void btnDocuments_Click(object sender, EventArgs e)
+        {
+            using (DocumentsForm docForm = new DocumentsForm(UserSession.UserID))
+            {
+                docForm.ShowDialog();
+            }
+            // Instantly refresh the button status line when returning from Documents form
+            RefreshDashboardSummary();
         }
 
         private void btnLogout_Click(object sender, EventArgs e)
@@ -144,6 +185,14 @@ namespace HRApplicantSystem.Forms.Applicant
             btnStatusTracking.Cursor = Cursors.Hand;
             btnStatusTracking.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
 
+            // Card Style 5: Documents Teal Accent (Immune to layout overlapping)
+            btnDocuments.FlatStyle = FlatStyle.Flat;
+            btnDocuments.FlatAppearance.BorderSize = 0;
+            btnDocuments.BackColor = Color.FromArgb(26, 188, 156);
+            btnDocuments.ForeColor = Color.White;
+            btnDocuments.Cursor = Cursors.Hand;
+            btnDocuments.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+
             // Logout Button Style
             btnLogout.FlatStyle = FlatStyle.Flat;
             btnLogout.FlatAppearance.BorderSize = 1;
@@ -154,15 +203,8 @@ namespace HRApplicantSystem.Forms.Applicant
             btnLogout.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         }
 
-        private void btnDocuments_Click(object sender, EventArgs e)
-        {
-            DocumentsForm docForm = new DocumentsForm(UserSession.UserID);
-            docForm.ShowDialog();
-        }
-
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
-
         }
     }
 }

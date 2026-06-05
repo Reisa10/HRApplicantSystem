@@ -38,17 +38,13 @@
             this.btnAdd = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
-            this.btnSubmit = new System.Windows.Forms.Button();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
             this.lblDocumentName = new System.Windows.Forms.Label();
             this.lblRequirementType = new System.Windows.Forms.Label();
             this.cmbRequirementType = new System.Windows.Forms.ComboBox();
-            //.DocumentID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RequirementID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            //this.DocumentName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RequirementName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            //this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.HRRemarks = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDocuments)).BeginInit();
             this.SuspendLayout();
@@ -160,19 +156,9 @@
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
-            // btnSubmit
-            // 
-            this.btnSubmit.Location = new System.Drawing.Point(20, 485);
-            this.btnSubmit.Name = "btnSubmit";
-            this.btnSubmit.Size = new System.Drawing.Size(150, 30);
-            this.btnSubmit.TabIndex = 7;
-            this.btnSubmit.Text = "Submit";
-            this.btnSubmit.UseVisualStyleBackColor = true;
-            this.btnSubmit.Click += new System.EventHandler(this.btnSubmit_Click);
-            // 
             // btnRefresh
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(180, 485);
+            this.btnRefresh.Location = new System.Drawing.Point(20, 485);
             this.btnRefresh.Name = "btnRefresh";
             this.btnRefresh.Size = new System.Drawing.Size(100, 30);
             this.btnRefresh.TabIndex = 8;
@@ -280,13 +266,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(678, 644);
+            this.ClientSize = new System.Drawing.Size(678, 544); // Form height slightly adjusted
             this.Controls.Add(this.cmbRequirementType);
             this.Controls.Add(this.lblRequirementType);
             this.Controls.Add(this.lblDocumentName);
             this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnRefresh);
-            this.Controls.Add(this.btnSubmit);
             this.Controls.Add(this.btnDelete);
             this.Controls.Add(this.btnUpdate);
             this.Controls.Add(this.btnAdd);
@@ -307,15 +292,11 @@
 
         private System.Windows.Forms.Label lblApplicantID;
         private System.Windows.Forms.DataGridView dgvDocuments;
-        /*private System.Windows.Forms.DataGridViewTextBoxColumn DocumentID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DocumentName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Status;*/
         private System.Windows.Forms.Label lblMissingRequirements;
         private System.Windows.Forms.TextBox txtDocumentName;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Button btnUpdate;
         private System.Windows.Forms.Button btnDelete;
-        private System.Windows.Forms.Button btnSubmit;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Button btnBack;
         private System.Windows.Forms.Label lblDocumentName;
