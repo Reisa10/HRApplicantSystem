@@ -153,5 +153,16 @@ namespace HRApplicantSystem.Forms.Applicant
             btnLogout.Cursor = Cursors.Hand;
             btnLogout.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
         }
+
+        private void btnDocuments_Click(object sender, EventArgs e)
+        {
+            DocumentsForm docForm = new DocumentsForm(UserSession.UserID);
+            docForm.ShowDialog();
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
