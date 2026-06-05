@@ -88,6 +88,12 @@
     <Compile Include="Forms\Applicant\ApplicationStatusForm.Designer.cs">
       <DependentUpon>ApplicationStatusForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Applicant\Documents.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Applicant\Documents.Designer.cs">
+      <DependentUpon>Documents.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Applicant\JobVacancyForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -158,6 +164,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Applicant\ApplicantDashboard.resx">
+      <DependentUpon>ApplicantDashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Applicant\Documents.resx">
+      <DependentUpon>Documents.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\HR\ApplicantReviewForm.resx">
       <DependentUpon>ApplicantReviewForm.cs</DependentUpon>
