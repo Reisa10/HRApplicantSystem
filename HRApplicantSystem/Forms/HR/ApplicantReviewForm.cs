@@ -41,7 +41,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Programmatically opens the selected document using the OS default application.
+        /// Programmatically opens the selected document from the applicant-specific subfolder [2].
         /// </summary>
         private void LstApplicantDocuments_DoubleClick(object sender, EventArgs e)
         {
@@ -55,9 +55,9 @@ namespace HRApplicantSystem.Forms.HR
                 return;
             }
 
-            // Construct the exact path to the file inside the local portable directory
+            // Construct the path to the document inside the applicant's subfolder [2]
             string uploadsDirectory = Path.Combine(Application.StartupPath, "UploadedDocuments");
-            string filePath = Path.Combine(uploadsDirectory, selectedFileName);
+            string filePath = Path.Combine(uploadsDirectory, selectedApplicantID.ToString(), selectedFileName);
 
             try
             {

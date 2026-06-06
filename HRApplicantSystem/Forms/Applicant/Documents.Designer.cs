@@ -88,11 +88,12 @@
             this.DocumentID.MinimumWidth = 8;
             this.DocumentID.Name = "DocumentID";
             this.DocumentID.ReadOnly = true;
+            this.DocumentID.Visible = false;
             this.DocumentID.Width = 150;
             // 
             // DocumentName
             // 
-            this.DocumentName.HeaderText = "DocumentName";
+            this.DocumentName.HeaderText = "Document Name"; // Updated column header visually [1]
             this.DocumentName.MinimumWidth = 8;
             this.DocumentName.Name = "DocumentName";
             this.DocumentName.ReadOnly = true;
@@ -229,7 +230,7 @@
             // DocumentName
             // 
             this.DocumentName.DataPropertyName = "DocumentName";
-            this.DocumentName.HeaderText = "DocumentName";
+            this.DocumentName.HeaderText = "Document Name"; // Updated column header visually [1]
             this.DocumentName.MinimumWidth = 8;
             this.DocumentName.Name = "DocumentName";
             this.DocumentName.ReadOnly = true;
@@ -238,7 +239,7 @@
             // RequirementName
             // 
             this.RequirementName.DataPropertyName = "RequirementName";
-            this.RequirementName.HeaderText = "RequirementName";
+            this.RequirementName.HeaderText = "Requirement Type"; // Updated column header visually [1]
             this.RequirementName.MinimumWidth = 8;
             this.RequirementName.Name = "RequirementName";
             this.RequirementName.ReadOnly = true;

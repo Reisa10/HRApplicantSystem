@@ -32,10 +32,11 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             lblApplicantID.Text = $"Applicant ID: {currentApplicantId}";
 
-            // Ensure our portable files directory exists locally
-            if (!Directory.Exists(uploadsDirectory))
+            // Ensure our applicant-specific subfolder directory exists locally [2]
+            string applicantDirectory = Path.Combine(uploadsDirectory, currentApplicantId.ToString());
+            if (!Directory.Exists(applicantDirectory))
             {
-                Directory.CreateDirectory(uploadsDirectory);
+                Directory.CreateDirectory(applicantDirectory);
             }
 
             CheckLockStatus();
@@ -114,6 +115,16 @@ namespace HRApplicantSystem.Forms.Applicant
 
                         dgvDocuments.AutoGenerateColumns = false;
                         dgvDocuments.DataSource = dt;
+
+                        // Programmatic fix to format both column headers dynamically [1]
+                        if (dgvDocuments.Columns["DocumentName"] != null)
+                        {
+                            dgvDocuments.Columns["DocumentName"].HeaderText = "Document Name";
+                        }
+                        if (dgvDocuments.Columns["RequirementName"] != null)
+                        {
+                            dgvDocuments.Columns["RequirementName"].HeaderText = "Requirement Type";
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -175,9 +186,10 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                string extension = Path.GetExtension(selectedFilePath);
-                string uniqueFileName = $"{currentApplicantId}_{reqTypeId}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
-                string destinationPath = Path.Combine(uploadsDirectory, uniqueFileName);
+                // Preserve exact filename [2]
+                string originalFileName = Path.GetFileName(selectedFilePath);
+                string applicantDirectory = Path.Combine(uploadsDirectory, currentApplicantId.ToString());
+                string destinationPath = Path.Combine(applicantDirectory, originalFileName);
 
                 File.Copy(selectedFilePath, destinationPath, true);
 
@@ -207,7 +219,7 @@ namespace HRApplicantSystem.Forms.Applicant
                     {
                         insertCmd.Parameters.AddWithValue("?", currentApplicantId);
                         insertCmd.Parameters.AddWithValue("?", reqTypeId);
-                        insertCmd.Parameters.AddWithValue("?", uniqueFileName);
+                        insertCmd.Parameters.AddWithValue("?", originalFileName);
                         insertCmd.ExecuteNonQuery();
                     }
                 }
@@ -245,9 +257,10 @@ namespace HRApplicantSystem.Forms.Applicant
                 int reqTypeId = Convert.ToInt32(cmbRequirementType.SelectedValue);
                 string oldFileName = dgvDocuments.SelectedRows[0].Cells["DocumentName"].Value.ToString();
 
-                string extension = Path.GetExtension(selectedFilePath);
-                string uniqueFileName = $"{currentApplicantId}_{reqTypeId}_{DateTime.Now:yyyyMMddHHmmss}{extension}";
-                string destinationPath = Path.Combine(uploadsDirectory, uniqueFileName);
+                // Preserve exact filename [2]
+                string originalFileName = Path.GetFileName(selectedFilePath);
+                string applicantDirectory = Path.Combine(uploadsDirectory, currentApplicantId.ToString());
+                string destinationPath = Path.Combine(applicantDirectory, originalFileName);
 
                 File.Copy(selectedFilePath, destinationPath, true);
 
@@ -259,16 +272,20 @@ namespace HRApplicantSystem.Forms.Applicant
                     string updateQuery = "UPDATE ApplicantDocuments SET DocumentName = ?, Status = 'Submitted' WHERE DocumentID = ?";
                     using (OleDbCommand cmd = new OleDbCommand(updateQuery, con))
                     {
-                        cmd.Parameters.AddWithValue("?", uniqueFileName);
+                        cmd.Parameters.AddWithValue("?", originalFileName);
                         cmd.Parameters.AddWithValue("?", docId);
                         cmd.ExecuteNonQuery();
                     }
                 }
 
-                string oldFilePath = Path.Combine(uploadsDirectory, oldFileName);
-                if (File.Exists(oldFilePath))
+                // Delete the old file safely if names are different [2]
+                if (oldFileName != originalFileName)
                 {
-                    try { File.Delete(oldFilePath); } catch { }
+                    string oldFilePath = Path.Combine(applicantDirectory, oldFileName);
+                    if (File.Exists(oldFilePath))
+                    {
+                        try { File.Delete(oldFilePath); } catch { }
+                    }
                 }
 
                 MessageBox.Show("Document updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -313,7 +330,9 @@ namespace HRApplicantSystem.Forms.Applicant
                     }
                 }
 
-                string filePath = Path.Combine(uploadsDirectory, fileName);
+                // Delete local file from applicant-specific subfolder [2]
+                string applicantDirectory = Path.Combine(uploadsDirectory, currentApplicantId.ToString());
+                string filePath = Path.Combine(applicantDirectory, fileName);
                 if (File.Exists(filePath))
                 {
                     try { File.Delete(filePath); } catch { }
