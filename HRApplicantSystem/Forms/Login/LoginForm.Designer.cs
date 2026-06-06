@@ -28,6 +28,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.rdoApplicant = new System.Windows.Forms.RadioButton();
             this.rdoAdmin = new System.Windows.Forms.RadioButton();
+            this.lnkChangePassword = new System.Windows.Forms.LinkLabel();
             this.SuspendLayout();
             // 
             // lblTitle
@@ -102,6 +103,15 @@
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.textBox1_TextChanged_1);
             // 
+            // lnkChangePassword
+            // 
+            this.lnkChangePassword.AutoSize = true;
+            this.lnkChangePassword.Location = new System.Drawing.Point(210, 200);
+            this.lnkChangePassword.Name = "lnkChangePassword";
+            this.lnkChangePassword.TabIndex = 11;
+            this.lnkChangePassword.Text = "Change Password";
+            this.lnkChangePassword.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkChangePassword_LinkClicked);
+            // 
             // btnLogin
             // 
             this.btnLogin.Location = new System.Drawing.Point(10, 220);
@@ -150,6 +160,7 @@
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnRegister);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.lnkChangePassword);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.txtPassword);
             this.Controls.Add(this.lblPassword);
@@ -181,5 +192,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton rdoApplicant;
         private System.Windows.Forms.RadioButton rdoAdmin;
+        private System.Windows.Forms.LinkLabel lnkChangePassword;
     }
 }

@@ -156,6 +156,12 @@ namespace HRApplicantSystem.Forms.Login
         {
             Application.Exit();
         }
+        private void lnkChangePassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            bool isHR = rdoAdmin.Checked;
+            ChangePasswordForm cpForm = new ChangePasswordForm(isHR);
+            cpForm.ShowDialog();
+        }
 
         private void RoleSelection_CheckedChanged(object sender, EventArgs e)
         {

@@ -148,6 +148,9 @@
     <Compile Include="Forms\HR\ScreeningForm.Designer.cs">
       <DependentUpon>ScreeningForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\Login\ChangePasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\Login\LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
