@@ -58,12 +58,12 @@ namespace HRApplicantSystem.Forms.Login
                             if (reader.Read())
                             {
                                 // Account status check for HR users
-                                if (reader["IsActive"].ToString() != "1" && reader["IsActive"].ToString() != "True")
+                                /*if (reader["IsActive"].ToString() != "1" && reader["IsActive"].ToString() != "True")
                                 {
                                     MessageBox.Show("Your account has been deactivated. Please contact the administrator.",
                                         "Account Inactive", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                     return;
-                                }
+                                }*/
 
                                 // Save user details to active session
                                 UserSession.UserID = Convert.ToInt32(reader["UserID"]);

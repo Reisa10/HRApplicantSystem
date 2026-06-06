@@ -29,7 +29,6 @@ namespace HRApplicantSystem.Forms.HR
             ScreeningForm frm = new ScreeningForm();
             frm.Show();
 
-            MessageBox.Show("Coming in Day 4");
         }
 
         private void InterviewSchedule_Click(object sender, EventArgs e)
