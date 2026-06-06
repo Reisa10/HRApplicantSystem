@@ -12,6 +12,25 @@ namespace HRApplicantSystem.Forms.Login
         // Controls
         private Label lblTitle, lblIdentifier, lblOld, lblNew, lblConfirm;
         private TextBox txtIdentifier, txtOldPassword, txtNewPassword, txtConfirmPassword;
+
+        private void ChangePasswordForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // ChangePasswordForm
+            // 
+            this.ClientSize = new System.Drawing.Size(268, 253);
+            this.Name = "ChangePasswordForm";
+            this.Load += new System.EventHandler(this.ChangePasswordForm_Load);
+            this.ResumeLayout(false);
+
+        }
+
         private Button btnSave, btnCancel;
 
         public ChangePasswordForm(bool isHR)

@@ -177,8 +177,17 @@
     <EmbeddedResource Include="Forms\HR\ApplicantReviewForm.resx">
       <DependentUpon>ApplicantReviewForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\HR\HiringDecisionForm.resx">
+      <DependentUpon>HiringDecisionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\HR\HRDashboard.resx">
       <DependentUpon>HRDashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\HR\ScreeningForm.resx">
+      <DependentUpon>ScreeningForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Login\ChangePasswordForm.resx">
+      <DependentUpon>ChangePasswordForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Login\LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>

@@ -10,6 +10,12 @@ namespace HRApplicantSystem.Forms.HR
         public HRDashboard()
         {
             InitializeComponent();
+
+            // Hide Hiring Decision button entirely for HR Staff
+            if (UserSession.Role == "HR Staff")
+            {
+                HiringDecision.Visible = false;
+            }
         }
 
         private void ApplicantReview_Click(object sender, EventArgs e)
@@ -44,10 +50,15 @@ namespace HRApplicantSystem.Forms.HR
 
         private void HiringDecision_Click(object sender, EventArgs e)
         {
+            if (UserSession.Role != "HR Manager" && UserSession.Role != "Admin")
+            {
+                MessageBox.Show("Access Denied. Only HR Manager or Admin can make hiring decisions.",
+                    "Unauthorized", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             HiringDecisionForm frm = new HiringDecisionForm();
             frm.Show();
-
-            MessageBox.Show("Coming in Day 4");
         }
 
         private void Reports_Click(object sender, EventArgs e)
