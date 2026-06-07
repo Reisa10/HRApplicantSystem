@@ -79,7 +79,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 lblStatus.Text = "Status: " + status;
                 lblDate.Text = "Applied On: " + Convert.ToDateTime(row.Cells["DateApplied"].Value).ToString("g");
 
-                // Lock/Unlock Logic: Handle permissions based on your current applicant-side actions
+                // Lock/Unlock Logic: Explicit status message handling [2]
                 if (status == "Draft")
                 {
                     btnSubmit.Enabled = true;
@@ -100,12 +100,36 @@ namespace HRApplicantSystem.Forms.Applicant
                     lblLockMessage.ForeColor = Color.Gray;
                     lblLockMessage.Visible = true;
                 }
-                else
+                else if (status == "Rejected")
                 {
-                    // Fallback for any other state (e.g. Under Review) managed by the HR modules
                     btnSubmit.Enabled = false;
                     btnWithdraw.Enabled = false;
-                    lblLockMessage.Text = "This application is currently locked because HR review has started.";
+                    lblLockMessage.Text = "This application was not selected. You are welcome to reapply.";
+                    lblLockMessage.ForeColor = Color.FromArgb(192, 57, 43); // Dark Red
+                    lblLockMessage.Visible = true;
+                }
+                else if (status == "Accepted")
+                {
+                    btnSubmit.Enabled = false;
+                    btnWithdraw.Enabled = false;
+                    lblLockMessage.Text = "Congratulations! This application has been accepted.";
+                    lblLockMessage.ForeColor = Color.FromArgb(39, 174, 96); // Clean Green
+                    lblLockMessage.Visible = true;
+                }
+                else if (status == "Under Review")
+                {
+                    btnSubmit.Enabled = false;
+                    btnWithdraw.Enabled = false;
+                    lblLockMessage.Text = "This application is currently locked under active HR review.";
+                    lblLockMessage.ForeColor = Color.FromArgb(192, 57, 43); // Dark Red
+                    lblLockMessage.Visible = true;
+                }
+                else
+                {
+                    // Fallback for active recruitment pipeline statuses (e.g. Shortlisted, Interview Scheduled, etc.)
+                    btnSubmit.Enabled = false;
+                    btnWithdraw.Enabled = false;
+                    lblLockMessage.Text = "This application is locked as it progresses through the recruitment pipeline.";
                     lblLockMessage.ForeColor = Color.FromArgb(192, 57, 43); // Dark Red
                     lblLockMessage.Visible = true;
                 }
@@ -125,19 +149,23 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             if (dgvApplications.SelectedRows.Count == 0) return;
 
-            // 1. Verify that all mandatory requirements are uploaded first [2]
+            // Warn the applicant if mandatory requirements are missing, but let them choose to proceed [2]
             List<string> missing = DatabaseHelper.GetMissingRequirements(currentApplicantId);
             if (missing != null && missing.Count > 0)
             {
-                MessageBox.Show(
-                    "You cannot submit this application yet because you are missing mandatory requirements:\n\n" +
+                DialogResult proceedResult = MessageBox.Show(
+                    "Please note that you are missing the following mandatory requirements:\n\n" +
                     string.Join("\n", missing.ConvertAll(item => "• " + item)) +
-                    "\n\nPlease go to the 'My Documents' page to upload these missing documents first.",
-                    "Missing Requirements",
-                    MessageBoxButtons.OK,
+                    "\n\nWould you still like to proceed and submit your application? You can upload these missing files later.",
+                    "Missing Requirements Warning",
+                    MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning
                 );
-                return;
+
+                if (proceedResult != DialogResult.Yes)
+                {
+                    return; // Applicant chose to cancel submission and go upload
+                }
             }
 
             DataGridViewRow row = dgvApplications.SelectedRows[0];

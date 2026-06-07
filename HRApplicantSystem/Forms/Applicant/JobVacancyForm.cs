@@ -166,8 +166,8 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 conn.Open();
 
-                // 1. DUPLICATE CHECK: Prevent duplicate active applications
-                string checkQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND JobID = ? AND Status <> 'Withdrawn'";
+                // 1. DUPLICATE CHECK: Ignore 'Withdrawn' and 'Rejected' to let applicants reapply to the same job [2]
+                string checkQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND JobID = ? AND Status NOT IN ('Withdrawn', 'Rejected')";
                 using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, conn))
                 {
                     checkCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = applicantId;
@@ -176,7 +176,7 @@ namespace HRApplicantSystem.Forms.Applicant
                     int count = Convert.ToInt32(checkCmd.ExecuteScalar());
                     if (count > 0)
                     {
-                        MessageBox.Show("You have already started or submitted an application for this job opening.", "Duplicate Application", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("You have already started or submitted an active application for this job opening.", "Duplicate Application", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }

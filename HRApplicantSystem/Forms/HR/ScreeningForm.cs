@@ -31,9 +31,7 @@ namespace HRApplicantSystem.Forms.HR
                 this.Load += (s, e) => this.Close();
             }
         }
-        // ─────────────────────────────────────────────────────────────────
-        // FORM LOAD — runs automatically when the form opens
-        // ─────────────────────────────────────────────────────────────────
+
         private void ScreeningForm_Load(object sender, EventArgs e)
         {
             LoadApplications();
@@ -52,10 +50,10 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // This SQL joins 3 tables to get applicant name, job title, etc.
-                    // The & operator in Access SQL joins two text fields together with a space
+                    // Fetch ApplicantID [2]
                     string query = @"
                         SELECT Applications.ApplicationID,
+                               Applicants.ApplicantID,
                                Applicants.FirstName & ' ' & Applicants.LastName AS FullName,
                                JobVacancies.JobTitle,
                                Applications.Status
@@ -72,9 +70,11 @@ namespace HRApplicantSystem.Forms.HR
                         // Point the DataGridView to our DataTable
                         dgvApplications.DataSource = dtApplications;
 
-                        // Hide the ID and Status columns — HR doesn't need to see them
+                        // Hide structural columns from the DataGridView
                         if (dgvApplications.Columns["ApplicationID"] != null)
                             dgvApplications.Columns["ApplicationID"].Visible = false;
+                        if (dgvApplications.Columns["ApplicantID"] != null)
+                            dgvApplications.Columns["ApplicantID"].Visible = false;
                         if (dgvApplications.Columns["Status"] != null)
                             dgvApplications.Columns["Status"].Visible = false;
 
@@ -85,16 +85,13 @@ namespace HRApplicantSystem.Forms.HR
                             dgvApplications.Columns["JobTitle"].HeaderText = "Job Title";
 
                         // Stretch both visible columns to fill the grid width
-                        dgvApplications.AutoSizeColumnsMode =
-                            DataGridViewAutoSizeColumnsMode.Fill;
+                        dgvApplications.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Error loading applications:\n" + ex.Message,
-                    "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error loading applications:\n" + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -107,12 +104,24 @@ namespace HRApplicantSystem.Forms.HR
             {
                 DataGridViewRow row = dgvApplications.SelectedRows[0];
 
-                // Remember which application is selected
                 selectedApplicationID = Convert.ToInt32(row.Cells["ApplicationID"].Value);
+                int applicantId = Convert.ToInt32(row.Cells["ApplicantID"].Value);
 
-                // Update the labels in the decision section
                 lblSelectedApplicant.Text = "Applicant:  " + row.Cells["FullName"].Value?.ToString();
-                lblSelectedJob.Text = "Job:  " + row.Cells["JobTitle"].Value?.ToString();
+
+                // Append the missing status directly inside the Job label to prevent layout overlaps [2]
+                string jobTitle = row.Cells["JobTitle"].Value?.ToString() ?? "";
+                List<string> missing = DatabaseHelper.GetMissingRequirements(applicantId);
+                if (missing != null && missing.Count > 0)
+                {
+                    lblSelectedJob.Text = $"Job: {jobTitle}   [⚠️ Missing: {string.Join(", ", missing)}]";
+                    lblSelectedJob.ForeColor = Color.FromArgb(192, 57, 43); // Red to highlight issues
+                }
+                else
+                {
+                    lblSelectedJob.Text = $"Job: {jobTitle}   [✅ All Docs Uploaded]";
+                    lblSelectedJob.ForeColor = Color.FromArgb(39, 174, 96); // Green for complete
+                }
 
                 // Reset the decision fields and enable the group box
                 rdoQualified.Checked = true;
@@ -125,6 +134,7 @@ namespace HRApplicantSystem.Forms.HR
                 selectedApplicationID = 0;
                 lblSelectedApplicant.Text = "Applicant: —";
                 lblSelectedJob.Text = "Job: —";
+                lblSelectedJob.ForeColor = SystemColors.ControlText;
                 grpDecision.Enabled = false;
             }
         }
@@ -237,6 +247,7 @@ namespace HRApplicantSystem.Forms.HR
                 selectedApplicationID = 0;
                 lblSelectedApplicant.Text = "Applicant: —";
                 lblSelectedJob.Text = "Job: —";
+                lblSelectedJob.ForeColor = SystemColors.ControlText;
                 txtRemarks.Clear();
                 grpDecision.Enabled = false;
                 LoadApplications();

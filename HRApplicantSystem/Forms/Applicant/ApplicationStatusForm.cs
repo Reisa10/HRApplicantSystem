@@ -32,7 +32,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                // Removed "AND a.Status <> 'Draft'" to allow active Drafts to be tracked immediately [2]
                 string query = "SELECT a.ApplicationID, j.JobTitle, a.Status, a.DateApplied " +
                                "FROM Applications a " +
                                "INNER JOIN JobVacancies j ON a.JobID = j.JobID " +
@@ -73,25 +72,43 @@ namespace HRApplicantSystem.Forms.Applicant
                 lblSelectedJob.Text = row.Cells["JobTitle"].Value?.ToString() ?? "";
                 lblCurrentState.Text = "Current Status: " + status;
 
+                // Load individual details dynamically [2]
                 LoadTimeline(applicationId);
+                LoadScreeningDetails(applicationId);
                 LoadInterviewDetails(applicationId);
+                LoadEvaluationDetails(applicationId);
                 LoadDecisionDetails(applicationId);
             }
             else
             {
-                lblSelectedJob.Text = "Select an Application";
-                lblCurrentState.Text = "Current Status: --";
-                lstTrackingTimeline.Items.Clear();
-                lblInterviewDate.Text = "Date: --";
-                lblInterviewTime.Text = "Time: --";
-                lblInterviewDetails.Text = "Interviewer/Location: --";
-                lblRemarksText.Text = "No evaluation details processed yet.";
+                ResetDetails();
             }
         }
 
-        /// <summary>
-        /// Reads chronological tracking logs from ApplicationStatusHistory.
-        /// </summary>
+        private void ResetDetails()
+        {
+            lblSelectedJob.Text = "Select an Application";
+            lblCurrentState.Text = "Current Status: --";
+            lstTrackingTimeline.Items.Clear();
+
+            lblScreeningResult.Text = "Screening Result: Pending";
+            lblScreeningDate.Text = "Date Screened: --";
+            lblScreeningRemarks.Text = "No screening remarks available yet.";
+
+            lblInterviewDate.Text = "Date: Not scheduled yet";
+            lblInterviewInterviewer.Text = "Interviewer: --";
+            lblInterviewVenue.Text = "Venue/Location: --";
+            lblInterviewMode.Text = "Mode: --";
+            lblInterviewStatus.Text = "Status: --";
+
+            lblEvalScore.Text = "Score: --";
+            lblEvalResult.Text = "Result: --";
+            lblEvalRecommendation.Text = "Recommendation: --";
+            lblEvalRemarks.Text = "No interview evaluation remarks available yet.";
+
+            lblRemarksText.Text = "Your application is currently active. Final HR decision pending.";
+        }
+
         private void LoadTimeline(int applicationId)
         {
             lstTrackingTimeline.Items.Clear();
@@ -126,17 +143,14 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
-        /// <summary>
-        /// Safely queries the interview bookings table dynamically to prevent column mismatch crashes.
-        /// </summary>
-        private void LoadInterviewDetails(int applicationId)
+        private void LoadScreeningDetails(int applicationId)
         {
             OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null) return;
 
             try
             {
-                string query = "SELECT * FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
+                string query = "SELECT [ScreeningResult], [Remarks], [DateScreened] FROM [ScreeningResults] WHERE [ApplicationID] = ?";
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
                     cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
@@ -145,39 +159,28 @@ namespace HRApplicantSystem.Forms.Applicant
                     {
                         if (reader.Read())
                         {
-                            string rawDate = reader["InterviewDate"] != DBNull.Value ? Convert.ToDateTime(reader["InterviewDate"]).ToShortDateString() : "--";
-                            string rawTime = reader["InterviewTime"] != DBNull.Value ? reader["InterviewTime"].ToString() : "--";
-                            string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
+                            string result = reader["ScreeningResult"]?.ToString() ?? "Pending";
+                            string dateStr = reader["DateScreened"] != DBNull.Value ? Convert.ToDateTime(reader["DateScreened"]).ToShortDateString() : "--";
+                            string remarks = reader["Remarks"]?.ToString() ?? "";
 
-                            string location = "Online/Office Mode";
-                            for (int i = 0; i < reader.FieldCount; i++)
-                            {
-                                string name = reader.GetName(i).ToLower();
-                                if (name.Contains("location") || name.Contains("venue") || name.Contains("mode"))
-                                {
-                                    location = reader.GetValue(i).ToString();
-                                    break;
-                                }
-                            }
-
-                            lblInterviewDate.Text = "Date: " + rawDate;
-                            lblInterviewTime.Text = "Time: " + rawTime;
-                            lblInterviewDetails.Text = $"Interviewer: {interviewer} | Venue: {location}";
+                            lblScreeningResult.Text = "Screening Result: " + result;
+                            lblScreeningDate.Text = "Date Screened: " + dateStr;
+                            lblScreeningRemarks.Text = string.IsNullOrWhiteSpace(remarks) ? "No screening remarks recorded." : remarks;
                         }
                         else
                         {
-                            lblInterviewDate.Text = "Date: Not scheduled yet";
-                            lblInterviewTime.Text = "Time: Not scheduled yet";
-                            lblInterviewDetails.Text = "Interviewer/Location: --";
+                            lblScreeningResult.Text = "Screening Result: Pending";
+                            lblScreeningDate.Text = "Date Screened: --";
+                            lblScreeningRemarks.Text = "Your application has not been screened yet.";
                         }
                     }
                 }
             }
             catch
             {
-                lblInterviewDate.Text = "Date: --";
-                lblInterviewTime.Text = "Time: --";
-                lblInterviewDetails.Text = "Interviewer/Location: --";
+                lblScreeningResult.Text = "Screening Result: Pending";
+                lblScreeningDate.Text = "Date Screened: --";
+                lblScreeningRemarks.Text = "Pending HR review.";
             }
             finally
             {
@@ -185,9 +188,108 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
-        /// <summary>
-        /// Reads decision evaluation comments from the database.
-        /// </summary>
+        private void LoadInterviewDetails(int applicationId)
+        {
+            OleDbConnection conn = DBConnection.GetConnection();
+            if (conn == null) return;
+
+            try
+            {
+                string query = "SELECT [InterviewDate], [Interviewer], [Location], [Mode], [Status] FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
+                using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                {
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
+                    conn.Open();
+                    using (OleDbDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string rawDate = reader["InterviewDate"] != DBNull.Value ? Convert.ToDateTime(reader["InterviewDate"]).ToString("g") : "--";
+                            string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
+                            string venue = reader["Location"] != DBNull.Value ? reader["Location"].ToString() : "--";
+                            string mode = reader["Mode"] != DBNull.Value ? reader["Mode"].ToString() : "--";
+                            string status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : "--";
+
+                            lblInterviewDate.Text = "Date & Time: " + rawDate;
+                            lblInterviewInterviewer.Text = "Interviewer: " + interviewer;
+                            lblInterviewVenue.Text = "Venue/Location: " + venue;
+                            lblInterviewMode.Text = "Mode: " + mode;
+                            lblInterviewStatus.Text = "Schedule Status: " + status;
+                        }
+                        else
+                        {
+                            lblInterviewDate.Text = "Date: Not scheduled yet";
+                            lblInterviewInterviewer.Text = "Interviewer: --";
+                            lblInterviewVenue.Text = "Venue/Location: --";
+                            lblInterviewMode.Text = "Mode: --";
+                            lblInterviewStatus.Text = "Status: --";
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                lblInterviewDate.Text = "Date: --";
+                lblInterviewInterviewer.Text = "Interviewer: --";
+                lblInterviewVenue.Text = "Venue/Location: --";
+                lblInterviewMode.Text = "Mode: --";
+                lblInterviewStatus.Text = "Status: --";
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        private void LoadEvaluationDetails(int applicationId)
+        {
+            OleDbConnection conn = DBConnection.GetConnection();
+            if (conn == null) return;
+
+            try
+            {
+                string query = "SELECT [Score], [Remarks], [Result], [Recommendation] FROM [InterviewEvaluations] WHERE [ApplicationID] = ?";
+                using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                {
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
+                    conn.Open();
+                    using (OleDbDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string score = reader["Score"] != DBNull.Value ? reader["Score"].ToString() : "--";
+                            string result = reader["Result"]?.ToString() ?? "--";
+                            string recommendation = reader["Recommendation"]?.ToString() ?? "--";
+                            string remarks = reader["Remarks"]?.ToString() ?? "";
+
+                            lblEvalScore.Text = "Score: " + score;
+                            lblEvalResult.Text = "Result: " + result;
+                            lblEvalRecommendation.Text = "Recommendation: " + recommendation;
+                            lblEvalRemarks.Text = string.IsNullOrWhiteSpace(remarks) ? "No evaluation remarks recorded." : remarks;
+                        }
+                        else
+                        {
+                            lblEvalScore.Text = "Score: --";
+                            lblEvalResult.Text = "Result: --";
+                            lblEvalRecommendation.Text = "Recommendation: --";
+                            lblEvalRemarks.Text = "Interview evaluation has not been processed yet.";
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                lblEvalScore.Text = "Score: --";
+                lblEvalResult.Text = "Result: --";
+                lblEvalRecommendation.Text = "Recommendation: --";
+                lblEvalRemarks.Text = "Evaluation pending.";
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
         private void LoadDecisionDetails(int applicationId)
         {
             OleDbConnection conn = DBConnection.GetConnection();
@@ -207,7 +309,7 @@ namespace HRApplicantSystem.Forms.Applicant
                     }
                     else
                     {
-                        lblRemarksText.Text = "Your application is currently active. HR evaluation in progress.";
+                        lblRemarksText.Text = "Your application is active. Final decision has not been declared yet.";
                     }
                 }
             }

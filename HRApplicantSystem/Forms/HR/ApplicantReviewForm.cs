@@ -49,8 +49,12 @@ namespace HRApplicantSystem.Forms.HR
 
             string selectedFileName = lstApplicantDocuments.SelectedItem.ToString();
 
-            // Guard against the fallback text
-            if (selectedFileName == "No documents submitted." || selectedFileName == "No documents submitted")
+            // Guard against selection headers, info blocks, and placeholders [2]
+            if (selectedFileName.StartsWith("===") ||
+                selectedFileName.StartsWith("⚠️") ||
+                selectedFileName.StartsWith("(") ||
+                selectedFileName == "No documents submitted." ||
+                selectedFileName == "None! All mandatory requirements uploaded.")
             {
                 return;
             }
@@ -140,7 +144,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Loads applications from the database, excluding 'Draft' status records.
+        /// Loads applications from the database, excluding 'Draft' and 'Rejected' status records [2].
         /// </summary>
         private void LoadApplications()
         {
@@ -151,7 +155,7 @@ namespace HRApplicantSystem.Forms.HR
                     if (con == null) return;
                     con.Open();
 
-                    // Modified query to exclude 'Draft' applications from HR visibility [2]
+                    // Query modified to exclude both 'Draft' and 'Rejected' applications [2]
                     string query = @"
                         SELECT
                             Applications.ApplicationID,
@@ -165,7 +169,7 @@ namespace HRApplicantSystem.Forms.HR
                             INNER JOIN Applicants ON Applications.ApplicantID = Applicants.ApplicantID)
                             INNER JOIN JobVacancies ON Applications.JobID = JobVacancies.JobID
                         WHERE
-                            Applications.Status <> 'Draft'";
+                            Applications.Status <> 'Draft' AND Applications.Status <> 'Rejected'";
 
                     using (OleDbDataAdapter da = new OleDbDataAdapter(query, con))
                     {
@@ -256,7 +260,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Loads the documents list associated with the selected applicant.
+        /// Loads documents and lists missing mandatory requirements inside the listbox [2].
         /// </summary>
         private void LoadDocuments()
         {
@@ -265,6 +269,10 @@ namespace HRApplicantSystem.Forms.HR
 
             try
             {
+                // Group 1: Uploaded Files
+                lstApplicantDocuments.Items.Add("=== Uploaded Documents ===");
+                int uploadedCount = 0;
+
                 using (OleDbConnection con = DBConnection.GetConnection())
                 {
                     if (con == null) return;
@@ -281,14 +289,32 @@ namespace HRApplicantSystem.Forms.HR
                             while (reader.Read())
                             {
                                 lstApplicantDocuments.Items.Add(reader["DocumentName"].ToString());
+                                uploadedCount++;
                             }
                         }
                     }
                 }
 
-                if (lstApplicantDocuments.Items.Count == 0)
+                if (uploadedCount == 0)
                 {
-                    lstApplicantDocuments.Items.Add("No documents submitted.");
+                    lstApplicantDocuments.Items.Add("(No documents uploaded yet)");
+                }
+
+                // Group 2: Missing Requirements [2]
+                lstApplicantDocuments.Items.Add("");
+                lstApplicantDocuments.Items.Add("=== Missing Requirements ===");
+
+                List<string> missing = DatabaseHelper.GetMissingRequirements(selectedApplicantID);
+                if (missing == null || missing.Count == 0)
+                {
+                    lstApplicantDocuments.Items.Add("None! All mandatory requirements uploaded.");
+                }
+                else
+                {
+                    foreach (string item in missing)
+                    {
+                        lstApplicantDocuments.Items.Add("⚠️ " + item);
+                    }
                 }
             }
             catch (Exception ex)
