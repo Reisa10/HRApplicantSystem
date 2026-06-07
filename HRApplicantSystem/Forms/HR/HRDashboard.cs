@@ -36,7 +36,7 @@ namespace HRApplicantSystem.Forms.HR
             InterviewScheduleForm frm = new InterviewScheduleForm();
             frm.Show();
 
-            MessageBox.Show("Coming in Day 4");
+            
         }
 
         private void InterviewEvaluation_Click(object sender, EventArgs e)

@@ -55,5 +55,25 @@ namespace HRApplicantSystem.Database
                 return null;
             }
         }
+        /*public static DataTable ExecuteQuery(string query)
+        {
+            DataTable dt = new DataTable();
+
+            using (OleDbConnection conn = GetConnection())
+            {
+                if (conn == null)
+                    return dt;
+
+                conn.Open();
+
+                using (OleDbDataAdapter da =
+                    new OleDbDataAdapter(query, conn))
+                {
+                    da.Fill(dt);
+                }
+            }
+
+            return dt;
+        }*/
     }
 }

@@ -183,6 +183,9 @@
     <EmbeddedResource Include="Forms\HR\HRDashboard.resx">
       <DependentUpon>HRDashboard.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\HR\InterviewScheduleForm.resx">
+      <DependentUpon>InterviewScheduleForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\HR\ScreeningForm.resx">
       <DependentUpon>ScreeningForm.cs</DependentUpon>
     </EmbeddedResource>
