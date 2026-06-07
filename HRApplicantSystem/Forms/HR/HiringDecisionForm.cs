@@ -11,17 +11,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 namespace HRApplicantSystem.Forms.HR
 {
     public partial class HiringDecisionForm : Form
     {
         private int selectedApplicationID = 0;
         private DataTable dtApplications = new DataTable();
+
         public HiringDecisionForm()
         {
             InitializeComponent();
-            
+
             if (UserSession.Role != "HR Manager" && UserSession.Role != "Admin")
             {
                 MessageBox.Show("Access Denied. Only HR Manager or Admin can make hiring decisions.",
@@ -29,12 +29,12 @@ namespace HRApplicantSystem.Forms.HR
                 this.Load += (s, e) => this.Close();
             }
         }
+
         private void LoadApplications()
         {
             try
             {
-                using (OleDbConnection conn =
-                    DBConnection.GetConnection())
+                using (OleDbConnection conn = DBConnection.GetConnection())
                 {
                     if (conn == null)
                         return;
@@ -58,29 +58,23 @@ namespace HRApplicantSystem.Forms.HR
                 WHERE Applications.Status =
                       'For Final Decision'";
 
-                    using (OleDbDataAdapter adapter =
-                        new OleDbDataAdapter(query, conn))
+                    using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
                     {
                         dtApplications.Clear();
-
                         adapter.Fill(dtApplications);
-
-                        dgvApplicants.DataSource =
-                            dtApplications;
+                        dgvApplicants.DataSource = dtApplications;
 
                         if (dgvApplicants.Columns["ApplicationID"] != null)
                             dgvApplicants.Columns["ApplicationID"].Visible = false;
 
-                        dgvApplicants.AutoSizeColumnsMode =
-                            DataGridViewAutoSizeColumnsMode.Fill;
+                        dgvApplicants.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Error loading applicants:\n" +
-                    ex.Message,
+                    "Error loading applicants:\n" + ex.Message,
                     "Database Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -90,40 +84,24 @@ namespace HRApplicantSystem.Forms.HR
         private void HiringDecisionForm_Load(object sender, EventArgs e)
         {
             LoadApplications();
-
             rdoAccepted.Checked = true;
         }
 
-        private void dgvApplicants_SelectionChanged(
-    object sender,
-    EventArgs e)
+        private void dgvApplicants_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvApplicants.SelectedRows.Count > 0)
             {
-                DataGridViewRow row =
-                    dgvApplicants.SelectedRows[0];
+                DataGridViewRow row = dgvApplicants.SelectedRows[0];
+                selectedApplicationID = Convert.ToInt32(row.Cells["ApplicationID"].Value);
 
-                selectedApplicationID =
-                    Convert.ToInt32(
-                        row.Cells["ApplicationID"].Value);
-
-                lblApplicant.Text =
-                    "Applicant: " +
-                    row.Cells["FullName"].Value?.ToString();
-
-                lblJob.Text =
-                    "Job: " +
-                    row.Cells["JobTitle"].Value?.ToString();
+                lblApplicant.Text = "Applicant: " + row.Cells["FullName"].Value?.ToString();
+                lblJob.Text = "Job: " + row.Cells["JobTitle"].Value?.ToString();
             }
             else
             {
                 selectedApplicationID = 0;
-
-                lblApplicant.Text =
-                    "Applicant: -";
-
-                lblJob.Text =
-                    "Job: -";
+                lblApplicant.Text = "Applicant: -";
+                lblJob.Text = "Job: -";
             }
         }
 
@@ -136,7 +114,6 @@ namespace HRApplicantSystem.Forms.HR
                     "Validation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
 
@@ -147,11 +124,10 @@ namespace HRApplicantSystem.Forms.HR
                     "Validation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
-            string decision;
 
+            string decision;
             if (rdoAccepted.Checked)
             {
                 decision = "Accepted";
@@ -164,18 +140,17 @@ namespace HRApplicantSystem.Forms.HR
             {
                 decision = "On Hold";
             }
-            DialogResult confirm =
-    MessageBox.Show(
-        "Save hiring decision?",
-        "Confirm Decision",
-        MessageBoxButtons.YesNo,
-        MessageBoxIcon.Question);
+
+            DialogResult confirm = MessageBox.Show(
+                "Save hiring decision?",
+                "Confirm Decision",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (confirm != DialogResult.Yes)
                 return;
-            OleDbConnection conn =
-    DBConnection.GetConnection();
 
+            OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null)
                 return;
 
@@ -183,120 +158,63 @@ namespace HRApplicantSystem.Forms.HR
             try
             {
                 conn.Open();
+                transaction = conn.BeginTransaction();
 
-                transaction =
-                    conn.BeginTransaction();
-                string insertDecision =
-    @"INSERT INTO HiringDecisions
-    (
-        ApplicationID,
-        Decision,
-        Remarks,
-        DecisionBy,
-        DecisionDate
-    )
-    VALUES
-    (?, ?, ?, ?, ?)";
-                using (OleDbCommand cmd =
-    new OleDbCommand(
-        insertDecision,
-        conn,
-        transaction))
+                string insertDecision = @"
+                    INSERT INTO HiringDecisions
+                    (
+                        ApplicationID,
+                        Decision,
+                        Remarks,
+                        DecisionBy,
+                        DecisionDate
+                    )
+                    VALUES
+                    (?, ?, ?, ?, ?)";
+
+                using (OleDbCommand cmd = new OleDbCommand(insertDecision, conn, transaction))
                 {
-                    cmd.Parameters.Add(
-                        "@ApplicationID",
-                        OleDbType.Integer)
-                        .Value =
-                        selectedApplicationID;
-
-                    cmd.Parameters.Add(
-                        "@Decision",
-                        OleDbType.VarWChar)
-                        .Value =
-                        decision;
-
-                    cmd.Parameters.Add(
-                        "@Remarks",
-                        OleDbType.VarWChar)
-                        .Value =
-                        txtRemarks.Text.Trim();
-
-                    cmd.Parameters.Add(
-                        "@DecisionBy",
-                        OleDbType.Integer)
-                        .Value =
-                        UserSession.UserID > 0
-                        ? UserSession.UserID
-                        : 1;
-
-                    cmd.Parameters.Add(
-                        "@DecisionDate",
-                        OleDbType.Date)
-                        .Value =
-                        DateTime.Now;
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+                    cmd.Parameters.Add("@Decision", OleDbType.VarWChar).Value = decision;
+                    cmd.Parameters.Add("@Remarks", OleDbType.VarWChar).Value = txtRemarks.Text.Trim();
+                    cmd.Parameters.Add("@DecisionBy", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                    cmd.Parameters.Add("@DecisionDate", OleDbType.Date).Value = DateTime.Now;
 
                     cmd.ExecuteNonQuery();
                 }
-                string updateApplication =
-    @"UPDATE Applications
-      SET [Status] = ?
-      WHERE ApplicationID = ?";
-                using (OleDbCommand cmd =
-    new OleDbCommand(
-        updateApplication,
-        conn,
-        transaction))
-                {
-                    cmd.Parameters.Add(
-                        "@Status",
-                        OleDbType.VarWChar)
-                        .Value =
-                        decision;
 
-                    cmd.Parameters.Add(
-                        "@ApplicationID",
-                        OleDbType.Integer)
-                        .Value =
-                        selectedApplicationID;
+                string updateApplication = @"
+                    UPDATE Applications
+                    SET [Status] = ?
+                    WHERE ApplicationID = ?";
+
+                using (OleDbCommand cmd = new OleDbCommand(updateApplication, conn, transaction))
+                {
+                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
 
                     cmd.ExecuteNonQuery();
                 }
-                string insertHistory =
-    @"INSERT INTO
-      ApplicationStatusHistory
-      (
-          ApplicationID,
-          [Status],
-          DateChanged
-      )
-      VALUES
-      (?, ?, ?)";
-                using (OleDbCommand cmd =
-    new OleDbCommand(
-        insertHistory,
-        conn,
-        transaction))
+
+                string insertHistory = @"
+                    INSERT INTO ApplicationStatusHistory
+                    (
+                        ApplicationID,
+                        [Status],
+                        DateChanged
+                    )
+                    VALUES
+                    (?, ?, ?)";
+
+                using (OleDbCommand cmd = new OleDbCommand(insertHistory, conn, transaction))
                 {
-                    cmd.Parameters.Add(
-                        "@ApplicationID",
-                        OleDbType.Integer)
-                        .Value =
-                        selectedApplicationID;
-
-                    cmd.Parameters.Add(
-                        "@Status",
-                        OleDbType.VarWChar)
-                        .Value =
-                        decision;
-
-                    cmd.Parameters.Add(
-                        "@DateChanged",
-                        OleDbType.Date)
-                        .Value =
-                        DateTime.Now;
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
+                    cmd.Parameters.Add("@DateChanged", OleDbType.Date).Value = DateTime.Now;
 
                     cmd.ExecuteNonQuery();
                 }
+
                 transaction.Commit();
 
                 MessageBox.Show(
@@ -304,36 +222,27 @@ namespace HRApplicantSystem.Forms.HR
                     "Success",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
+
                 selectedApplicationID = 0;
-
-                lblApplicant.Text =
-                    "Applicant: -";
-
-                lblJob.Text =
-                    "Job: -";
-
+                lblApplicant.Text = "Applicant: -";
+                lblJob.Text = "Job: -";
                 txtRemarks.Clear();
-
                 rdoAccepted.Checked = true;
 
                 LoadApplications();
-
             }
             catch (Exception ex)
             {
                 transaction?.Rollback();
-
                 MessageBox.Show(
-                    "Error saving decision:\n" +
-                    ex.Message,
+                    "Error saving decision:\n" + ex.Message,
                     "Database Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
             finally
             {
-                if (conn.State ==
-                    ConnectionState.Open)
+                if (conn.State == ConnectionState.Open)
                 {
                     conn.Close();
                 }

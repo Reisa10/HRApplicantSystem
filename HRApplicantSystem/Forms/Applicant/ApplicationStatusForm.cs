@@ -77,7 +77,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 LoadScreeningDetails(applicationId);
                 LoadInterviewDetails(applicationId);
                 LoadEvaluationDetails(applicationId);
-                LoadDecisionDetails(applicationId);
+                LoadDecisionDetails(applicationId, status);
             }
             else
             {
@@ -106,7 +106,7 @@ namespace HRApplicantSystem.Forms.Applicant
             lblEvalRecommendation.Text = "Recommendation: --";
             lblEvalRemarks.Text = "No interview evaluation remarks available yet.";
 
-            lblRemarksText.Text = "Your application is currently active. Final HR decision pending.";
+            lblRemarksText.Text = "Please select an application from the list to view decision details.";
         }
 
         private void LoadTimeline(int applicationId)
@@ -290,26 +290,84 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
-        private void LoadDecisionDetails(int applicationId)
+        private void LoadDecisionDetails(int applicationId, string currentStatus)
         {
             OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null) return;
 
             try
             {
-                string query = "SELECT [Remarks] FROM [HiringDecisions] WHERE [ApplicationID] = ?";
+                // Joins with the Users table to retrieve the Decision Maker's Full Name [1]
+                string query = "SELECT hd.Decision, hd.Remarks, hd.DecisionDate, u.[Full Name] AS ManagerName " +
+                               "FROM HiringDecisions hd " +
+                               "LEFT JOIN Users u ON hd.DecisionBy = u.UserID " +
+                               "WHERE hd.ApplicationID = ?";
+
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
                     cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
                     conn.Open();
-                    object remarks = cmd.ExecuteScalar();
-                    if (remarks != null && remarks != DBNull.Value)
+
+                    using (OleDbDataReader reader = cmd.ExecuteReader())
                     {
-                        lblRemarksText.Text = remarks.ToString();
-                    }
-                    else
-                    {
-                        lblRemarksText.Text = "Your application is active. Final decision has not been declared yet.";
+                        if (reader.Read())
+                        {
+                            string decision = reader["Decision"]?.ToString() ?? "";
+                            string remarks = reader["Remarks"]?.ToString() ?? "";
+                            string dateStr = reader["DecisionDate"] != DBNull.Value
+                                ? Convert.ToDateTime(reader["DecisionDate"]).ToString("f")
+                                : "--";
+                            string manager = reader["ManagerName"] != DBNull.Value
+                                ? reader["ManagerName"].ToString()
+                                : "HR Department";
+
+                            lblRemarksText.Text = $"Status: {decision.ToUpper()}\r\n" +
+                                                 $"Processed On: {dateStr}\r\n" +
+                                                 $"Reviewed By: {manager}\r\n\r\n" +
+                                                 $"HR Message:\r\n\"{remarks}\"";
+                        }
+                        else
+                        {
+                            // Context-aware fallback messages to replace the generic message when no decision entry exists yet
+                            switch (currentStatus)
+                            {
+                                case "Draft":
+                                    lblRemarksText.Text = "This application is currently a Draft. Please finalize your details and submit to start the HR recruitment process.";
+                                    break;
+                                case "Submitted":
+                                    lblRemarksText.Text = "Your application has been submitted successfully. HR review has not started yet.";
+                                    break;
+                                case "Under Review":
+                                    lblRemarksText.Text = "Your application is currently Under Review by the HR department. Final decision pending.";
+                                    break;
+                                case "Shortlisted":
+                                    lblRemarksText.Text = "Congratulations! You have been Shortlisted for further evaluation. Final decision pending.";
+                                    break;
+                                case "For Interview":
+                                case "Interview Scheduled":
+                                    lblRemarksText.Text = "You are currently in the Interview stage. The final decision will be declared after your interviews are complete.";
+                                    break;
+                                case "For Assessment":
+                                    lblRemarksText.Text = "You are scheduled for an assessment. The final decision will be declared after your results are evaluated.";
+                                    break;
+                                case "For Final Review":
+                                case "For Final Decision":
+                                    lblRemarksText.Text = "Your application is undergoing final review by HR Management. Final decision pending.";
+                                    break;
+                                case "On Hold":
+                                    lblRemarksText.Text = "Your application has been put On Hold. An HR representative will reach out to you if further requirements are needed.";
+                                    break;
+                                case "Rejected":
+                                    lblRemarksText.Text = "Thank you for your interest in our company. Your application has been reviewed, and we regret to inform you that we are moving forward with other candidates.";
+                                    break;
+                                case "Withdrawn":
+                                    lblRemarksText.Text = "This application has been withdrawn.";
+                                    break;
+                                default:
+                                    lblRemarksText.Text = "Your application is active and currently under review. Final HR decision pending.";
+                                    break;
+                            }
+                        }
                     }
                 }
             }

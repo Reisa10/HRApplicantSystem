@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Data.OleDb;
-using HRApplicantSystem.Database;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using HRApplicantSystem.Database;
 
 namespace HRApplicantSystem.Forms.Login
 {
@@ -21,22 +22,86 @@ namespace HRApplicantSystem.Forms.Login
             dtpBirthday.Value = DateTime.Today.AddYears(-18); // Default to 18 years ago
         }
 
+        // Email format validation helper
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            try
+            {
+                // Simple standard regex for basic email structure validation
+                return Regex.IsMatch(email.Trim(),
+                    @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
+                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                return false;
+            }
+        }
+
+        // Strong password rule checker
+        private bool IsStrongPassword(string password, out string errorMessage)
+        {
+            errorMessage = "";
+            if (password.Length < 8)
+            {
+                errorMessage = "Password must be at least 8 characters long.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[A-Z]"))
+            {
+                errorMessage = "Password must contain at least one uppercase letter.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[a-z]"))
+            {
+                errorMessage = "Password must contain at least one lowercase letter.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[0-9]"))
+            {
+                errorMessage = "Password must contain at least one numeric digit.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[\W_]")) // \W detects special characters (non-word alphanumeric)
+            {
+                errorMessage = "Password must contain at least one special character (e.g., @, $, !, %, *, ?, &).";
+                return false;
+            }
+            return true;
+        }
+
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            // 1. Mandatory Field Validations
-            if (string.IsNullOrWhiteSpace(txtUsername.Text))
+            // 1. Mandatory Field and Format Validations (Client-side)
+            string emailInput = txtUsername.Text.Trim();
+            if (string.IsNullOrWhiteSpace(emailInput))
             {
                 MessageBox.Show("Please enter an email address for your username.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtPassword.Text))
+            if (!IsValidEmail(emailInput))
+            {
+                MessageBox.Show("Please enter a valid email address.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string passwordInput = txtPassword.Text;
+            if (string.IsNullOrWhiteSpace(passwordInput))
             {
                 MessageBox.Show("Please enter a password.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (txtPassword.Text != txtConfirmPassword.Text)
+            // Strong password evaluation
+            if (!IsStrongPassword(passwordInput, out string passwordValidationError))
+            {
+                MessageBox.Show(passwordValidationError, "Weak Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (passwordInput != txtConfirmPassword.Text)
             {
                 MessageBox.Show("Passwords do not match.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -63,14 +128,11 @@ namespace HRApplicantSystem.Forms.Login
             {
                 con.Open();
 
-                // Start transaction to verify account creation integrity across both tables
-                transaction = con.BeginTransaction();
-
-                // 2. Check if the Email already exists in ApplicantAccounts
+                // 2. Check if the Email already exists (Verify database duplicates before opening a transaction)
                 string checkQuery = "SELECT COUNT(*) FROM ApplicantAccounts WHERE Email = ?";
-                using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, con, transaction))
+                using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, con))
                 {
-                    checkCmd.Parameters.Add("@Email", OleDbType.VarWChar).Value = txtUsername.Text.Trim();
+                    checkCmd.Parameters.Add("@Email", OleDbType.VarWChar).Value = emailInput;
                     int count = Convert.ToInt32(checkCmd.ExecuteScalar());
 
                     if (count > 0)
@@ -80,12 +142,15 @@ namespace HRApplicantSystem.Forms.Login
                     }
                 }
 
+                // Start transaction for atomic insertion across multi-table relationship
+                transaction = con.BeginTransaction();
+
                 // 3. Insert into ApplicantAccounts
                 string insertAccountQuery = "INSERT INTO ApplicantAccounts (Email, [Password], AccountStatus) VALUES (?, ?, ?)";
                 using (OleDbCommand insertAccCmd = new OleDbCommand(insertAccountQuery, con, transaction))
                 {
-                    insertAccCmd.Parameters.Add("@Email", OleDbType.VarWChar).Value = txtUsername.Text.Trim();
-                    insertAccCmd.Parameters.Add("@Password", OleDbType.VarWChar).Value = txtPassword.Text;
+                    insertAccCmd.Parameters.Add("@Email", OleDbType.VarWChar).Value = emailInput;
+                    insertAccCmd.Parameters.Add("@Password", OleDbType.VarWChar).Value = passwordInput;
                     insertAccCmd.Parameters.Add("@AccountStatus", OleDbType.VarWChar).Value = "Active";
 
                     insertAccCmd.ExecuteNonQuery();
@@ -100,13 +165,12 @@ namespace HRApplicantSystem.Forms.Login
                 }
 
                 // 5. Insert full profile record into the Applicants table
-                // Note: 'WorkExperience' is used to match your exact Access database column header
                 string insertProfileQuery = "INSERT INTO Applicants (ApplicantID, FirstName, MiddleName, LastName, Birthday, Gender, Address, ContactNumber, Education, Skills, WorkExperience) " +
                                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 using (OleDbCommand insertProfileCmd = new OleDbCommand(insertProfileQuery, con, transaction))
                 {
-                    // Access matches parameters by strict order of declaration (?)
+                    // Access evaluates parameters strictly by order of declaration (?)
                     insertProfileCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = newApplicantId;
                     insertProfileCmd.Parameters.Add("@FirstName", OleDbType.VarWChar).Value = txtFirstName.Text.Trim();
                     insertProfileCmd.Parameters.Add("@MiddleName", OleDbType.VarWChar).Value = txtMiddleName.Text.Trim();
@@ -122,7 +186,7 @@ namespace HRApplicantSystem.Forms.Login
                     insertProfileCmd.ExecuteNonQuery();
                 }
 
-                // Commit transaction
+                // Commit transaction once everything completes successfully
                 transaction.Commit();
 
                 MessageBox.Show("Registration Successful! You can now log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -132,7 +196,7 @@ namespace HRApplicantSystem.Forms.Login
             {
                 if (transaction != null)
                 {
-                    try { transaction.Rollback(); } catch { /* Ignore transaction cleanup issues */ }
+                    try { transaction.Rollback(); } catch { /* Suppress rollback cascade errors */ }
                 }
                 MessageBox.Show("An error occurred during registration:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -148,7 +212,6 @@ namespace HRApplicantSystem.Forms.Login
             this.Close();
         }
 
-        // Left to maintain designer structure
         private void lblTitle_Click(object sender, EventArgs e) { }
         private void lblPassword_Click(object sender, EventArgs e) { }
         private void lblUsername_Click(object sender, EventArgs e) { }

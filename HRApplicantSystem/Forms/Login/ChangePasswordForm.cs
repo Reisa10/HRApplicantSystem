@@ -1,7 +1,11 @@
-﻿using System;
-using System.Data.OleDb;
-using System.Windows.Forms;
+﻿using HRApplicantSystem.Classes;
 using HRApplicantSystem.Database;
+using System;
+using System.Data;
+using System.Data.OleDb;
+using System.Drawing;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace HRApplicantSystem.Forms.Login
 {
@@ -9,119 +13,139 @@ namespace HRApplicantSystem.Forms.Login
     {
         private bool _isHR;
 
-        // Controls
+        // UI Controls
         private Label lblTitle, lblIdentifier, lblOld, lblNew, lblConfirm;
         private TextBox txtIdentifier, txtOldPassword, txtNewPassword, txtConfirmPassword;
-
-        private void ChangePasswordForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // ChangePasswordForm
-            // 
-            this.ClientSize = new System.Drawing.Size(268, 253);
-            this.Name = "ChangePasswordForm";
-            this.Load += new System.EventHandler(this.ChangePasswordForm_Load);
-            this.ResumeLayout(false);
-
-        }
-
         private Button btnSave, btnCancel;
 
         public ChangePasswordForm(bool isHR)
         {
             _isHR = isHR;
             BuildUI();
+            InitializeSessionState();
+        }
+
+        private void ChangePasswordForm_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            this.ClientSize = new System.Drawing.Size(400, 340);
+            this.Name = "ChangePasswordForm";
+            this.Load += new System.EventHandler(this.ChangePasswordForm_Load);
+            this.ResumeLayout(false);
         }
 
         private void BuildUI()
         {
-            this.Text = "Change Password";
-            this.Size = new System.Drawing.Size(380, 320);
+            this.Text = "Change Security Password";
+            this.Size = new System.Drawing.Size(410, 360);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.BackColor = Color.FromArgb(245, 247, 250); // Light professional off-white/gray background
 
             lblTitle = new Label()
             {
                 Text = "Change Password",
-                Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold),
-                Location = new System.Drawing.Point(100, 15),
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(43, 108, 176), // Deep Corporate Blue
+                Location = new Point(25, 15),
                 AutoSize = true
             };
 
-            // Label changes depending on who is logging in
             lblIdentifier = new Label()
             {
                 Text = _isHR ? "Username:" : "Email Address:",
-                Location = new System.Drawing.Point(20, 60),
-                AutoSize = true
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 65),
+                Size = new Size(130, 20)
             };
             txtIdentifier = new TextBox()
             {
-                Location = new System.Drawing.Point(160, 57),
-                Width = 180
+                Location = new Point(165, 62),
+                Width = 200,
+                Font = new Font("Segoe UI", 9F)
             };
 
             lblOld = new Label()
             {
                 Text = "Current Password:",
-                Location = new System.Drawing.Point(20, 100),
-                AutoSize = true
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 105),
+                Size = new Size(130, 20)
             };
             txtOldPassword = new TextBox()
             {
-                Location = new System.Drawing.Point(160, 97),
-                Width = 180,
-                PasswordChar = '*'
+                Location = new Point(165, 102),
+                Width = 200,
+                PasswordChar = '●',
+                Font = new Font("Segoe UI", 9F)
             };
 
             lblNew = new Label()
             {
                 Text = "New Password:",
-                Location = new System.Drawing.Point(20, 140),
-                AutoSize = true
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 145),
+                Size = new Size(130, 20)
             };
             txtNewPassword = new TextBox()
             {
-                Location = new System.Drawing.Point(160, 137),
-                Width = 180,
-                PasswordChar = '*'
+                Location = new Point(165, 142),
+                Width = 200,
+                PasswordChar = '●',
+                Font = new Font("Segoe UI", 9F)
             };
 
             lblConfirm = new Label()
             {
                 Text = "Confirm Password:",
-                Location = new System.Drawing.Point(20, 180),
-                AutoSize = true
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 185),
+                Size = new Size(130, 20)
             };
             txtConfirmPassword = new TextBox()
             {
-                Location = new System.Drawing.Point(160, 177),
-                Width = 180,
-                PasswordChar = '*'
+                Location = new Point(165, 182),
+                Width = 200,
+                PasswordChar = '●',
+                Font = new Font("Segoe UI", 9F)
             };
 
             btnSave = new Button()
             {
-                Text = "Save",
-                Location = new System.Drawing.Point(90, 230),
-                Width = 90
+                Text = "Save Changes",
+                Location = new Point(165, 230),
+                Width = 110,
+                Height = 32,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(43, 108, 176),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
+            btnSave.FlatAppearance.BorderSize = 0;
             btnSave.Click += BtnSave_Click;
 
             btnCancel = new Button()
             {
                 Text = "Cancel",
-                Location = new System.Drawing.Point(195, 230),
-                Width = 90
+                Location = new Point(285, 230),
+                Width = 80,
+                Height = 32,
+                Font = new Font("Segoe UI", 9F),
+                BackColor = Color.FromArgb(226, 232, 240),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                FlatStyle = FlatStyle.Flat
             };
+            btnCancel.FlatAppearance.BorderSize = 0;
             btnCancel.Click += (s, e) => this.Close();
 
             this.Controls.AddRange(new Control[]
@@ -135,9 +159,51 @@ namespace HRApplicantSystem.Forms.Login
             });
         }
 
+        // Checks active login session configuration to populate identification field
+        private void InitializeSessionState()
+        {
+            if (!string.IsNullOrWhiteSpace(UserSession.Username))
+            {
+                txtIdentifier.Text = UserSession.Username;
+                txtIdentifier.Enabled = false; // Lock editing to prevent altering credentials outside current session identity
+            }
+        }
+
+        // Strong password rule compliance validation helper
+        private bool IsStrongPassword(string password, out string errorMessage)
+        {
+            errorMessage = "";
+            if (password.Length < 8)
+            {
+                errorMessage = "New password must be at least 8 characters long.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[A-Z]"))
+            {
+                errorMessage = "New password must contain at least one uppercase letter.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[a-z]"))
+            {
+                errorMessage = "New password must contain at least one lowercase letter.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[0-9]"))
+            {
+                errorMessage = "New password must contain at least one numeric digit.";
+                return false;
+            }
+            if (!Regex.IsMatch(password, @"[\W_]"))
+            {
+                errorMessage = "New password must contain at least one special character (e.g., @, $, !, %, *, ?, &).";
+                return false;
+            }
+            return true;
+        }
+
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            // 1. Empty field check
+            // 1. Validation for Empty Inputs
             if (string.IsNullOrWhiteSpace(txtIdentifier.Text) ||
                 string.IsNullOrWhiteSpace(txtOldPassword.Text) ||
                 string.IsNullOrWhiteSpace(txtNewPassword.Text) ||
@@ -148,15 +214,15 @@ namespace HRApplicantSystem.Forms.Login
                 return;
             }
 
-            // 2. New password length check
-            if (txtNewPassword.Text.Length < 6)
+            // 2. Strong Password Validation
+            if (!IsStrongPassword(txtNewPassword.Text, out string strengthError))
             {
-                MessageBox.Show("New password must be at least 6 characters.", "Validation Error",
+                MessageBox.Show(strengthError, "Weak Password Policy",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // 3. Confirm match check
+            // 3. Confirm matching inputs
             if (txtNewPassword.Text != txtConfirmPassword.Text)
             {
                 MessageBox.Show("New password and confirmation do not match.", "Validation Error",
@@ -164,7 +230,7 @@ namespace HRApplicantSystem.Forms.Login
                 return;
             }
 
-            // 4. Same as old password check
+            // 4. Check that new password is not identical to current password
             if (txtNewPassword.Text == txtOldPassword.Text)
             {
                 MessageBox.Show("New password must be different from your current password.", "Validation Error",
@@ -179,49 +245,50 @@ namespace HRApplicantSystem.Forms.Login
             {
                 con.Open();
 
-                // 5. Verify the identifier + old password exists in the correct table
+                // 5. Verify database credentials matching the active user identification entry
                 string verifyQuery = _isHR
                     ? "SELECT COUNT(*) FROM Users WHERE Username = ? AND [Password] = ?"
                     : "SELECT COUNT(*) FROM ApplicantAccounts WHERE Email = ? AND [Password] = ?";
 
                 using (OleDbCommand verifyCmd = new OleDbCommand(verifyQuery, con))
                 {
-                    verifyCmd.Parameters.AddWithValue("@Identifier", txtIdentifier.Text.Trim());
-                    verifyCmd.Parameters.AddWithValue("@OldPass", txtOldPassword.Text);
+                    // Parameter types mapped explicitly for strict sequential verification safety
+                    verifyCmd.Parameters.Add("@Identifier", OleDbType.VarWChar).Value = txtIdentifier.Text.Trim();
+                    verifyCmd.Parameters.Add("@OldPass", OleDbType.VarWChar).Value = txtOldPassword.Text;
 
                     int match = Convert.ToInt32(verifyCmd.ExecuteScalar());
                     if (match == 0)
                     {
-                        MessageBox.Show("The username/email or current password is incorrect.", "Error",
+                        MessageBox.Show("The current username/email or current password you entered is incorrect.", "Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
 
-                // 6. Update to the new password
+                // 6. Execute password modification query
                 string updateQuery = _isHR
                     ? "UPDATE Users SET [Password] = ? WHERE Username = ?"
                     : "UPDATE ApplicantAccounts SET [Password] = ? WHERE Email = ?";
 
                 using (OleDbCommand updateCmd = new OleDbCommand(updateQuery, con))
                 {
-                    updateCmd.Parameters.AddWithValue("@NewPass", txtNewPassword.Text);
-                    updateCmd.Parameters.AddWithValue("@Identifier", txtIdentifier.Text.Trim());
+                    updateCmd.Parameters.Add("@NewPass", OleDbType.VarWChar).Value = txtNewPassword.Text;
+                    updateCmd.Parameters.Add("@Identifier", OleDbType.VarWChar).Value = txtIdentifier.Text.Trim();
                     updateCmd.ExecuteNonQuery();
                 }
 
-                MessageBox.Show("Password changed successfully! Please log in with your new password.",
+                MessageBox.Show("Password changed successfully! Please log in with your new password on next session.",
                     "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred:\n" + ex.Message, "Error",
+                MessageBox.Show("An error occurred while updating the password:\n" + ex.Message, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                if (con.State == System.Data.ConnectionState.Open)
+                if (con.State == ConnectionState.Open)
                     con.Close();
             }
         }
