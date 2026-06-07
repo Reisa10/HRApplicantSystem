@@ -1,5 +1,4 @@
 ﻿using HRApplicantSystem.Classes;
-using HRApplicantSystem.Classes;
 using HRApplicantSystem.Database;
 using System;
 using System.Collections.Generic;
