@@ -93,6 +93,7 @@ namespace HRApplicantSystem.Database
 
         /// <summary>
         /// Checks if the applicant's editing capabilities are locked based on the required status flow.
+        /// Unlocked for: Draft, Submitted, Rejected, and Withdrawn. [2]
         /// </summary>
         public static bool IsApplicationLocked(int applicantId)
         {
@@ -111,9 +112,16 @@ namespace HRApplicantSystem.Database
                             while (reader.Read())
                             {
                                 string status = reader["Status"].ToString();
-                                // According to business rules: Editing is only allowed in 'Draft' and 'Submitted'
-                                // Once HR changes status (starts review), it is locked.
-                                if (status != "Draft" && status != "Submitted")
+
+                                // Lock ONLY during active processing and evaluation stages
+                                if (status == "Under Review" ||
+                                    status == "Shortlisted" ||
+                                    status == "Interview Scheduled" ||
+                                    status == "For Interview" ||
+                                    status == "For Assessment" ||
+                                    status == "For Final Review" ||
+                                    status == "For Final Decision" ||
+                                    status == "Accepted")
                                 {
                                     return true;
                                 }
