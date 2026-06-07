@@ -30,31 +30,47 @@ namespace HRApplicantSystem.Forms.HR
                     if (conn == null)
                         return;
 
+                    // Join only the latest schedule row per application
+                    // to prevent duplicate rows when an interview was rescheduled.
                     string query = @"
                 SELECT
                     Applications.ApplicationID,
                     Applicants.FirstName & ' ' &
                     Applicants.LastName AS FullName,
                     JobVacancies.JobTitle,
-                    InterviewSchedules.InterviewDate,
-                    InterviewSchedules.Interviewer
+                    LatestSchedule.InterviewDate,
+                    LatestSchedule.Interviewer
                 FROM
                     (
                         (
                             Applications
                             INNER JOIN Applicants
-                            ON Applications.ApplicantID =
-                               Applicants.ApplicantID
+                                ON Applications.ApplicantID =
+                                   Applicants.ApplicantID
                         )
                         INNER JOIN JobVacancies
-                        ON Applications.JobID =
-                           JobVacancies.JobID
+                            ON Applications.JobID =
+                               JobVacancies.JobID
                     )
-                    INNER JOIN InterviewSchedules
-                    ON Applications.ApplicationID =
-                       InterviewSchedules.ApplicationID
-                WHERE Applications.Status =
-                      'Interview Scheduled'";
+                    INNER JOIN
+                    (
+                        SELECT s.ApplicationID,
+                               s.InterviewDate,
+                               s.Interviewer
+                        FROM   InterviewSchedules AS s
+                        INNER JOIN
+                        (
+                            SELECT ApplicationID,
+                                   MAX(ScheduleID) AS MaxID
+                            FROM   InterviewSchedules
+                            GROUP  BY ApplicationID
+                        ) AS m
+                            ON  s.ApplicationID = m.ApplicationID
+                            AND s.ScheduleID    = m.MaxID
+                    ) AS LatestSchedule
+                        ON Applications.ApplicationID =
+                           LatestSchedule.ApplicationID
+                WHERE Applications.Status = 'Interview Scheduled'";
 
                     using (OleDbDataAdapter adapter =
                         new OleDbDataAdapter(query, conn))

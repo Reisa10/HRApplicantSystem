@@ -58,7 +58,7 @@
             this.grpApplicants.Size = new System.Drawing.Size(858, 169);
             this.grpApplicants.TabIndex = 0;
             this.grpApplicants.TabStop = false;
-            this.grpApplicants.Text = "Shortlisted Applicants";
+            this.grpApplicants.Text = "Shortlisted / Scheduled / Cancelled Applicants";
             // 
             // dgvApplicants
             // 
@@ -247,7 +247,6 @@
             this.grpSchedule.ResumeLayout(false);
             this.grpSchedule.PerformLayout();
             this.ResumeLayout(false);
-
         }
 
         #endregion

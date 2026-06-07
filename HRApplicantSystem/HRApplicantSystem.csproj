@@ -177,6 +177,9 @@
     <EmbeddedResource Include="Forms\Applicant\ApplicantDashboard.resx">
       <DependentUpon>ApplicantDashboard.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Applicant\ApplicationStatusForm.resx">
+      <DependentUpon>ApplicationStatusForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Applicant\Documents.resx">
       <DependentUpon>Documents.cs</DependentUpon>
     </EmbeddedResource>

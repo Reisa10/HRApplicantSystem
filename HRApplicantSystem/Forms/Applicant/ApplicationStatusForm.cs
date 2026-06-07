@@ -195,7 +195,16 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                string query = "SELECT [InterviewDate], [Interviewer], [Location], [Mode], [Status] FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
+                string query = @"
+SELECT TOP 1
+    [InterviewDate],
+    [Interviewer],
+    [Location],
+    [Mode],
+    [Status]
+FROM [InterviewSchedules]
+WHERE [ApplicationID] = ?
+ORDER BY [ScheduleID] DESC";
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
                     cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
