@@ -31,6 +31,12 @@
             this.grpApplicants = new System.Windows.Forms.GroupBox();
             this.dgvApplicants = new System.Windows.Forms.DataGridView();
             this.grpEvaluation = new System.Windows.Forms.GroupBox();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
+            this.txtRecommendation = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtRemarks = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.rdoFail = new System.Windows.Forms.RadioButton();
             this.rdoPass = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
@@ -39,12 +45,6 @@
             this.lblInterviewDate = new System.Windows.Forms.Label();
             this.lblApplicant = new System.Windows.Forms.Label();
             this.lblJob = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtRemarks = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtRecommendation = new System.Windows.Forms.TextBox();
-            this.btnSave = new System.Windows.Forms.Button();
-            this.btnBack = new System.Windows.Forms.Button();
             this.grpApplicants.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvApplicants)).BeginInit();
             this.grpEvaluation.SuspendLayout();
@@ -99,6 +99,59 @@
             this.grpEvaluation.TabIndex = 1;
             this.grpEvaluation.TabStop = false;
             this.grpEvaluation.Text = "Evaluation Details";
+            // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(459, 229);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(105, 30);
+            this.btnSave.TabIndex = 14;
+            this.btnSave.Text = "Save Evaluation";
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnBack
+            // 
+            this.btnBack.Location = new System.Drawing.Point(574, 229);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(82, 30);
+            this.btnBack.TabIndex = 15;
+            this.btnBack.Text = "Back";
+            // 
+            // txtRecommendation
+            // 
+            this.txtRecommendation.Location = new System.Drawing.Point(133, 224);
+            this.txtRecommendation.Multiline = true;
+            this.txtRecommendation.Name = "txtRecommendation";
+            this.txtRecommendation.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtRecommendation.Size = new System.Drawing.Size(273, 41);
+            this.txtRecommendation.TabIndex = 13;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(11, 227);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(117, 16);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Recommendation:";
+            // 
+            // txtRemarks
+            // 
+            this.txtRemarks.Location = new System.Drawing.Point(133, 166);
+            this.txtRemarks.Multiline = true;
+            this.txtRemarks.Name = "txtRemarks";
+            this.txtRemarks.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtRemarks.Size = new System.Drawing.Size(273, 41);
+            this.txtRemarks.TabIndex = 11;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 169);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 16);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Remarks:";
             // 
             // rdoFail
             // 
@@ -183,59 +236,6 @@
             this.lblJob.Size = new System.Drawing.Size(57, 21);
             this.lblJob.TabIndex = 3;
             this.lblJob.Text = "Job: —";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(11, 169);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 16);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Remarks:";
-            // 
-            // txtRemarks
-            // 
-            this.txtRemarks.Location = new System.Drawing.Point(133, 166);
-            this.txtRemarks.Multiline = true;
-            this.txtRemarks.Name = "txtRemarks";
-            this.txtRemarks.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtRemarks.Size = new System.Drawing.Size(273, 41);
-            this.txtRemarks.TabIndex = 11;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 227);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(117, 16);
-            this.label3.TabIndex = 12;
-            this.label3.Text = "Recommendation:";
-            // 
-            // txtRecommendation
-            // 
-            this.txtRecommendation.Location = new System.Drawing.Point(133, 224);
-            this.txtRecommendation.Multiline = true;
-            this.txtRecommendation.Name = "txtRecommendation";
-            this.txtRecommendation.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtRecommendation.Size = new System.Drawing.Size(273, 41);
-            this.txtRecommendation.TabIndex = 13;
-            // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(459, 229);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(105, 30);
-            this.btnSave.TabIndex = 14;
-            this.btnSave.Text = "Save Evaluation";
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // btnBack
-            // 
-            this.btnBack.Location = new System.Drawing.Point(574, 229);
-            this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(82, 30);
-            this.btnBack.TabIndex = 15;
-            this.btnBack.Text = "Back";
             // 
             // InterviewEvaluationForm
             // 
