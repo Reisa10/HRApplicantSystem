@@ -201,35 +201,146 @@
             this.lstTrackingTimeline.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstTrackingTimeline.FormattingEnabled = true;
-            this.lstTrackingTimeline.Location = new System.Drawing.Point(20, 130);
-            this.lstTrackingTimeline.Name = "lstTrackingTimeline";
-            this.lstTrackingTimeline.Size = new System.Drawing.Size(426, 108);
-            this.lstTrackingTimeline.TabIndex = 2;
-            // 
-            // lblCurrentState
-            // 
-            this.lblCurrentState.AutoSize = true;
-            this.lblCurrentState.Font = new System.Drawing.Font("Segoe UI Semibold", 10F, System.Drawing.FontStyle.Bold);
-            this.lblCurrentState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(126)))), ((int)(((byte)(34)))));
-            this.lblCurrentState.Location = new System.Drawing.Point(20, 70);
-            this.lblCurrentState.Name = "lblCurrentState";
-            this.lblCurrentState.Size = new System.Drawing.Size(111, 19);
-            this.lblCurrentState.TabIndex = 1;
-            this.lblCurrentState.Text = "Current Status: --";
-            // 
-            // lblSelectedJob
-            // 
-            this.lblSelectedJob.AutoSize = true;
-            this.lblSelectedJob.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.lblSelectedJob.Location = new System.Drawing.Point(18, 35);
-            this.lblSelectedJob.Name = "lblSelectedJob";
-            this.lblSelectedJob.Size = new System.Drawing.Size(167, 21);
-            this.lblSelectedJob.TabIndex = 0;
-            this.lblSelectedJob.Text = "Select an Application";
-            // 
-            // ApplicationStatusForm
-            // 
+            this.lstTrackingTimeline.Location = new System.Drawing.Point(10, 30);
+            this.lstTrackingTimeline.Size = new System.Drawing.Size(440, 310);
+
+            // ==================== tpScreening ====================
+            this.tpScreening.Controls.Add(this.lblScreeningResult);
+            this.tpScreening.Controls.Add(this.lblScreeningDate);
+            this.tpScreening.Controls.Add(this.lblScreeningRemarksLabel);
+            this.tpScreening.Controls.Add(this.lblScreeningRemarks);
+            this.tpScreening.Padding = new System.Windows.Forms.Padding(15);
+            this.tpScreening.Text = "1. Screening";
+
+            this.lblScreeningResult.AutoSize = true;
+            this.lblScreeningResult.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblScreeningResult.Location = new System.Drawing.Point(15, 15);
+            this.lblScreeningResult.Text = "Screening Result: Pending";
+
+            this.lblScreeningDate.AutoSize = true;
+            this.lblScreeningDate.Location = new System.Drawing.Point(15, 45);
+            this.lblScreeningDate.Text = "Date Screened: --";
+
+            this.lblScreeningRemarksLabel.AutoSize = true;
+            this.lblScreeningRemarksLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblScreeningRemarksLabel.Location = new System.Drawing.Point(15, 80);
+            this.lblScreeningRemarksLabel.Text = "HR Remarks:";
+
+            this.lblScreeningRemarks.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblScreeningRemarks.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
+            this.lblScreeningRemarks.Location = new System.Drawing.Point(15, 105);
+            this.lblScreeningRemarks.Size = new System.Drawing.Size(430, 230);
+            this.lblScreeningRemarks.Text = "No screening remarks available yet.";
+
+            // ==================== tpInterview ====================
+            this.tpInterview.Controls.Add(this.lblInterviewDate);
+            this.tpInterview.Controls.Add(this.lblInterviewInterviewer);
+            this.tpInterview.Controls.Add(this.lblInterviewVenue);
+            this.tpInterview.Controls.Add(this.lblInterviewMode);
+            this.tpInterview.Controls.Add(this.lblInterviewStatus);
+            this.tpInterview.Padding = new System.Windows.Forms.Padding(15);
+            this.tpInterview.Text = "2. Interview";
+
+            this.lblInterviewDate.AutoSize = true;
+            this.lblInterviewDate.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblInterviewDate.Location = new System.Drawing.Point(15, 15);
+            this.lblInterviewDate.Text = "Date & Time: Not scheduled yet";
+
+            this.lblInterviewInterviewer.AutoSize = true;
+            this.lblInterviewInterviewer.Location = new System.Drawing.Point(15, 50);
+            this.lblInterviewInterviewer.Text = "Interviewer: --";
+
+            this.lblInterviewVenue.AutoSize = true;
+            this.lblInterviewVenue.Location = new System.Drawing.Point(15, 80);
+            this.lblInterviewVenue.Text = "Venue/Location: --";
+
+            this.lblInterviewMode.AutoSize = true;
+            this.lblInterviewMode.Location = new System.Drawing.Point(15, 110);
+            this.lblInterviewMode.Text = "Mode: --";
+
+            this.lblInterviewStatus.AutoSize = true;
+            this.lblInterviewStatus.Location = new System.Drawing.Point(15, 140);
+            this.lblInterviewStatus.Text = "Schedule Status: --";
+
+            // ==================== tpEvaluation ====================
+            this.tpEvaluation.Controls.Add(this.lblEvalScore);
+            this.tpEvaluation.Controls.Add(this.lblEvalResult);
+            this.tpEvaluation.Controls.Add(this.lblEvalRecommendation);
+            this.tpEvaluation.Controls.Add(this.lblEvalRemarksLabel);
+            this.tpEvaluation.Controls.Add(this.lblEvalRemarks);
+            this.tpEvaluation.Padding = new System.Windows.Forms.Padding(15);
+            this.tpEvaluation.Text = "3. Evaluation";
+
+            this.lblEvalScore.AutoSize = true;
+            this.lblEvalScore.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblEvalScore.Location = new System.Drawing.Point(15, 15);
+            this.lblEvalScore.Text = "Score: --";
+
+            this.lblEvalResult.AutoSize = true;
+            this.lblEvalResult.Location = new System.Drawing.Point(15, 45);
+            this.lblEvalResult.Text = "Result: --";
+
+            this.lblEvalRecommendation.AutoSize = true;
+            this.lblEvalRecommendation.Location = new System.Drawing.Point(15, 75);
+            this.lblEvalRecommendation.Text = "Recommendation: --";
+
+            this.lblEvalRemarksLabel.AutoSize = true;
+            this.lblEvalRemarksLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblEvalRemarksLabel.Location = new System.Drawing.Point(15, 110);
+            this.lblEvalRemarksLabel.Text = "Evaluator Remarks:";
+
+            this.lblEvalRemarks.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblEvalRemarks.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
+            this.lblEvalRemarks.Location = new System.Drawing.Point(15, 135);
+            this.lblEvalRemarks.Size = new System.Drawing.Size(430, 200);
+            this.lblEvalRemarks.Text = "No interview evaluation remarks available yet.";
+
+            // ==================== tpHiring ====================
+            // lblDecisionResult
+            this.lblDecisionResult = new System.Windows.Forms.Label();
+            this.lblDecisionResult.AutoSize = true;
+            this.lblDecisionResult.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDecisionResult.Location = new System.Drawing.Point(15, 15);
+            this.lblDecisionResult.Name = "lblDecisionResult";
+            this.lblDecisionResult.Size = new System.Drawing.Size(110, 21);
+            this.lblDecisionResult.TabIndex = 0;
+            this.lblDecisionResult.Text = "Decision: Pending";
+
+            // lblDecisionDate
+            this.lblDecisionDate = new System.Windows.Forms.Label();
+            this.lblDecisionDate.AutoSize = true;
+            this.lblDecisionDate.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDecisionDate.Location = new System.Drawing.Point(15, 45);
+            this.lblDecisionDate.Name = "lblDecisionDate";
+            this.lblDecisionDate.Size = new System.Drawing.Size(100, 17);
+            this.lblDecisionDate.TabIndex = 1;
+            this.lblDecisionDate.Text = "Decision Date: --";
+
+            this.tpHiring.Controls.Add(this.lblDecisionResult);
+            this.tpHiring.Controls.Add(this.lblDecisionDate);
+            this.tpHiring.Controls.Add(this.lblRemarksLabel);
+            this.tpHiring.Controls.Add(this.lblRemarksText);
+            this.tpHiring.Padding = new System.Windows.Forms.Padding(15);
+            this.tpHiring.Text = "4. Final Decision";
+
+            this.lblRemarksLabel.AutoSize = true;
+            this.lblRemarksLabel.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblRemarksLabel.Location = new System.Drawing.Point(15, 80);
+            this.lblRemarksLabel.Text = "Decision Remarks:";
+
+            this.lblRemarksText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblRemarksText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
+            this.lblRemarksText.Location = new System.Drawing.Point(15, 105);
+            this.lblRemarksText.Size = new System.Drawing.Size(430, 210);
+            this.lblRemarksText.Text = "Your application is active. Final decision has not been declared yet.";
+
+            // ApplicationStatusForm Layout
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(940, 560);
@@ -273,5 +384,22 @@
         private System.Windows.Forms.Label lblInterviewDetails;
         private System.Windows.Forms.Label lblInterviewTime;
         private System.Windows.Forms.Label lblInterviewDate;
+        private System.Windows.Forms.Label lblInterviewInterviewer;
+        private System.Windows.Forms.Label lblInterviewVenue;
+        private System.Windows.Forms.Label lblInterviewMode;
+        private System.Windows.Forms.Label lblInterviewStatus;
+
+        // tpEvaluation
+        private System.Windows.Forms.Label lblEvalScore;
+        private System.Windows.Forms.Label lblEvalResult;
+        private System.Windows.Forms.Label lblEvalRecommendation;
+        private System.Windows.Forms.Label lblEvalRemarksLabel;
+        private System.Windows.Forms.Label lblEvalRemarks;
+
+        // tpHiring
+        private System.Windows.Forms.Label lblRemarksLabel;
+        private System.Windows.Forms.Label lblRemarksText;
+        private System.Windows.Forms.Label lblDecisionResult;
+        private System.Windows.Forms.Label lblDecisionDate;
     }
 }

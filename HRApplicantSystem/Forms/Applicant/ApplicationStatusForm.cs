@@ -195,24 +195,64 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                string query = "SELECT [Remarks] FROM [HiringDecisions] WHERE [ApplicationID] = ?";
+                string query = "SELECT Decision, Remarks, DecisionDate FROM HiringDecisions WHERE ApplicationID =?";
+
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
                     cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
                     conn.Open();
-                    object remarks = cmd.ExecuteScalar();
-                    if (remarks != null && remarks != DBNull.Value)
+
+                    using (OleDbDataReader reader = cmd.ExecuteReader())
                     {
-                        lblRemarksText.Text = remarks.ToString();
-                    }
-                    else
-                    {
-                        lblRemarksText.Text = "Your application is currently active. HR evaluation in progress.";
+                        if (reader.Read())
+                        {
+                            string decision = reader ["Decision"]?.ToString() ?? "";
+                            string remarks = reader ["Remarks"]?.ToString() ?? "";
+                            DateTime? decisionDate = reader ["DecisionDate"] != DBNull.Value
+                           ? Convert.ToDateTime(reader ["DecisionDate"])
+                           : (DateTime?)null;
+
+                            // Color-code the decision
+                            switch (decision.ToLower())
+                            {
+                                case "accepted":
+                                    lblDecisionResult.ForeColor = Color.Green;
+                                    break;
+                                case "rejected":
+                                    lblDecisionResult.ForeColor = Color.Red;
+                                    break;
+                                case "on hold":
+                                    lblDecisionResult.ForeColor = Color.Orange;
+                                    break;
+                                default:
+                                    lblDecisionResult.ForeColor = Color.Black;
+                                    break;
+                            }
+
+                            lblDecisionResult.Text = "Decision: " + decision;
+                            lblDecisionDate.Text = decisionDate.HasValue
+                           ? "Decision Date: " + decisionDate.Value.ToString("MMMM dd, yyyy")
+                           : "Decision Date: --";
+                            lblRemarksText.Text = !string.IsNullOrEmpty(remarks)
+                           ? remarks
+                           : "No remarks provided.";
+                        }
+                        else
+                        {
+                            // No hiring decision record yet
+                            lblDecisionResult.Text = "Decision: Pending";
+                            lblDecisionResult.ForeColor = Color.Gray;
+                            lblDecisionDate.Text = "Decision Date: --";
+                            lblRemarksText.Text = "Your application is active. Final decision has not been declared yet.";
+                        }
                     }
                 }
             }
             catch
             {
+                lblDecisionResult.Text = "Decision: Pending";
+                lblDecisionResult.ForeColor = Color.Gray;
+                lblDecisionDate.Text = "Decision Date: --";
                 lblRemarksText.Text = "HR review details are currently pending.";
             }
             finally
