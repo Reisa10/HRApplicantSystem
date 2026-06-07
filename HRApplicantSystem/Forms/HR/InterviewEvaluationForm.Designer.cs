@@ -116,6 +116,7 @@
             this.btnBack.Size = new System.Drawing.Size(82, 30);
             this.btnBack.TabIndex = 15;
             this.btnBack.Text = "Back";
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             // 
             // txtRecommendation
             // 

@@ -20,7 +20,7 @@ namespace HRApplicantSystem.Forms.HR
         {
             InitializeComponent();
 
-            cboStatus.SelectedIndex = 0;
+            cboStatus.SelectedIndex = 2;
             cboMode.SelectedIndex = 0;
 
             LoadApplications();
@@ -331,6 +331,13 @@ namespace HRApplicantSystem.Forms.HR
                 }
             }
 
+        }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            HRDashboard dashboard = new HRDashboard();
+            dashboard.Show();
+            this.Close();
         }
     }
 }

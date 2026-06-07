@@ -22,29 +22,30 @@ namespace HRApplicantSystem.Forms.HR
         {
             ApplicantReviewForm frm = new ApplicantReviewForm();
             frm.Show();
+            this.Close();
         }
 
         private void Screening_Click(object sender, EventArgs e)
         {
             ScreeningForm frm = new ScreeningForm();
             frm.Show();
-
+            this.Close();
         }
 
         private void InterviewSchedule_Click(object sender, EventArgs e)
         {
             InterviewScheduleForm frm = new InterviewScheduleForm();
             frm.Show();
+            this.Close();
 
-            
         }
 
         private void InterviewEvaluation_Click(object sender, EventArgs e)
         {
             InterviewEvaluationForm frm = new InterviewEvaluationForm();
             frm.Show();
+            this.Close();
 
-            MessageBox.Show("Coming in Day 4");
         }
 
         private void HiringDecision_Click(object sender, EventArgs e)
@@ -58,11 +59,14 @@ namespace HRApplicantSystem.Forms.HR
 
             HiringDecisionForm frm = new HiringDecisionForm();
             frm.Show();
+            this.Close();
         }
 
         private void Reports_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Coming in Day 4");
+            ReportsForm frm = new ReportsForm();
+            frm.Show();
+            this.Close();
         }
 
         private void Logout_Click(object sender, EventArgs e)

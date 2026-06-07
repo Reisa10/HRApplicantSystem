@@ -31,16 +31,16 @@
             this.grpApplicants = new System.Windows.Forms.GroupBox();
             this.dgvApplicants = new System.Windows.Forms.DataGridView();
             this.grpDecision = new System.Windows.Forms.GroupBox();
-            this.lblApplicant = new System.Windows.Forms.Label();
-            this.lblJob = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.rdoAccepted = new System.Windows.Forms.RadioButton();
-            this.rdoRejected = new System.Windows.Forms.RadioButton();
-            this.rdoOnHold = new System.Windows.Forms.RadioButton();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtRemarks = new System.Windows.Forms.TextBox();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
+            this.txtRemarks = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.rdoOnHold = new System.Windows.Forms.RadioButton();
+            this.rdoRejected = new System.Windows.Forms.RadioButton();
+            this.rdoAccepted = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblApplicant = new System.Windows.Forms.Label();
+            this.lblJob = new System.Windows.Forms.Label();
             this.grpApplicants.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvApplicants)).BeginInit();
             this.grpDecision.SuspendLayout();
@@ -91,6 +91,84 @@
             this.grpDecision.TabStop = false;
             this.grpDecision.Text = "Hiring Decision";
             // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(459, 229);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(105, 30);
+            this.btnSave.TabIndex = 16;
+            this.btnSave.Text = "Save Decision\n";
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnBack
+            // 
+            this.btnBack.Location = new System.Drawing.Point(574, 229);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(82, 30);
+            this.btnBack.TabIndex = 17;
+            this.btnBack.Text = "Back";
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
+            // 
+            // txtRemarks
+            // 
+            this.txtRemarks.Location = new System.Drawing.Point(80, 105);
+            this.txtRemarks.Multiline = true;
+            this.txtRemarks.Name = "txtRemarks";
+            this.txtRemarks.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtRemarks.Size = new System.Drawing.Size(278, 100);
+            this.txtRemarks.TabIndex = 11;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 105);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(65, 16);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Remarks:";
+            // 
+            // rdoOnHold
+            // 
+            this.rdoOnHold.AutoSize = true;
+            this.rdoOnHold.Location = new System.Drawing.Point(281, 79);
+            this.rdoOnHold.Name = "rdoOnHold";
+            this.rdoOnHold.Size = new System.Drawing.Size(77, 20);
+            this.rdoOnHold.TabIndex = 9;
+            this.rdoOnHold.TabStop = true;
+            this.rdoOnHold.Text = "On Hold";
+            this.rdoOnHold.UseVisualStyleBackColor = true;
+            // 
+            // rdoRejected
+            // 
+            this.rdoRejected.AutoSize = true;
+            this.rdoRejected.Location = new System.Drawing.Point(192, 77);
+            this.rdoRejected.Name = "rdoRejected";
+            this.rdoRejected.Size = new System.Drawing.Size(83, 20);
+            this.rdoRejected.TabIndex = 8;
+            this.rdoRejected.TabStop = true;
+            this.rdoRejected.Text = "Rejected";
+            this.rdoRejected.UseVisualStyleBackColor = true;
+            // 
+            // rdoAccepted
+            // 
+            this.rdoAccepted.AutoSize = true;
+            this.rdoAccepted.Location = new System.Drawing.Point(100, 77);
+            this.rdoAccepted.Name = "rdoAccepted";
+            this.rdoAccepted.Size = new System.Drawing.Size(86, 20);
+            this.rdoAccepted.TabIndex = 7;
+            this.rdoAccepted.TabStop = true;
+            this.rdoAccepted.Text = "Accepted";
+            this.rdoAccepted.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 79);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(63, 16);
+            this.label1.TabIndex = 6;
+            this.label1.Text = "Decision:";
+            // 
             // lblApplicant
             // 
             this.lblApplicant.AutoSize = true;
@@ -112,83 +190,6 @@
             this.lblJob.TabIndex = 5;
             this.lblJob.Text = "Job: —";
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 79);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(63, 16);
-            this.label1.TabIndex = 6;
-            this.label1.Text = "Decision:";
-            // 
-            // rdoAccepted
-            // 
-            this.rdoAccepted.AutoSize = true;
-            this.rdoAccepted.Location = new System.Drawing.Point(100, 77);
-            this.rdoAccepted.Name = "rdoAccepted";
-            this.rdoAccepted.Size = new System.Drawing.Size(86, 20);
-            this.rdoAccepted.TabIndex = 7;
-            this.rdoAccepted.TabStop = true;
-            this.rdoAccepted.Text = "Accepted";
-            this.rdoAccepted.UseVisualStyleBackColor = true;
-            // 
-            // rdoRejected
-            // 
-            this.rdoRejected.AutoSize = true;
-            this.rdoRejected.Location = new System.Drawing.Point(192, 77);
-            this.rdoRejected.Name = "rdoRejected";
-            this.rdoRejected.Size = new System.Drawing.Size(83, 20);
-            this.rdoRejected.TabIndex = 8;
-            this.rdoRejected.TabStop = true;
-            this.rdoRejected.Text = "Rejected";
-            this.rdoRejected.UseVisualStyleBackColor = true;
-            // 
-            // rdoOnHold
-            // 
-            this.rdoOnHold.AutoSize = true;
-            this.rdoOnHold.Location = new System.Drawing.Point(281, 79);
-            this.rdoOnHold.Name = "rdoOnHold";
-            this.rdoOnHold.Size = new System.Drawing.Size(77, 20);
-            this.rdoOnHold.TabIndex = 9;
-            this.rdoOnHold.TabStop = true;
-            this.rdoOnHold.Text = "On Hold";
-            this.rdoOnHold.UseVisualStyleBackColor = true;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 105);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(65, 16);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Remarks:";
-            // 
-            // txtRemarks
-            // 
-            this.txtRemarks.Location = new System.Drawing.Point(80, 105);
-            this.txtRemarks.Multiline = true;
-            this.txtRemarks.Name = "txtRemarks";
-            this.txtRemarks.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtRemarks.Size = new System.Drawing.Size(278, 100);
-            this.txtRemarks.TabIndex = 11;
-            // 
-            // btnSave
-            // 
-            this.btnSave.Location = new System.Drawing.Point(459, 229);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(105, 30);
-            this.btnSave.TabIndex = 16;
-            this.btnSave.Text = "Save Decision\n";
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // btnBack
-            // 
-            this.btnBack.Location = new System.Drawing.Point(574, 229);
-            this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(82, 30);
-            this.btnBack.TabIndex = 17;
-            this.btnBack.Text = "Back";
-            // 
             // HiringDecisionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -197,6 +198,7 @@
             this.Controls.Add(this.grpDecision);
             this.Controls.Add(this.grpApplicants);
             this.Name = "HiringDecisionForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "HiringDecisionForm";
             this.Load += new System.EventHandler(this.HiringDecisionForm_Load);
             this.grpApplicants.ResumeLayout(false);

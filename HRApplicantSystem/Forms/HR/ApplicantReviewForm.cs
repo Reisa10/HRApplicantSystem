@@ -519,5 +519,12 @@ namespace HRApplicantSystem.Forms.HR
         private void groupBox1_Enter(object sender, EventArgs e) { }
         private void lblTitle_Click(object sender, EventArgs e) { }
         private void groupBox2_Enter(object sender, EventArgs e) { }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            HRDashboard dashboard = new HRDashboard();
+            dashboard.Show();
+            this.Close();
+        }
     }
 }

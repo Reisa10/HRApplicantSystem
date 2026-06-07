@@ -31,18 +31,18 @@
             this.grpApplicants = new System.Windows.Forms.GroupBox();
             this.dgvApplicants = new System.Windows.Forms.DataGridView();
             this.grpSchedule = new System.Windows.Forms.GroupBox();
-            this.lblApplicant = new System.Windows.Forms.Label();
-            this.lblJob = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.dtpInterviewDate = new System.Windows.Forms.DateTimePicker();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtInterviewer = new System.Windows.Forms.TextBox();
-            this.txtLocation = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.cboMode = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.cboStatus = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cboMode = new System.Windows.Forms.ComboBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtLocation = new System.Windows.Forms.TextBox();
+            this.txtInterviewer = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.dtpInterviewDate = new System.Windows.Forms.DateTimePicker();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblJob = new System.Windows.Forms.Label();
+            this.lblApplicant = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
             this.grpApplicants.SuspendLayout();
@@ -97,102 +97,6 @@
             this.grpSchedule.TabStop = false;
             this.grpSchedule.Text = "Schedule Interview";
             // 
-            // lblApplicant
-            // 
-            this.lblApplicant.AutoSize = true;
-            this.lblApplicant.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblApplicant.Location = new System.Drawing.Point(6, 29);
-            this.lblApplicant.Name = "lblApplicant";
-            this.lblApplicant.Size = new System.Drawing.Size(106, 20);
-            this.lblApplicant.TabIndex = 0;
-            this.lblApplicant.Text = "Applicant: -";
-            // 
-            // lblJob
-            // 
-            this.lblJob.AutoSize = true;
-            this.lblJob.Location = new System.Drawing.Point(7, 59);
-            this.lblJob.Name = "lblJob";
-            this.lblJob.Size = new System.Drawing.Size(40, 16);
-            this.lblJob.TabIndex = 1;
-            this.lblJob.Text = "Job: -";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(10, 89);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(94, 16);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Interview Date:";
-            // 
-            // dtpInterviewDate
-            // 
-            this.dtpInterviewDate.Location = new System.Drawing.Point(134, 84);
-            this.dtpInterviewDate.Name = "dtpInterviewDate";
-            this.dtpInterviewDate.Size = new System.Drawing.Size(200, 22);
-            this.dtpInterviewDate.TabIndex = 3;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 122);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(114, 16);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Interviewer Name:";
-            // 
-            // txtInterviewer
-            // 
-            this.txtInterviewer.Location = new System.Drawing.Point(134, 119);
-            this.txtInterviewer.Name = "txtInterviewer";
-            this.txtInterviewer.Size = new System.Drawing.Size(200, 22);
-            this.txtInterviewer.TabIndex = 5;
-            // 
-            // txtLocation
-            // 
-            this.txtLocation.Location = new System.Drawing.Point(134, 151);
-            this.txtLocation.Name = "txtLocation";
-            this.txtLocation.Size = new System.Drawing.Size(200, 22);
-            this.txtLocation.TabIndex = 6;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 151);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(95, 16);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "Location / Link:";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(16, 180);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(45, 16);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "Mode:";
-            // 
-            // cboMode
-            // 
-            this.cboMode.FormattingEnabled = true;
-            this.cboMode.Items.AddRange(new object[] {
-            "Face-to-Face",
-            "Online"});
-            this.cboMode.Location = new System.Drawing.Point(134, 180);
-            this.cboMode.Name = "cboMode";
-            this.cboMode.Size = new System.Drawing.Size(121, 24);
-            this.cboMode.TabIndex = 9;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(544, 22);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(47, 16);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "Status:";
-            // 
             // cboStatus
             // 
             this.cboStatus.Cursor = System.Windows.Forms.Cursors.Default;
@@ -206,6 +110,102 @@
             this.cboStatus.Size = new System.Drawing.Size(121, 24);
             this.cboStatus.Sorted = true;
             this.cboStatus.TabIndex = 11;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(544, 22);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(47, 16);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Status:";
+            // 
+            // cboMode
+            // 
+            this.cboMode.FormattingEnabled = true;
+            this.cboMode.Items.AddRange(new object[] {
+            "Face-to-Face",
+            "Online"});
+            this.cboMode.Location = new System.Drawing.Point(134, 180);
+            this.cboMode.Name = "cboMode";
+            this.cboMode.Size = new System.Drawing.Size(121, 24);
+            this.cboMode.TabIndex = 9;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(16, 180);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(45, 16);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "Mode:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(13, 151);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(95, 16);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "Location / Link:";
+            // 
+            // txtLocation
+            // 
+            this.txtLocation.Location = new System.Drawing.Point(134, 151);
+            this.txtLocation.Name = "txtLocation";
+            this.txtLocation.Size = new System.Drawing.Size(200, 22);
+            this.txtLocation.TabIndex = 6;
+            // 
+            // txtInterviewer
+            // 
+            this.txtInterviewer.Location = new System.Drawing.Point(134, 119);
+            this.txtInterviewer.Name = "txtInterviewer";
+            this.txtInterviewer.Size = new System.Drawing.Size(200, 22);
+            this.txtInterviewer.TabIndex = 5;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(13, 122);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(114, 16);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Interviewer Name:";
+            // 
+            // dtpInterviewDate
+            // 
+            this.dtpInterviewDate.Location = new System.Drawing.Point(134, 84);
+            this.dtpInterviewDate.Name = "dtpInterviewDate";
+            this.dtpInterviewDate.Size = new System.Drawing.Size(200, 22);
+            this.dtpInterviewDate.TabIndex = 3;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(10, 89);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(94, 16);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Interview Date:";
+            // 
+            // lblJob
+            // 
+            this.lblJob.AutoSize = true;
+            this.lblJob.Location = new System.Drawing.Point(7, 59);
+            this.lblJob.Name = "lblJob";
+            this.lblJob.Size = new System.Drawing.Size(40, 16);
+            this.lblJob.TabIndex = 1;
+            this.lblJob.Text = "Job: -";
+            // 
+            // lblApplicant
+            // 
+            this.lblApplicant.AutoSize = true;
+            this.lblApplicant.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblApplicant.Location = new System.Drawing.Point(6, 29);
+            this.lblApplicant.Name = "lblApplicant";
+            this.lblApplicant.Size = new System.Drawing.Size(106, 20);
+            this.lblApplicant.TabIndex = 0;
+            this.lblApplicant.Text = "Applicant: -";
             // 
             // btnSave
             // 
@@ -225,6 +225,7 @@
             this.btnBack.TabIndex = 3;
             this.btnBack.Text = "Back";
             this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             // 
             // InterviewScheduleForm
             // 

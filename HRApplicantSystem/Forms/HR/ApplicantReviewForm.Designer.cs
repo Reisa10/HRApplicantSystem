@@ -44,6 +44,7 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.lstApplicantDocuments = new System.Windows.Forms.ListBox();
             this.btnLockApplication = new System.Windows.Forms.Button();
+            this.btnBack = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvApplications)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -208,17 +209,28 @@
             this.btnLockApplication.UseVisualStyleBackColor = true;
             this.btnLockApplication.Click += new System.EventHandler(this.btnLockApplication_Click);
             // 
+            // btnBack
+            // 
+            this.btnBack.Location = new System.Drawing.Point(773, 481);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(82, 30);
+            this.btnBack.TabIndex = 18;
+            this.btnBack.Text = "Back";
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
+            // 
             // ApplicantReviewForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(877, 573);
+            this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnLockApplication);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.dgvApplications);
             this.Controls.Add(this.lblTitle);
             this.Name = "ApplicantReviewForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ApplicantReviewForm";
             this.Load += new System.EventHandler(this.ApplicantReviewForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvApplications)).EndInit();
@@ -248,5 +260,6 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListBox lstApplicantDocuments;
         private System.Windows.Forms.Button btnLockApplication;
+        private System.Windows.Forms.Button btnBack;
     }
 }

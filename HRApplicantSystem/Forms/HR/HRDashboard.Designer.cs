@@ -120,6 +120,7 @@
             this.Controls.Add(this.Screening);
             this.Controls.Add(this.ApplicantReview);
             this.Name = "HRDashboard";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "HRDashboard";
             this.ResumeLayout(false);
 

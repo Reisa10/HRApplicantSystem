@@ -273,6 +273,8 @@ namespace HRApplicantSystem.Forms.HR
         // ─────────────────────────────────────────────────────────────────
         private void btnBack_Click(object sender, EventArgs e)
         {
+            HRDashboard dashboard = new HRDashboard();
+            dashboard.Show();
             this.Close();
         }
     }
