@@ -3,7 +3,7 @@ using HRApplicantSystem.Forms.HR;
 using HRApplicantSystem.Forms.Applicant;
 using HRApplicantSystem.Classes;
 using System;
-using System.Data; // Ensure ConnectionState is fully resolved
+using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
@@ -57,14 +57,6 @@ namespace HRApplicantSystem.Forms.Login
                         {
                             if (reader.Read())
                             {
-                                // Account status check for HR users
-                                /*if (reader["IsActive"].ToString() != "1" && reader["IsActive"].ToString() != "True")
-                                {
-                                    MessageBox.Show("Your account has been deactivated. Please contact the administrator.",
-                                        "Account Inactive", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                    return;
-                                }*/
-
                                 // Save user details to active session
                                 UserSession.UserID = Convert.ToInt32(reader["UserID"]);
                                 UserSession.Username = reader["Username"].ToString();
@@ -80,7 +72,7 @@ namespace HRApplicantSystem.Forms.Login
                             }
                         }
                     }
-                } // End if (rdoAdmin.Checked)
+                }
 
                 // 2. Check ApplicantAccounts table
                 if (rdoApplicant.Checked)
@@ -120,7 +112,6 @@ namespace HRApplicantSystem.Forms.Login
                                             UserSession.FullName = (fName + " " + lName).Trim();
                                         }
 
-                                        // Fallback if they haven't filled out a profile yet
                                         if (string.IsNullOrWhiteSpace(UserSession.FullName))
                                         {
                                             UserSession.FullName = "Applicant";
@@ -130,7 +121,6 @@ namespace HRApplicantSystem.Forms.Login
 
                                 MessageBox.Show("Login Successful! Welcome, " + UserSession.FullName + ".", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                                // Redirect to applicant portal dashboard
                                 ApplicantDashboard dashboard = new ApplicantDashboard();
                                 dashboard.Show();
                                 this.Hide();
@@ -138,9 +128,8 @@ namespace HRApplicantSystem.Forms.Login
                             }
                         }
                     }
-                } // End if (rdoApplicant.Checked)
+                }
 
-                // If neither query succeeds
                 MessageBox.Show("Invalid " + usernamePrompt + " or Password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
@@ -152,7 +141,7 @@ namespace HRApplicantSystem.Forms.Login
                 if (con.State == ConnectionState.Open)
                     con.Close();
             }
-        } // End btnLogin_Click method
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -164,6 +153,7 @@ namespace HRApplicantSystem.Forms.Login
         {
             Application.Exit();
         }
+
         private void lnkChangePassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             bool isHR = rdoAdmin.Checked;
@@ -186,26 +176,24 @@ namespace HRApplicantSystem.Forms.Login
                 lblUsername.Text = "Email Address:";
                 label1.Visible = true;
                 btnRegister.Visible = true;
-                btnExit.Location = new Point(10, 340);
-                this.ClientSize = new Size(350, 385);
+                btnExit.Location = new Point(25, 365); // Centered and realigned perfectly
+                this.ClientSize = new Size(350, 420);
             }
             else // HR / Management Login Mode
             {
                 lblUsername.Text = "Username:";
                 label1.Visible = false;
                 btnRegister.Visible = false;
-                btnExit.Location = new Point(10, 265);
-                this.ClientSize = new Size(350, 310);
+                btnExit.Location = new Point(25, 295); // Shifted cleanly up 
+                this.ClientSize = new Size(350, 350);
             }
         }
 
-        // Empty event handlers kept to avoid designer breakage
         private void label1_Click(object sender, EventArgs e) { }
         private void label1_Click_1(object sender, EventArgs e) { }
         private void label1_Click_2(object sender, EventArgs e) { }
         private void label1_Click_3(object sender, EventArgs e) { }
-        private void textBox1_TextChanged(object sender, EventArgs e) {
-        }
+        private void textBox1_TextChanged(object sender, EventArgs e) { }
         private void textBox1_TextChanged_1(object sender, EventArgs e) { }
         private void textBox2_TextChanged(object sender, EventArgs e) { }
     }
