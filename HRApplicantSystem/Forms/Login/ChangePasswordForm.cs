@@ -9,25 +9,154 @@ using System.Windows.Forms;
 
 namespace HRApplicantSystem.Forms.Login
 {
-    public partial class ChangePasswordForm : Form
+    public class ChangePasswordForm : Form
     {
         private bool _isHR;
 
-        
+        // UI Controls
+        private Label lblTitle, lblIdentifier, lblOld, lblNew, lblConfirm;
+        private TextBox txtIdentifier, txtOldPassword, txtNewPassword, txtConfirmPassword;
+        private Button btnSave, btnCancel;
 
         public ChangePasswordForm(bool isHR)
         {
             _isHR = isHR;
-            InitializeComponent();
+            BuildUI();
             InitializeSessionState();
         }
 
         private void ChangePasswordForm_Load(object sender, EventArgs e)
         {
         }
-        private void BtnCancel_Click(object sender, EventArgs e)
+
+        private void InitializeComponent()
         {
-            this.Close();
+            this.SuspendLayout();
+            this.ClientSize = new System.Drawing.Size(400, 340);
+            this.Name = "ChangePasswordForm";
+            this.Load += new System.EventHandler(this.ChangePasswordForm_Load);
+            this.ResumeLayout(false);
+        }
+
+        private void BuildUI()
+        {
+            this.Text = "Change Security Password";
+            this.Size = new System.Drawing.Size(410, 360);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.BackColor = Color.FromArgb(245, 247, 250); // Light professional off-white/gray background
+
+            lblTitle = new Label()
+            {
+                Text = "Change Password",
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(43, 108, 176), // Deep Corporate Blue
+                Location = new Point(25, 15),
+                AutoSize = true
+            };
+
+            lblIdentifier = new Label()
+            {
+                Text = _isHR ? "Username:" : "Email Address:",
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 65),
+                Size = new Size(130, 20)
+            };
+            txtIdentifier = new TextBox()
+            {
+                Location = new Point(165, 62),
+                Width = 200,
+                Font = new Font("Segoe UI", 9F)
+            };
+
+            lblOld = new Label()
+            {
+                Text = "Current Password:",
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 105),
+                Size = new Size(130, 20)
+            };
+            txtOldPassword = new TextBox()
+            {
+                Location = new Point(165, 102),
+                Width = 200,
+                PasswordChar = '●',
+                Font = new Font("Segoe UI", 9F)
+            };
+
+            lblNew = new Label()
+            {
+                Text = "New Password:",
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 145),
+                Size = new Size(130, 20)
+            };
+            txtNewPassword = new TextBox()
+            {
+                Location = new Point(165, 142),
+                Width = 200,
+                PasswordChar = '●',
+                Font = new Font("Segoe UI", 9F)
+            };
+
+            lblConfirm = new Label()
+            {
+                Text = "Confirm Password:",
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                Location = new Point(25, 185),
+                Size = new Size(130, 20)
+            };
+            txtConfirmPassword = new TextBox()
+            {
+                Location = new Point(165, 182),
+                Width = 200,
+                PasswordChar = '●',
+                Font = new Font("Segoe UI", 9F)
+            };
+
+            btnSave = new Button()
+            {
+                Text = "Save Changes",
+                Location = new Point(165, 230),
+                Width = 110,
+                Height = 32,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(43, 108, 176),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnSave.FlatAppearance.BorderSize = 0;
+            btnSave.Click += BtnSave_Click;
+
+            btnCancel = new Button()
+            {
+                Text = "Cancel",
+                Location = new Point(285, 230),
+                Width = 80,
+                Height = 32,
+                Font = new Font("Segoe UI", 9F),
+                BackColor = Color.FromArgb(226, 232, 240),
+                ForeColor = Color.FromArgb(74, 85, 104),
+                FlatStyle = FlatStyle.Flat
+            };
+            btnCancel.FlatAppearance.BorderSize = 0;
+            btnCancel.Click += (s, e) => this.Close();
+
+            this.Controls.AddRange(new Control[]
+            {
+                lblTitle,
+                lblIdentifier, txtIdentifier,
+                lblOld, txtOldPassword,
+                lblNew, txtNewPassword,
+                lblConfirm, txtConfirmPassword,
+                btnSave, btnCancel
+            });
         }
 
         // Checks active login session configuration to populate identification field
