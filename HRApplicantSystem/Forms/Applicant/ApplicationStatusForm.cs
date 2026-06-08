@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
@@ -12,11 +13,13 @@ namespace HRApplicantSystem.Forms.Applicant
     {
         private DataTable dtApplications = new DataTable();
         private int currentApplicantId;
+        private FlowLayoutPanel flpTimeline; // Programmatic modern timeline container
 
         public ApplicationStatusForm()
         {
             InitializeComponent();
             currentApplicantId = UserSession.UserID;
+            InitializeDynamicTimeline();
             ApplyModernStyles();
         }
 
@@ -25,39 +28,123 @@ namespace HRApplicantSystem.Forms.Applicant
             LoadApplications();
         }
 
-        private void LoadApplications()
+        /// <summary>
+        /// Safe dynamic UI initialization to avoid modifying the .Designer.cs file manually.
+        /// </summary>
+        private void InitializeDynamicTimeline()
         {
-            OleDbConnection conn = DBConnection.GetConnection();
-            if (conn == null) return;
-
             try
             {
-                string query = "SELECT a.ApplicationID, j.JobTitle, a.Status, a.DateApplied " +
-                               "FROM Applications a " +
-                               "INNER JOIN JobVacancies j ON a.JobID = j.JobID " +
-                               "WHERE a.ApplicantID = ? " +
-                               "ORDER BY a.DateApplied DESC";
+                // Programmatically replace lstTrackingTimeline with a FlowLayoutPanel
+                flpTimeline = new FlowLayoutPanel();
+                flpTimeline.Location = lstTrackingTimeline.Location;
+                flpTimeline.Size = lstTrackingTimeline.Size;
+                flpTimeline.Anchor = lstTrackingTimeline.Anchor;
+                flpTimeline.AutoScroll = true;
+                flpTimeline.FlowDirection = FlowDirection.TopDown;
+                flpTimeline.WrapContents = false;
+                flpTimeline.BackColor = Color.FromArgb(245, 247, 250);
+                flpTimeline.Padding = new Padding(10);
 
-                using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                lstTrackingTimeline.Visible = false; // Hide old standard listbox
+                tpTimeline.Controls.Add(flpTimeline); // Add our dynamic card layout
+            }
+            catch
+            {
+                // Fallback protection: if dynamic creation fails, show standard listbox
+                lstTrackingTimeline.Visible = true;
+            }
+        }
+
+        private void LoadApplications()
+        {
+            bool success = false;
+
+            // 1. Try advanced join query on a fresh connection mapping Applications -> JobVacancies -> Positions -> Departments
+            try
+            {
+                using (OleDbConnection conn = DBConnection.GetConnection())
                 {
-                    cmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = currentApplicantId;
+                    if (conn == null) return;
 
-                    using (OleDbDataAdapter adapter = new OleDbDataAdapter(cmd))
+                    string query = @"SELECT a.ApplicationID, p.PositionName, d.DepartmentName, a.Status, a.DateApplied 
+                                     FROM (((Applications a 
+                                     INNER JOIN JobVacancies j ON a.JobID = j.JobID) 
+                                     INNER JOIN Positions p ON j.PositionID = p.PositionID) 
+                                     LEFT JOIN Departments d ON j.DepartmentID = d.DepartmentID) 
+                                     WHERE a.ApplicantID = ? 
+                                     ORDER BY a.DateApplied DESC";
+
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
-                        dtApplications.Clear();
-                        adapter.Fill(dtApplications);
-                        dgvStatusSummary.DataSource = dtApplications;
+                        cmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = currentApplicantId;
 
-                        if (dgvStatusSummary.Columns["ApplicationID"] != null) dgvStatusSummary.Columns["ApplicationID"].Visible = false;
-                        if (dgvStatusSummary.Columns["JobTitle"] != null) dgvStatusSummary.Columns["JobTitle"].HeaderText = "Job Title";
-                        if (dgvStatusSummary.Columns["Status"] != null) dgvStatusSummary.Columns["Status"].HeaderText = "Status";
-                        if (dgvStatusSummary.Columns["DateApplied"] != null) dgvStatusSummary.Columns["DateApplied"].HeaderText = "Applied On";
+                        using (OleDbDataAdapter adapter = new OleDbDataAdapter(cmd))
+                        {
+                            dtApplications.Clear();
+                            adapter.Fill(dtApplications);
+                            dgvStatusSummary.DataSource = dtApplications;
+
+                            ConfigureHeaders(true);
+                            success = true;
+                        }
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show("Error loading applications: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                success = false; // Silent failover to prevent popups if schema mismatches occur
+            }
+
+            // 2. Fallback query on a fresh connection mapping Applications -> JobVacancies -> Positions
+            if (!success)
+            {
+                try
+                {
+                    using (OleDbConnection connFallback = DBConnection.GetConnection())
+                    {
+                        if (connFallback == null) return;
+
+                        string fallbackQuery = @"SELECT a.ApplicationID, p.PositionName, a.Status, a.DateApplied 
+                                                 FROM (Applications a 
+                                                 INNER JOIN JobVacancies j ON a.JobID = j.JobID) 
+                                                 INNER JOIN Positions p ON j.PositionID = p.PositionID 
+                                                 WHERE a.ApplicantID = ? 
+                                                 ORDER BY a.DateApplied DESC";
+
+                        using (OleDbCommand cmd = new OleDbCommand(fallbackQuery, connFallback))
+                        {
+                            cmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = currentApplicantId;
+
+                            using (OleDbDataAdapter adapter = new OleDbDataAdapter(cmd))
+                            {
+                                dtApplications.Clear();
+                                adapter.Fill(dtApplications);
+                                dgvStatusSummary.DataSource = dtApplications;
+
+                                ConfigureHeaders(false);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error loading applications: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void ConfigureHeaders(bool hasJoins)
+        {
+            if (dgvStatusSummary.Columns["ApplicationID"] != null) dgvStatusSummary.Columns["ApplicationID"].Visible = false;
+
+            if (dgvStatusSummary.Columns["PositionName"] != null) dgvStatusSummary.Columns["PositionName"].HeaderText = "Job Position";
+            if (dgvStatusSummary.Columns["Status"] != null) dgvStatusSummary.Columns["Status"].HeaderText = "Status";
+            if (dgvStatusSummary.Columns["DateApplied"] != null) dgvStatusSummary.Columns["DateApplied"].HeaderText = "Applied Date";
+
+            if (hasJoins)
+            {
+                if (dgvStatusSummary.Columns["DepartmentName"] != null) dgvStatusSummary.Columns["DepartmentName"].HeaderText = "Department";
             }
         }
 
@@ -66,18 +153,34 @@ namespace HRApplicantSystem.Forms.Applicant
             if (dgvStatusSummary.SelectedRows.Count > 0)
             {
                 DataGridViewRow row = dgvStatusSummary.SelectedRows[0];
-                int applicationId = Convert.ToInt32(row.Cells["ApplicationID"].Value);
+                int appId = Convert.ToInt32(row.Cells["ApplicationID"].Value);
                 string status = row.Cells["Status"].Value?.ToString() ?? "";
 
-                lblSelectedJob.Text = row.Cells["JobTitle"].Value?.ToString() ?? "";
-                lblCurrentState.Text = "Current Status: " + status;
+                // Safely read job title and department parameters
+                string jobTitle = dgvStatusSummary.Columns.Contains("PositionName") ? row.Cells["PositionName"].Value?.ToString() : "";
+                string dept = dgvStatusSummary.Columns.Contains("DepartmentName") ? row.Cells["DepartmentName"].Value?.ToString() : "";
 
-                // Load individual details dynamically [2]
-                LoadTimeline(applicationId);
-                LoadScreeningDetails(applicationId);
-                LoadInterviewDetails(applicationId);
-                LoadEvaluationDetails(applicationId);
-                LoadDecisionDetails(applicationId, status);
+                lblSelectedJob.Text = jobTitle.ToUpper();
+
+                if (!string.IsNullOrEmpty(dept))
+                {
+                    lblCurrentState.Text = $"Status: {status}  ({dept})";
+                }
+                else
+                {
+                    lblCurrentState.Text = "Status: " + status;
+                }
+
+                // Apply contextual colors to the status label
+                lblCurrentState.ForeColor = GetStatusThemeColor(status);
+
+                // Load individual details dynamically
+                LoadTimeline(appId);
+                LoadScreeningDetails(appId);
+                LoadInterviewDetails(appId);
+                LoadEvaluationDetails(appId);
+                LoadDecisionDetails(appId, status);
+                CheckRequirements(appId);
             }
             else
             {
@@ -85,10 +188,23 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
+        private void CheckRequirements(int appId)
+        {
+            // Connects with DatabaseHelper computation
+            var missing = DatabaseHelper.GetMissingRequirementsForApplication(appId);
+            if (missing.Count > 0)
+            {
+                lblCurrentState.Text += $"  |  ⚠️ {missing.Count} Missing Documents";
+            }
+        }
+
         private void ResetDetails()
         {
             lblSelectedJob.Text = "Select an Application";
             lblCurrentState.Text = "Current Status: --";
+            lblCurrentState.ForeColor = Color.FromArgb(230, 126, 34);
+
+            if (flpTimeline != null) flpTimeline.Controls.Clear();
             lstTrackingTimeline.Items.Clear();
 
             lblScreeningResult.Text = "Screening Result: Pending";
@@ -111,13 +227,19 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void LoadTimeline(int applicationId)
         {
+            if (flpTimeline != null)
+            {
+                flpTimeline.SuspendLayout();
+                flpTimeline.Controls.Clear();
+            }
             lstTrackingTimeline.Items.Clear();
+
             OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null) return;
 
             try
             {
-                string query = "SELECT [Status], [DateChanged] FROM [ApplicationStatusHistory] WHERE [ApplicationID] = ? ORDER BY [DateChanged] ASC";
+                string query = "SELECT [Status], [DateChanged] FROM [ApplicationStatusHistory] WHERE [ApplicationID] = ? ORDER BY [DateChanged] DESC";
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
                     cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
@@ -127,8 +249,17 @@ namespace HRApplicantSystem.Forms.Applicant
                         while (reader.Read())
                         {
                             string status = reader["Status"]?.ToString() ?? "";
-                            string dateStr = reader["DateChanged"] != DBNull.Value ? Convert.ToDateTime(reader["DateChanged"]).ToString("g") : "";
-                            lstTrackingTimeline.Items.Add($"[{dateStr}] Status: {status}");
+                            DateTime dateVal = reader["DateChanged"] != DBNull.Value ? Convert.ToDateTime(reader["DateChanged"]) : DateTime.Now;
+
+                            // Safe dynamic UI card rendering
+                            if (flpTimeline != null)
+                            {
+                                AddTimelineCard(status, dateVal);
+                            }
+                            else
+                            {
+                                lstTrackingTimeline.Items.Add($"[{dateVal:g}] Status: {status}");
+                            }
                         }
                     }
                 }
@@ -139,7 +270,64 @@ namespace HRApplicantSystem.Forms.Applicant
             }
             finally
             {
+                if (flpTimeline != null) flpTimeline.ResumeLayout();
                 conn.Close();
+            }
+        }
+
+        private void AddTimelineCard(string status, DateTime date)
+        {
+            Panel card = new Panel
+            {
+                Size = new Size(flpTimeline.Width - 25, 60),
+                BackColor = Color.White,
+                Margin = new Padding(0, 0, 0, 8),
+                Padding = new Padding(5)
+            };
+
+            Label lblIndicator = new Label
+            {
+                Text = "●",
+                Font = new Font("Segoe UI", 12, FontStyle.Bold),
+                ForeColor = GetStatusThemeColor(status),
+                Location = new Point(8, 8),
+                AutoSize = true
+            };
+
+            Label lblStatusText = new Label
+            {
+                Text = status.ToUpper(),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                ForeColor = Color.FromArgb(44, 62, 80),
+                Location = new Point(24, 11),
+                AutoSize = true
+            };
+
+            Label lblTimeText = new Label
+            {
+                Text = date.ToString("MMM dd, yyyy - hh:mm tt"),
+                Font = new Font("Segoe UI", 8, FontStyle.Regular),
+                ForeColor = Color.DimGray,
+                Location = new Point(24, 32),
+                AutoSize = true
+            };
+
+            card.Controls.Add(lblIndicator);
+            card.Controls.Add(lblStatusText);
+            card.Controls.Add(lblTimeText);
+            flpTimeline.Controls.Add(card);
+        }
+
+        private Color GetStatusThemeColor(string status)
+        {
+            switch (status)
+            {
+                case "Accepted": return Color.FromArgb(39, 174, 96);       // Emerald Green
+                case "Rejected": return Color.FromArgb(192, 57, 43);       // Alizarin Red
+                case "Under Review": return Color.FromArgb(230, 126, 34);   // Orange
+                case "Shortlisted": return Color.FromArgb(22, 160, 133);    // Teal
+                case "For Interview": return Color.FromArgb(142, 68, 173);  // Purple
+                default: return Color.FromArgb(127, 140, 141);              // Slate Gray
             }
         }
 
@@ -297,7 +485,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                // Joins with the Users table to retrieve the Decision Maker's Full Name [1]
                 string query = "SELECT hd.Decision, hd.Remarks, hd.DecisionDate, u.[Full Name] AS ManagerName " +
                                "FROM HiringDecisions hd " +
                                "LEFT JOIN Users u ON hd.DecisionBy = u.UserID " +
@@ -328,7 +515,6 @@ namespace HRApplicantSystem.Forms.Applicant
                         }
                         else
                         {
-                            // Context-aware fallback messages to replace the generic message when no decision entry exists yet
                             switch (currentStatus)
                             {
                                 case "Draft":
@@ -398,17 +584,13 @@ namespace HRApplicantSystem.Forms.Applicant
             dgvStatusSummary.ReadOnly = true;
             dgvStatusSummary.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvStatusSummary.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 247, 250);
-
-            // List Style
-            lstTrackingTimeline.BorderStyle = BorderStyle.FixedSingle;
-            lstTrackingTimeline.Font = new Font("Segoe UI", 9F);
-            lstTrackingTimeline.ForeColor = Color.FromArgb(44, 62, 80);
+            dgvStatusSummary.GridColor = Color.FromArgb(230, 230, 230);
 
             btnBack.FlatStyle = FlatStyle.Flat;
-            btnBack.FlatAppearance.BorderColor = Color.FromArgb(127, 140, 141);
-            btnBack.BackColor = Color.White;
-            btnBack.ForeColor = Color.FromArgb(44, 62, 80);
-            btnBack.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnBack.FlatAppearance.BorderSize = 0;
+            btnBack.BackColor = Color.FromArgb(52, 152, 219);
+            btnBack.ForeColor = Color.White;
+            btnBack.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
         }
     }
 }

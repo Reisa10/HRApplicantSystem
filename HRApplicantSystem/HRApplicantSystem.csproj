@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\Applicant.cs" />
+    <Compile Include="Classes\UITheme.cs" />
     <Compile Include="Classes\UserSession.cs" />
     <Compile Include="Database\DatabaseHelper.cs" />
     <Compile Include="Database\DBConnection.cs" />
@@ -141,6 +142,24 @@
     </Compile>
     <Compile Include="Forms\HR\InterviewScheduleForm.Designer.cs">
       <DependentUpon>InterviewScheduleForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\HR\JobVacancyManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\HR\JobVacancyManagementForm.Designer.cs">
+      <DependentUpon>JobVacancyManagementForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\HR\MaintenanceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\HR\MaintenanceForm.Designer.cs">
+      <DependentUpon>MaintenanceForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\HR\Reports.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\HR\Reports.Designer.cs">
+      <DependentUpon>Reports.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\HR\ScreeningForm.cs">
       <SubType>Form</SubType>
@@ -223,9 +242,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Reports\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Database\HRDatabase.accdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

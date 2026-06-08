@@ -24,28 +24,13 @@ namespace HRApplicantSystem.Forms.Applicant
             RefreshDashboardSummary();
         }
 
+        /// <summary>
+        /// Updates the dashboard buttons with clean, non-misleading static labels.
+        /// </summary>
         private void RefreshDashboardSummary()
         {
-            try
-            {
-                // Retrieve the list of missing mandatory files
-                List<string> missing = DatabaseHelper.GetMissingRequirements(UserSession.UserID);
-
-                // Dynamically update the button text to prevent DPI overlapping [1]
-                if (missing == null || missing.Count == 0)
-                {
-                    btnDocuments.Text = "MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]\r\n✅ All Uploaded";
-                }
-                else
-                {
-                    btnDocuments.Text = $"MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]\r\n⚠️ {missing.Count} File{(missing.Count > 1 ? "s" : "")} Missing";
-                }
-            }
-            catch
-            {
-                // Fallback to default text if database query fails
-                btnDocuments.Text = "MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]";
-            }
+            // Fixed: Set standard text to prevent confusing global evaluations since requirements are now job-specific
+            btnDocuments.Text = "MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]";
         }
 
         private void btnProfile_Click(object sender, EventArgs e)
@@ -177,7 +162,7 @@ namespace HRApplicantSystem.Forms.Applicant
             btnMyApplications.Cursor = Cursors.Hand;
             btnMyApplications.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
 
-            // Card Style 4: Status Tracking Amber/Orange [2]
+            // Card Style 4: Status Tracking Amber/Orange
             btnStatusTracking.FlatStyle = FlatStyle.Flat;
             btnStatusTracking.FlatAppearance.BorderSize = 0;
             btnStatusTracking.BackColor = Color.FromArgb(230, 126, 34);

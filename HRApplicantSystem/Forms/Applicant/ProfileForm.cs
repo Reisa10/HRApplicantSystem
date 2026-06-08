@@ -13,9 +13,13 @@ namespace HRApplicantSystem.Forms.Applicant
         // Tracks whether this is a new profile insertion or an update to an existing one
         private bool isNewProfile = true;
 
+        // Dynamic completeness banner control
+        private Label lblCompletenessCard;
+
         public ProfileForm()
         {
             InitializeComponent();
+            InitializeCompletenessBanner();
             ApplyModernUI(); // Programmatically apply clean, modern styles to the form controls
 
             // Populate Gender dropdown list
@@ -29,6 +33,225 @@ namespace HRApplicantSystem.Forms.Applicant
         private void ProfileForm_Load(object sender, EventArgs e)
         {
             LoadApplicantProfile();
+            HookCompletenessTracker();
+            AdjustControlsLayout();
+        }
+
+        /// <summary>
+        /// Instantiates the profile completeness banner programmatically at the top of the form.
+        /// </summary>
+        private void InitializeCompletenessBanner()
+        {
+            Control[] bannerMatches = this.Controls.Find("lblCompletenessCard", true);
+            if (bannerMatches.Length > 0)
+            {
+                lblCompletenessCard = (Label)bannerMatches[0];
+            }
+            else
+            {
+                lblCompletenessCard = new Label
+                {
+                    Name = "lblCompletenessCard",
+                    Text = "   🔄 Calculating profile completeness...",
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                    BorderStyle = BorderStyle.None,
+                    FlatStyle = FlatStyle.Flat
+                };
+
+                this.Controls.Add(lblCompletenessCard);
+            }
+        }
+
+        /// <summary>
+        /// Recalculates and displays the profile completion score based on populated fields.
+        /// </summary>
+        private void UpdateProfileCompleteness()
+        {
+            int filledCount = 0;
+            int totalFields = 8;
+
+            if (!string.IsNullOrWhiteSpace(txtFirstName.Text)) filledCount++;
+            if (!string.IsNullOrWhiteSpace(txtLastName.Text)) filledCount++;
+            if (!string.IsNullOrWhiteSpace(txtAddress.Text)) filledCount++;
+            if (!string.IsNullOrWhiteSpace(txtContactNumber.Text)) filledCount++;
+            if (!string.IsNullOrWhiteSpace(txtEducation.Text)) filledCount++;
+            if (!string.IsNullOrWhiteSpace(txtSkills.Text)) filledCount++;
+            if (!string.IsNullOrWhiteSpace(txtWorkExperience.Text)) filledCount++;
+
+            // Birthday is counted as complete if altered from today's date
+            if (dtpBirthday.Value.Date != DateTime.Today) filledCount++;
+
+            double percentage = (filledCount / (double)totalFields) * 100;
+
+            if (lblCompletenessCard != null)
+            {
+                if (percentage >= 100)
+                {
+                    lblCompletenessCard.Text = "   ✅ Your professional profile is complete and ready for application reviews!";
+                    lblCompletenessCard.BackColor = Color.FromArgb(223, 240, 216); // Soft Corporate Green
+                    lblCompletenessCard.ForeColor = Color.FromArgb(60, 118, 61);  // Dark Corporate Green
+                }
+                else
+                {
+                    lblCompletenessCard.Text = $"   ⚠️ Profile Completeness: {percentage:0}% — Please fill in all fields ({filledCount}/{totalFields} completed) for HR evaluation.";
+                    lblCompletenessCard.BackColor = Color.FromArgb(252, 248, 227); // Soft Corporate Amber
+                    lblCompletenessCard.ForeColor = Color.FromArgb(138, 109, 59);  // Dark Corporate Amber
+                }
+            }
+        }
+
+        /// <summary>
+        /// Registers key input and value events to dynamically update completion indicators on the fly.
+        /// </summary>
+        private void HookCompletenessTracker()
+        {
+            txtFirstName.TextChanged += (s, e) => UpdateProfileCompleteness();
+            txtLastName.TextChanged += (s, e) => UpdateProfileCompleteness();
+            txtAddress.TextChanged += (s, e) => UpdateProfileCompleteness();
+            txtContactNumber.TextChanged += (s, e) => UpdateProfileCompleteness();
+            txtEducation.TextChanged += (s, e) => UpdateProfileCompleteness();
+            txtSkills.TextChanged += (s, e) => UpdateProfileCompleteness();
+            txtWorkExperience.TextChanged += (s, e) => UpdateProfileCompleteness();
+            dtpBirthday.ValueChanged += (s, e) => UpdateProfileCompleteness();
+        }
+
+        /// <summary>
+        /// Automatically scales columns and layout padding dynamically using the window's ClientSize.
+        /// </summary>
+        private void AdjustControlsLayout()
+        {
+            int clientWidth = this.ClientSize.Width;
+            int clientHeight = this.ClientSize.Height;
+
+            int margin = 40;
+            int topOffset = 85;
+            int bottomMargin = 65;
+
+            int totalWidth = clientWidth - (2 * margin);
+            int columnGap = 40;
+            int colWidth = (totalWidth - columnGap) / 2;
+
+            int leftX = margin;
+            int rightX = margin + colWidth + columnGap;
+
+            // 1. Dynamic Header Positioning & Title-Overlap Resolution
+            Label titleLabel = null;
+            foreach (Control c in this.Controls)
+            {
+                if (c is Label && (c.Text.ToUpper().Contains("PROFILE") || c.Name.ToLower().Contains("title") || c.Name.ToLower().Contains("header")))
+                {
+                    if (c.Name != "lblCompletenessCard")
+                    {
+                        titleLabel = (Label)c;
+                        break;
+                    }
+                }
+            }
+
+            if (titleLabel != null)
+            {
+                titleLabel.Location = new Point(margin, 20);
+                titleLabel.AutoSize = true;
+                titleLabel.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+                titleLabel.ForeColor = Color.FromArgb(44, 62, 80);
+
+                // Place the completeness banner exactly where the header text finishes
+                int bannerX = titleLabel.Right + 15;
+                int bannerWidth = (clientWidth - margin) - bannerX;
+
+                if (lblCompletenessCard != null)
+                {
+                    lblCompletenessCard.Location = new Point(bannerX, 20);
+                    lblCompletenessCard.Size = new Size(bannerWidth, titleLabel.Height);
+                }
+                topOffset = titleLabel.Top + titleLabel.Height + 35; // Dynamically push grids down
+            }
+            else
+            {
+                if (lblCompletenessCard != null)
+                {
+                    lblCompletenessCard.Location = new Point(margin, 20);
+                    lblCompletenessCard.Size = new Size(totalWidth, 36);
+                    topOffset = lblCompletenessCard.Bottom + 35;
+                }
+            }
+
+            // Calculate vertical grid limits
+            int buttonsTop = clientHeight - bottomMargin;
+            int availHeight = buttonsTop - topOffset - 20;
+
+            // 2. Align Left Column (6 Personal Information fields)
+            int leftItemsCount = 6;
+            int gapYLeft = availHeight / leftItemsCount;
+            int leftY = topOffset;
+
+            PositionField("lblFirstName", txtFirstName, leftX, leftY, colWidth, 26);
+            PositionField("lblMiddleName", txtMiddleName, leftX, leftY += gapYLeft, colWidth, 26);
+            PositionField("lblLastName", txtLastName, leftX, leftY += gapYLeft, colWidth, 26);
+            PositionField("lblBirthday", dtpBirthday, leftX, leftY += gapYLeft, colWidth, 26);
+            PositionField("lblGender", cmbGender, leftX, leftY += gapYLeft, colWidth, 26);
+            PositionField("lblContactNumber", txtContactNumber, leftX, leftY += gapYLeft, colWidth, 26);
+
+            // 3. Align Right Column (4 dynamic multiline boxes spanning complete horizontal width)
+            int rightItemsCount = 4;
+            int gapYRight = availHeight / rightItemsCount;
+            int rightY = topOffset;
+            int multilineHeight = gapYRight - 28;
+
+            PositionField("lblAddress", txtAddress, rightX, rightY, colWidth, multilineHeight);
+            PositionField("lblEducation", txtEducation, rightX, rightY += gapYRight, colWidth, multilineHeight);
+            PositionField("lblSkills", txtSkills, rightX, rightY += gapYRight, colWidth, multilineHeight);
+            PositionField("lblWorkExperience", txtWorkExperience, rightX, rightY += gapYRight, colWidth, multilineHeight);
+
+            // 4. Align Bottom Action Buttons
+            int btnWidth = 110;
+            int btnHeight = 32;
+
+            btnSave.Size = new Size(btnWidth, btnHeight);
+            btnSave.Location = new Point(leftX, buttonsTop);
+
+            btnClear.Size = new Size(btnWidth, btnHeight);
+            btnClear.Location = new Point(leftX + btnWidth + 10, buttonsTop);
+
+            btnBack.Size = new Size(btnWidth, btnHeight);
+            btnBack.Location = new Point((rightX + colWidth) - btnWidth, buttonsTop);
+        }
+
+        /// <summary>
+        /// Positions field inputs and aligns their respective labels exactly 20 pixels above.
+        /// </summary>
+        private void PositionField(string labelName, Control ctrl, int x, int y, int width, int height)
+        {
+            ctrl.Location = new Point(x, y);
+            ctrl.Size = new Size(width, height);
+
+            Label lbl = null;
+            Control[] matches = this.Controls.Find(labelName, true);
+            if (matches.Length > 0 && matches[0] is Label)
+            {
+                lbl = (Label)matches[0];
+            }
+            else
+            {
+                // Fallback to match label naming structures dynamically
+                string normalizedSearchName = ctrl.Name.Replace("txt", "").Replace("cmb", "").Replace("dtp", "").ToLower();
+                foreach (Control c in this.Controls)
+                {
+                    if (c is Label && c.Name.ToLower().Contains(normalizedSearchName))
+                    {
+                        lbl = (Label)c;
+                        break;
+                    }
+                }
+            }
+
+            if (lbl != null)
+            {
+                lbl.Location = new Point(x, y - 20);
+                lbl.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                lbl.ForeColor = Color.FromArgb(52, 73, 94); // Corporate Slate Blue
+            }
         }
 
         /// <summary>
@@ -46,8 +269,6 @@ namespace HRApplicantSystem.Forms.Applicant
                 return;
             }
 
-            // Mapped to match your exact database columns (e.g. WorkExperience)
-            // Note: If you changed 'ContactNum' in your database to 'ContactNumber' in Step 1, update it here too!
             string query = "SELECT FirstName, MiddleName, LastName, Birthday, Gender, Address, ContactNumber, Education, Skills, WorkExperience " +
                            "FROM Applicants WHERE ApplicantID = ?";
 
@@ -76,6 +297,10 @@ namespace HRApplicantSystem.Forms.Applicant
                                 if (reader["Birthday"] != DBNull.Value && reader["Birthday"] != null)
                                 {
                                     dtpBirthday.Value = Convert.ToDateTime(reader["Birthday"]);
+                                }
+                                else
+                                {
+                                    dtpBirthday.Value = DateTime.Today.AddYears(-18);
                                 }
 
                                 cmbGender.SelectedItem = reader["Gender"]?.ToString() ?? "Male";
@@ -107,6 +332,8 @@ namespace HRApplicantSystem.Forms.Applicant
                     }
                 }
             }
+
+            UpdateProfileCompleteness();
         }
 
         /// <summary>
@@ -124,6 +351,36 @@ namespace HRApplicantSystem.Forms.Applicant
             if (string.IsNullOrWhiteSpace(txtContactNumber.Text))
             {
                 MessageBox.Show("Please enter a valid Contact Number.",
+                                "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // Verify age requirement of 15 years
+            int age = DateTime.Today.Year - dtpBirthday.Value.Year;
+            if (dtpBirthday.Value.Date > DateTime.Today.AddYears(-age)) age--;
+
+            if (age < 15)
+            {
+                MessageBox.Show("Applicants must be at least 15 years of age to apply.",
+                                "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // Validate contact formatting strictly (No alphabetic text)
+            string contact = txtContactNumber.Text.Trim();
+            bool isNumberValid = true;
+            foreach (char c in contact)
+            {
+                if (!char.IsDigit(c) && c != '+' && c != '-' && c != ' ')
+                {
+                    isNumberValid = false;
+                    break;
+                }
+            }
+
+            if (!isNumberValid || contact.Length < 7)
+            {
+                MessageBox.Show("Please enter a valid telephone/mobile number (minimum 7 digits).",
                                 "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
@@ -156,7 +413,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
-                    // Access (OLEDB) matches parameters strictly by chronological execution order (?)
                     if (isNewProfile)
                     {
                         cmd.Parameters.AddWithValue("?", UserSession.UserID);
@@ -183,7 +439,7 @@ namespace HRApplicantSystem.Forms.Applicant
                         cmd.Parameters.AddWithValue("?", txtEducation.Text.Trim());
                         cmd.Parameters.AddWithValue("?", txtSkills.Text.Trim());
                         cmd.Parameters.AddWithValue("?", txtWorkExperience.Text.Trim());
-                        cmd.Parameters.AddWithValue("?", UserSession.UserID); // WHERE criteria parameter
+                        cmd.Parameters.AddWithValue("?", UserSession.UserID);
                     }
 
                     try
@@ -198,6 +454,7 @@ namespace HRApplicantSystem.Forms.Applicant
 
                             isNewProfile = false;
                             btnSave.Text = "Update Profile";
+                            UpdateProfileCompleteness();
                         }
                     }
                     catch (Exception ex)
@@ -225,6 +482,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 txtWorkExperience.Clear();
                 cmbGender.SelectedIndex = 0;
                 dtpBirthday.Value = DateTime.Today.AddYears(-18);
+                UpdateProfileCompleteness();
             }
         }
 
@@ -237,6 +495,10 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 txtFirstName.Text = parts[0];
                 txtLastName.Text = parts[parts.Length - 1];
+                if (parts.Length > 2)
+                {
+                    txtMiddleName.Text = parts[1];
+                }
             }
             else
             {
@@ -244,9 +506,6 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
-        /// <summary>
-        /// Safely closes this form to seamlessly return to the Applicant Dashboard [3].
-        /// </summary>
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -254,9 +513,10 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void ApplyModernUI()
         {
-            this.BackColor = Color.FromArgb(245, 247, 250);
-            this.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+            this.BackColor = Color.FromArgb(244, 246, 249);
+            this.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
 
+            // Style action buttons
             btnSave.FlatStyle = FlatStyle.Flat;
             btnSave.FlatAppearance.BorderSize = 0;
             btnSave.BackColor = Color.FromArgb(41, 128, 185);
@@ -274,16 +534,24 @@ namespace HRApplicantSystem.Forms.Applicant
 
             btnBack.FlatStyle = FlatStyle.Flat;
             btnBack.FlatAppearance.BorderSize = 1;
-            btnBack.FlatAppearance.BorderColor = Color.FromArgb(189, 195, 199);
+            btnBack.FlatAppearance.BorderColor = Color.FromArgb(127, 140, 141);
             btnBack.BackColor = Color.White;
-            btnBack.ForeColor = Color.FromArgb(127, 140, 141);
+            btnBack.ForeColor = Color.FromArgb(44, 62, 80);
             btnBack.Cursor = Cursors.Hand;
             btnBack.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
 
+            // Multiline scrollbar policies
             txtAddress.Multiline = true;
+            txtAddress.ScrollBars = ScrollBars.Vertical;
+
             txtEducation.Multiline = true;
+            txtEducation.ScrollBars = ScrollBars.Vertical;
+
             txtSkills.Multiline = true;
+            txtSkills.ScrollBars = ScrollBars.Vertical;
+
             txtWorkExperience.Multiline = true;
+            txtWorkExperience.ScrollBars = ScrollBars.Vertical;
         }
     }
 }
