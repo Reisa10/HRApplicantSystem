@@ -42,9 +42,8 @@ namespace HRApplicantSystem.Forms.HR
         {
             InitializeComponent();
 
-            // Programmatically configure initial form boundary metrics
-            this.Size = new Size(1020, 620);
-            this.StartPosition = FormStartPosition.CenterScreen;
+            // Configured to a compact, notebook-friendly size (980 x 580)
+            this.Size = new Size(980, 580);
 
             InitializeBackButton();
             EnsureAllProfileControlsExist();
@@ -66,6 +65,56 @@ namespace HRApplicantSystem.Forms.HR
 
             ApplyModernStyles();
             AdjustControlsLayout();
+
+            // Centering Fix: Snap form coordinates precisely over the main dashboard
+            // Run this LAST so it uses the final resized form dimensions!
+            CenterFormOnDashboard();
+        }
+
+        /// <summary>
+        /// Locates the open HR Dashboard application window and centers this workspace directly over it.
+        /// Resolves high-DPI scaling offsets at runtime.
+        /// </summary>
+        private void CenterFormOnDashboard()
+        {
+            Form dashboard = null;
+
+            // Search for the dashboard or main menu form
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm != this && (openForm.Name.Contains("Dashboard") || openForm.Name.Contains("Main") || openForm.Name.Contains("Portal")))
+                {
+                    dashboard = openForm;
+                    break;
+                }
+            }
+
+            // Fallback to the first open form if no exact name matches
+            if (dashboard == null)
+            {
+                foreach (Form openForm in Application.OpenForms)
+                {
+                    if (openForm != this)
+                    {
+                        dashboard = openForm;
+                        break;
+                    }
+                }
+            }
+
+            if (dashboard != null)
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.Location = new Point(
+                    dashboard.Location.X + (dashboard.Width - this.Width) / 2,
+                    dashboard.Location.Y + (dashboard.Height - this.Height) / 2
+                );
+            }
+            else
+            {
+                // Fallback to primary screen center if no caller dashboard is detected
+                this.StartPosition = FormStartPosition.CenterScreen;
+            }
         }
 
         /// <summary>
@@ -156,6 +205,7 @@ namespace HRApplicantSystem.Forms.HR
             newLbl.Name = name;
             newLbl.Text = text;
             newLbl.AutoSize = true;
+            newLbl.BackColor = Color.White;
             groupBox1.Controls.Add(newLbl);
             return newLbl;
         }
@@ -166,27 +216,30 @@ namespace HRApplicantSystem.Forms.HR
         private void InitializeValidationPanel()
         {
             grpDocValidation = new GroupBox();
+            grpDocValidation.Name = "grpDocValidation";
             grpDocValidation.Text = "Validate Selected Document";
             grpDocValidation.Enabled = false; // Disabled until a valid document is selected
 
             Label lblStatus = new Label();
             lblStatus.Text = "Status:";
-            lblStatus.Location = new Point(15, 25);
+            lblStatus.Location = new Point(15, 20);
             lblStatus.AutoSize = true;
+            lblStatus.BackColor = Color.White;
 
             cmbDocStatus = new ComboBox();
             cmbDocStatus.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbDocStatus.Items.AddRange(new object[] { "Submitted", "Approved", "Rejected" });
-            cmbDocStatus.Location = new Point(15, 45);
+            cmbDocStatus.Location = new Point(15, 36);
             cmbDocStatus.Width = 120;
 
             Label lblRemarks = new Label();
             lblRemarks.Text = "HR Remarks:";
-            lblRemarks.Location = new Point(150, 25);
+            lblRemarks.Location = new Point(150, 20);
             lblRemarks.AutoSize = true;
+            lblRemarks.BackColor = Color.White;
 
             txtDocRemarks = new TextBox();
-            txtDocRemarks.Location = new Point(150, 45);
+            txtDocRemarks.Location = new Point(150, 36);
 
             btnSaveDocValidation = new Button();
             btnSaveDocValidation.Text = "Save Validation";
@@ -209,8 +262,8 @@ namespace HRApplicantSystem.Forms.HR
             int clientWidth = this.ClientSize.Width;
             int clientHeight = this.ClientSize.Height;
 
-            int margin = 20;
-            int topOffset = 90; // Expanded to clear search title safely
+            int margin = 15;
+            int topOffset = 85;
 
             // Compute split-pane dimensions dynamically
             int leftColWidth = (int)(clientWidth * 0.40);
@@ -237,28 +290,40 @@ namespace HRApplicantSystem.Forms.HR
             {
                 titleLabel.Location = new Point(leftX, 15);
                 titleLabel.AutoSize = true;
-                titleLabel.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-                titleLabel.ForeColor = Color.FromArgb(44, 62, 80);
+                titleLabel.Font = new Font("Segoe UI", 14F, FontStyle.Bold); // Scaled down title font
+                titleLabel.ForeColor = Color.FromArgb(30, 41, 59);
+                titleLabel.Text = "HR APPLICANT REVIEW DASHBOARD";
             }
 
             if (lblSearch != null && txtSearch != null)
             {
-                lblSearch.Location = new Point(leftX, 58);
-                txtSearch.Location = new Point(leftX + 85, 55);
+                lblSearch.Location = new Point(leftX, 54);
+                txtSearch.Location = new Point(leftX + 85, 51);
                 txtSearch.Width = leftColWidth - 85;
             }
 
-            // 2. Position Master Applications Grid and Core Review Action Button
-            int dgvHeight = clientHeight - topOffset - margin - 55;
+            // 2. Position Master Applications Grid and Action Buttons
+            int dgvHeight = clientHeight - topOffset - margin - 50;
             dgvApplications.Location = new Point(leftX, topOffset);
             dgvApplications.Size = new Size(leftColWidth, dgvHeight);
 
-            btnLockApplication.Location = new Point(leftX, dgvApplications.Bottom + 12);
-            btnLockApplication.Size = new Size(leftColWidth, 34);
+            // Position primary action button to leave room on the left column bottom for btnBack
+            btnLockApplication.Location = new Point(leftX, dgvApplications.Bottom + 10);
+            btnLockApplication.Size = new Size(leftColWidth - 120, 32);
+
+            // Position Back Button side-by-side next to Lock Application under the grid
+            if (btnBack != null)
+            {
+                btnBack.Size = new Size(110, 32);
+                btnBack.Location = new Point(leftX + leftColWidth - 110, dgvApplications.Bottom + 10);
+            }
 
             // 3. Arrange Right Column - Profile Details Container (groupBox1)
             int availRightHeight = clientHeight - topOffset - margin;
-            int profileBoxHeight = (int)(availRightHeight * 0.45);
+
+            // Adjusted metrics to resolve vertical layout collisions on smaller window sizes
+            int profileBoxHeight = (int)(availRightHeight * 0.555); // Elevated share to accommodate vertical profiles
+            int docBoxHeight = (int)(availRightHeight * 0.205);     // Scaled list height dynamically
 
             groupBox1.Location = new Point(rightX, topOffset);
             groupBox1.Size = new Size(rightColWidth, profileBoxHeight);
@@ -266,49 +331,50 @@ namespace HRApplicantSystem.Forms.HR
             LayoutProfileReviewFields(rightColWidth, profileBoxHeight);
 
             // 4. Arrange Right Column - Documents List Container (groupBox2)
-            int docBoxHeight = (int)(availRightHeight * 0.28);
-            groupBox2.Location = new Point(rightX, groupBox1.Bottom + 10);
+            groupBox2.Location = new Point(rightX, groupBox1.Bottom + 8);
             groupBox2.Size = new Size(rightColWidth, docBoxHeight);
 
             if (lstApplicantDocuments != null)
             {
-                lstApplicantDocuments.Location = new Point(12, 22);
-                lstApplicantDocuments.Size = new Size(rightColWidth - 24, docBoxHeight - 34);
+                lstApplicantDocuments.Location = new Point(12, 24);
+                lstApplicantDocuments.Size = new Size(rightColWidth - 24, docBoxHeight - 32);
             }
 
             // 5. Arrange Right Column - Programmatic Document Validation Container (grpDocValidation)
-            int valBoxHeight = availRightHeight - profileBoxHeight - docBoxHeight - 20;
+            int valBoxHeight = availRightHeight - profileBoxHeight - docBoxHeight - 16;
             if (grpDocValidation != null)
             {
-                grpDocValidation.Location = new Point(rightX, groupBox2.Bottom + 10);
+                grpDocValidation.Location = new Point(rightX, groupBox2.Bottom + 8);
                 grpDocValidation.Size = new Size(rightColWidth, valBoxHeight);
 
                 // Re-align internal controls inside validation groupbox dynamically
                 int valInnerWidth = rightColWidth - 30;
                 int valSplitX = (int)(valInnerWidth * 0.40);
 
+                cmbDocStatus.Location = new Point(15, 36);
                 cmbDocStatus.Width = valSplitX;
-                txtDocRemarks.Location = new Point(15 + valSplitX + 15, 45);
+
+                txtDocRemarks.Location = new Point(15 + valSplitX + 15, 36);
                 txtDocRemarks.Width = valInnerWidth - valSplitX - 15;
 
                 // Adjust labels
                 foreach (Control c in grpDocValidation.Controls)
                 {
-                    if (c is Label && c.Text.Contains("HR Remarks"))
+                    if (c is Label)
                     {
-                        c.Location = new Point(txtDocRemarks.Left, 25);
+                        if (c.Text.Contains("Status"))
+                        {
+                            c.Location = new Point(15, 20);
+                        }
+                        else if (c.Text.Contains("HR Remarks"))
+                        {
+                            c.Location = new Point(txtDocRemarks.Left, 20);
+                        }
                     }
                 }
 
-                btnSaveDocValidation.Size = new Size(txtDocRemarks.Width, 30);
-                btnSaveDocValidation.Location = new Point(txtDocRemarks.Left, 80);
-            }
-
-            // 6. Layout Symmetrical Back Button horizontally aligned with Lock Application
-            if (btnBack != null)
-            {
-                btnBack.Size = new Size(110, 34);
-                btnBack.Location = new Point((rightX + rightColWidth) - 110, dgvApplications.Bottom + 12);
+                btnSaveDocValidation.Size = new Size(txtDocRemarks.Width, 23);
+                btnSaveDocValidation.Location = new Point(txtDocRemarks.Left, 60);
             }
         }
 
@@ -324,10 +390,13 @@ namespace HRApplicantSystem.Forms.HR
             int leftX = margin;
             int rightX = margin + colWidth + margin;
 
+            // Adjusted vertical metrics to avoid header overlap
+            int topSpacing = 44;
+
             // Left Column (6 single-line fields)
             int leftItemsCount = 6;
-            int gapYLeft = (height - 35) / leftItemsCount;
-            int leftY = 32;
+            int gapYLeft = (height - topSpacing - 10) / leftItemsCount;
+            int leftY = topSpacing;
 
             PositionFieldInGroupBox("lblReviewFirstName", txtReviewFirstName, "First Name:", leftX, leftY, colWidth, 24);
             PositionFieldInGroupBox("lblReviewMiddleName", txtReviewMiddleName, "Middle Name:", leftX, leftY += gapYLeft, colWidth, 24);
@@ -338,9 +407,9 @@ namespace HRApplicantSystem.Forms.HR
 
             // Right Column (4 multiline fields)
             int rightItemsCount = 4;
-            int gapYRight = (height - 35) / rightItemsCount;
-            int rightY = 32;
-            int multilineHeight = gapYRight - 24;
+            int gapYRight = (height - topSpacing - 10) / rightItemsCount;
+            int rightY = topSpacing;
+            int multilineHeight = gapYRight - 17; // Re-adjusted for the smaller textboxes
 
             PositionFieldInGroupBox("lblReviewAddress", txtReviewAddress, "Address:", rightX, rightY, colWidth, multilineHeight);
             PositionFieldInGroupBox("lblReviewEducation", txtReviewEducation, "Education:", rightX, rightY += gapYRight, colWidth, multilineHeight);
@@ -354,7 +423,7 @@ namespace HRApplicantSystem.Forms.HR
             ctrl.Size = new Size(width, height);
 
             Label lbl = GetOrCreateLabel(labelName, labelText);
-            lbl.Location = new Point(x, y - 18);
+            lbl.Location = new Point(x, y - 14); // Trimmed vertical headroom slightly to offset tighter gaps
             lbl.BringToFront();
             ctrl.BringToFront();
         }
@@ -377,7 +446,8 @@ namespace HRApplicantSystem.Forms.HR
                 selectedFileName.StartsWith("⚠️") ||
                 selectedFileName.StartsWith("(") ||
                 selectedFileName == "(No documents uploaded yet)" ||
-                selectedFileName == "None! All mandatory requirements uploaded.")
+                selectedFileName == "None! All mandatory requirements uploaded." ||
+                selectedFileName == "No documents submitted.")
             {
                 grpDocValidation.Enabled = false;
                 cmbDocStatus.SelectedIndex = -1;
@@ -514,6 +584,7 @@ namespace HRApplicantSystem.Forms.HR
             lblSearch = new Label();
             lblSearch.Text = "Search Grid:";
             lblSearch.AutoSize = true;
+            lblSearch.BackColor = Color.Transparent;
 
             txtSearch = new TextBox();
             txtSearch.TextChanged += TxtSearch_TextChanged;
@@ -551,7 +622,30 @@ namespace HRApplicantSystem.Forms.HR
             dgvApplications.AllowUserToAddRows = false;
             dgvApplications.ReadOnly = true;
             dgvApplications.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvApplications.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 247, 250);
+
+            // Dashboard integration
+            dgvApplications.BackgroundColor = Color.White;
+            dgvApplications.BorderStyle = BorderStyle.None;
+            dgvApplications.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvApplications.GridColor = Color.FromArgb(226, 232, 240);
+
+            // Header properties
+            dgvApplications.EnableHeadersVisualStyles = false;
+            dgvApplications.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvApplications.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(30, 41, 59); // Slate-800
+            dgvApplications.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvApplications.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            dgvApplications.ColumnHeadersHeight = 35;
+
+            // Cell properties
+            dgvApplications.DefaultCellStyle.BackColor = Color.White;
+            dgvApplications.DefaultCellStyle.ForeColor = Color.FromArgb(51, 65, 85);
+            dgvApplications.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            dgvApplications.DefaultCellStyle.SelectionBackColor = Color.FromArgb(239, 246, 255);
+            dgvApplications.DefaultCellStyle.SelectionForeColor = Color.FromArgb(30, 64, 175);
+
+            dgvApplications.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+            dgvApplications.RowTemplate.Height = 32;
         }
 
         /// <summary>
@@ -949,47 +1043,80 @@ namespace HRApplicantSystem.Forms.HR
 
         private void ApplyModernStyles()
         {
-            this.BackColor = Color.FromArgb(244, 246, 249); // Clean backplane gray
-            this.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            this.BackColor = Color.FromArgb(241, 245, 249); // Modern Clean slate background
+            this.Font = new Font("Segoe UI", 9F, FontStyle.Regular); // Slightly trimmed general font
 
-            // Style groupboxes
+            // Style groupboxes with dynamic drawing to copy the metric panel design
             StyleGroupBox(groupBox1);
             StyleGroupBox(groupBox2);
             if (grpDocValidation != null) StyleGroupBox(grpDocValidation);
 
             // Style primary control buttons
-            StylePrimaryButton(btnLockApplication, Color.FromArgb(41, 128, 185)); // Deep Blue
-            if (btnSaveDocValidation != null) StylePrimaryButton(btnSaveDocValidation, Color.FromArgb(39, 174, 96)); // Success Green
+            StylePrimaryButton(btnLockApplication, Color.FromArgb(30, 41, 59)); // Deep Slate/Navy (Matches Left sidebar theme)
+            if (btnSaveDocValidation != null) StylePrimaryButton(btnSaveDocValidation, Color.FromArgb(5, 150, 105)); // Successful Green validation
             if (btnBack != null) StyleSecondaryButton(btnBack);
 
             // Style search bar
             if (lblSearch != null)
             {
-                lblSearch.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-                lblSearch.ForeColor = Color.FromArgb(52, 73, 94);
+                lblSearch.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+                lblSearch.ForeColor = Color.FromArgb(71, 85, 105);
+            }
+            if (txtSearch != null)
+            {
+                txtSearch.BackColor = Color.White;
+                txtSearch.BorderStyle = BorderStyle.FixedSingle;
+                txtSearch.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+                txtSearch.ForeColor = Color.FromArgb(51, 65, 85);
             }
 
             // Style documents listbox
             lstApplicantDocuments.BorderStyle = BorderStyle.None;
             lstApplicantDocuments.BackColor = Color.White;
-            lstApplicantDocuments.ForeColor = Color.FromArgb(44, 62, 80);
-            lstApplicantDocuments.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            lstApplicantDocuments.ForeColor = Color.FromArgb(51, 65, 85);
+            lstApplicantDocuments.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
 
             // Format standard input boxes within the Profile details container
             foreach (Control c in groupBox1.Controls)
             {
                 if (c is TextBox txt)
                 {
-                    txt.BackColor = Color.FromArgb(248, 249, 250);
+                    txt.BackColor = Color.FromArgb(248, 250, 252);
                     txt.BorderStyle = BorderStyle.FixedSingle;
-                    txt.Font = new Font("Segoe UI", 9.25F, FontStyle.Regular);
-                    txt.ForeColor = Color.FromArgb(44, 62, 80);
+                    txt.Font = new Font("Segoe UI", 8.5F, FontStyle.Regular); // Scaled textbox fonts to fit rows safely
+                    txt.ForeColor = Color.FromArgb(51, 65, 85);
                     txt.ReadOnly = true;
                 }
                 else if (c is Label lbl)
                 {
-                    lbl.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
-                    lbl.ForeColor = Color.FromArgb(127, 140, 141);
+                    lbl.BackColor = Color.White;
+                    lbl.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+                    lbl.ForeColor = Color.FromArgb(100, 116, 139);
+                }
+            }
+
+            // Also format programmatic elements inside the validation container
+            if (grpDocValidation != null)
+            {
+                foreach (Control c in grpDocValidation.Controls)
+                {
+                    if (c is Label lbl)
+                    {
+                        lbl.BackColor = Color.White;
+                        lbl.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+                        lbl.ForeColor = Color.FromArgb(100, 116, 139);
+                    }
+                    else if (c is TextBox txt)
+                    {
+                        txt.BackColor = Color.FromArgb(248, 250, 252);
+                        txt.BorderStyle = BorderStyle.FixedSingle;
+                        txt.Font = new Font("Segoe UI", 8.5F, FontStyle.Regular);
+                        txt.ForeColor = Color.FromArgb(51, 65, 85);
+                    }
+                    else if (c is ComboBox cmb)
+                    {
+                        cmb.Font = new Font("Segoe UI", 8.5F, FontStyle.Regular);
+                    }
                 }
             }
         }
@@ -997,8 +1124,58 @@ namespace HRApplicantSystem.Forms.HR
         private void StyleGroupBox(GroupBox grp)
         {
             grp.FlatStyle = FlatStyle.Flat;
-            grp.ForeColor = Color.FromArgb(44, 62, 80);
-            grp.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            grp.BackColor = Color.White;
+            grp.Paint -= GroupBox_Paint; // Ensure no duplicate bindings
+            grp.Paint += GroupBox_Paint;
+        }
+
+        /// <summary>
+        /// Renders the GroupBox containers to look identical to the dashboard's metric panels.
+        /// </summary>
+        private void GroupBox_Paint(object sender, PaintEventArgs e)
+        {
+            GroupBox box = sender as GroupBox;
+            if (box == null) return;
+
+            // Paint canvas card background (White)
+            e.Graphics.Clear(Color.White);
+
+            // Left Border stripe colors based on dashboard design theme:
+            // Blue for Profile Card, Orange/Amber for Documents, Green for Validation Status
+            Color stripeColor = Color.FromArgb(37, 99, 235); // Blue stripe
+            if (box == groupBox2)
+            {
+                stripeColor = Color.FromArgb(245, 158, 11); // Orange stripe
+            }
+            else if (box.Name == "grpDocValidation")
+            {
+                stripeColor = Color.FromArgb(16, 185, 129); // Green stripe
+            }
+
+            // Draw left side indicator accent stripe (5px wide)
+            using (SolidBrush stripeBrush = new SolidBrush(stripeColor))
+            {
+                e.Graphics.FillRectangle(stripeBrush, 0, 0, 5, box.Height);
+            }
+
+            // Draw high-quality subtle card borders
+            using (Pen borderPen = new Pen(Color.FromArgb(226, 232, 240), 1))
+            {
+                e.Graphics.DrawLine(borderPen, 5, 0, box.Width - 1, 0); // top border
+                e.Graphics.DrawLine(borderPen, box.Width - 1, 0, box.Width - 1, box.Height - 1); // right border
+                e.Graphics.DrawLine(borderPen, 5, box.Height - 1, box.Width - 1, box.Height - 1); // bottom border
+            }
+
+            // Draw capitalized Slate Gray headers matching the dashboard statistics labels
+            string titleText = box.Text;
+            if (!string.IsNullOrEmpty(titleText))
+            {
+                using (Font titleFont = new Font("Segoe UI", 8F, FontStyle.Bold))
+                using (SolidBrush textBrush = new SolidBrush(Color.FromArgb(100, 116, 139)))
+                {
+                    e.Graphics.DrawString(titleText.ToUpper(), titleFont, textBrush, 15, 8);
+                }
+            }
         }
 
         private void StylePrimaryButton(Button btn, Color bg)
@@ -1007,7 +1184,7 @@ namespace HRApplicantSystem.Forms.HR
             btn.FlatAppearance.BorderSize = 0;
             btn.BackColor = bg;
             btn.ForeColor = Color.White;
-            btn.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             btn.Cursor = Cursors.Hand;
         }
 
@@ -1015,10 +1192,10 @@ namespace HRApplicantSystem.Forms.HR
         {
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 1;
-            btn.FlatAppearance.BorderColor = Color.FromArgb(127, 140, 141);
+            btn.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225); // Slate-300
             btn.BackColor = Color.White;
-            btn.ForeColor = Color.FromArgb(44, 62, 80);
-            btn.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btn.ForeColor = Color.FromArgb(71, 85, 105); // Slate-600
+            btn.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             btn.Cursor = Cursors.Hand;
         }
 

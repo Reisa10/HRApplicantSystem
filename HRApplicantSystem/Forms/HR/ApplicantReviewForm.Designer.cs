@@ -52,12 +52,12 @@
             // lblTitle
             // 
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.Location = new System.Drawing.Point(249, 9);
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTitle.Location = new System.Drawing.Point(69, 15);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(388, 31);
+            this.lblTitle.Size = new System.Drawing.Size(400, 31);
             this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "APPLICANT REVIEW FORM";
+            this.lblTitle.Text = "HR APPLICANT REVIEW DASHBOARD";
             this.lblTitle.Click += new System.EventHandler(this.lblTitle_Click);
             // 
             // dgvApplications
@@ -212,14 +212,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(877, 573);
+            this.ClientSize = new System.Drawing.Size(1004, 641); // Adjusted height bounds
             this.Controls.Add(this.btnLockApplication);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.dgvApplications);
             this.Controls.Add(this.lblTitle);
             this.Name = "ApplicantReviewForm";
-            this.Text = "ApplicantReviewForm";
+            this.Text = "Applicant Review Portal";
             this.Load += new System.EventHandler(this.ApplicantReviewForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvApplications)).EndInit();
             this.groupBox1.ResumeLayout(false);

@@ -55,23 +55,32 @@ namespace HRApplicantSystem.Forms.HR
             lblDateTime.Text = DateTime.Now.ToString("dddd, MMMM dd, yyyy   h:mm:ss tt");
         }
 
-        #region Operational Window Launcher (Prevents Compression & Supports Multitasking)
+        #region Operational Window Launcher (Hides Dashboard & Restores on Close)
         /// <summary>
-        /// Launches child forms as independent, beautifully centered windows owned by the parent dashboard.
+        /// Launches child forms, hides the dashboard, and restores it when the child form is closed.
         /// </summary>
         private void LaunchModule(Form childForm, Button senderButton)
         {
             try
             {
-                // Set dashboard as parent so windows stay grouped cleanly on taskbar
-                childForm.Owner = this;
-                childForm.StartPosition = FormStartPosition.CenterParent;
+                // Subscribe to the FormClosed event to bring back the dashboard
+                childForm.FormClosed += (sender, e) =>
+                {
+                    this.Show();
+                    SetupDashboardConsole(); // Optional: Refresh dashboard counts upon return
+                };
 
-                // Show form as independent window (allows multitasking across multiple modules)
+                // Center the form on the screen
+                childForm.StartPosition = FormStartPosition.CenterScreen;
+
+                // Hide the dashboard and display the module
+                this.Hide();
                 childForm.Show();
             }
             catch (Exception ex)
             {
+                // Ensure the dashboard is visible if the child form fails to open
+                this.Show();
                 MessageBox.Show("Failed to open module: " + ex.Message, "System Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -147,7 +156,7 @@ namespace HRApplicantSystem.Forms.HR
             Label lblWelcomeBody = new Label
             {
                 Text = "Select an operation from the sidebar navigation panel on the left to launch the respective module. " +
-                       "Forms will open as independent windows, allowing you to multitask and view multiple forms at the same time.",
+                       "The Dashboard will temporarily close and return once you exit the selected module.",
                 Font = new Font("Segoe UI", 10, FontStyle.Regular),
                 ForeColor = Color.DimGray,
                 Location = new Point(33, 75),
@@ -204,11 +213,20 @@ namespace HRApplicantSystem.Forms.HR
 
         private void SystemMaintenance_Click(object sender, EventArgs e)
         {
-            using (MaintenanceForm frm = new MaintenanceForm())
+            try
             {
-                frm.ShowDialog();
+                this.Hide();
+                using (MaintenanceForm frm = new MaintenanceForm())
+                {
+                    frm.StartPosition = FormStartPosition.CenterScreen;
+                    frm.ShowDialog();
+                }
             }
-            SetupDashboardConsole();
+            finally
+            {
+                this.Show();
+                SetupDashboardConsole();
+            }
         }
 
         private void JobVacancyManagement_Click(object sender, EventArgs e)

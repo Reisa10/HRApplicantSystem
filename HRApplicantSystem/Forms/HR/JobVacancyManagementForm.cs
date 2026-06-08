@@ -79,6 +79,7 @@ namespace HRApplicantSystem.Forms.HR
             StyleButton(btnSave, IndigoAccent);
             StyleButton(btnToggleStatus, EmeraldSuccess);
             StyleButton(btnClear, SlateNeutral);
+            StyleButton(btnBack, SlateNeutral); // Styled the back button using SlateNeutral
 
             // Enterprise Grid Custom Styling
             dgvVacancies.BackgroundColor = Color.White;
@@ -128,11 +129,60 @@ namespace HRApplicantSystem.Forms.HR
                 return;
             }
 
+            // Centering Fix: Snap form coordinates precisely over the main dashboard
+            CenterFormOnDashboard();
+
             // 2. Load Lookups and Vacancies
             LoadDropdownMetadata();
             LoadRequirementTypes();
             LoadVacancies();
             ResetForm();
+        }
+
+        /// <summary>
+        /// Locates the open HR Dashboard application window and centers this workspace directly over it.
+        /// Resolves high-DPI scaling offsets at runtime.
+        /// </summary>
+        private void CenterFormOnDashboard()
+        {
+            Form dashboard = null;
+
+            // Search for the dashboard or main menu form
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm != this && (openForm.Name.Contains("Dashboard") || openForm.Name.Contains("Main") || openForm.Name.Contains("Portal")))
+                {
+                    dashboard = openForm;
+                    break;
+                }
+            }
+
+            // Fallback to the first open form if no exact name matches
+            if (dashboard == null)
+            {
+                foreach (Form openForm in Application.OpenForms)
+                {
+                    if (openForm != this)
+                    {
+                        dashboard = openForm;
+                        break;
+                    }
+                }
+            }
+
+            if (dashboard != null)
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.Location = new Point(
+                    dashboard.Location.X + (dashboard.Width - this.Width) / 2,
+                    dashboard.Location.Y + (dashboard.Height - this.Height) / 2
+                );
+            }
+            else
+            {
+                // Fallback to primary screen center if no caller dashboard is detected
+                this.StartPosition = FormStartPosition.CenterScreen;
+            }
         }
 
         #region Database Processing Logic
@@ -435,6 +485,11 @@ namespace HRApplicantSystem.Forms.HR
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
             LoadVacancies(txtSearch.Text.Trim());
+        }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void ResetForm()

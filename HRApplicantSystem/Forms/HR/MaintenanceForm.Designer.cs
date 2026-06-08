@@ -17,6 +17,9 @@
 
         private void InitializeComponent()
         {
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.lblHeaderTitle = new System.Windows.Forms.Label();
+            this.btnBack = new System.Windows.Forms.Button();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabDept = new System.Windows.Forms.TabPage();
             this.tabPos = new System.Windows.Forms.TabPage();
@@ -64,8 +67,43 @@
             this.btnSaveAss = new System.Windows.Forms.Button();
             this.btnClearAss = new System.Windows.Forms.Button();
 
+            this.pnlHeader.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.SuspendLayout();
+
+            // 
+            // pnlHeader
+            // 
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(44, 62, 80);
+            this.pnlHeader.Controls.Add(this.lblHeaderTitle);
+            this.pnlHeader.Controls.Add(this.btnBack);
+            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(984, 55);
+            this.pnlHeader.TabIndex = 2;
+            // 
+            // lblHeaderTitle
+            // 
+            this.lblHeaderTitle.AutoSize = true;
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.White;
+            this.lblHeaderTitle.Location = new System.Drawing.Point(20, 16);
+            this.lblHeaderTitle.Name = "lblHeaderTitle";
+            this.lblHeaderTitle.Size = new System.Drawing.Size(326, 21);
+            this.lblHeaderTitle.TabIndex = 0;
+            this.lblHeaderTitle.Text = "System Configuration & Maintenance Hub";
+            // 
+            // btnBack
+            // 
+            this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBack.Location = new System.Drawing.Point(854, 10);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(110, 35);
+            this.btnBack.TabIndex = 1;
+            this.btnBack.Text = "Back";
+            this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
 
             // Set Tab Page Titles explicitly
             this.tabDept.Text = "Departments";
@@ -83,9 +121,9 @@
             this.tabControl.Controls.Add(this.tabInt);
             this.tabControl.Controls.Add(this.tabAss);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Location = new System.Drawing.Point(0, 55);
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(984, 611);
+            this.tabControl.Size = new System.Drawing.Size(984, 556);
 
             // Configure Datagrid columns programmatically
             ConfigureDepartmentsGrid();
@@ -109,11 +147,14 @@
             this.BackColor = System.Drawing.Color.FromArgb(245, 247, 250);
             this.ClientSize = new System.Drawing.Size(984, 611);
             this.Controls.Add(this.tabControl);
+            this.Controls.Add(this.pnlHeader); // Top panel container rendered first for docking
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.MinimumSize = new System.Drawing.Size(1024, 660);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "System Configuration & Maintenance Hub";
             this.Load += new System.EventHandler(this.MaintenanceForm_Load);
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlHeader.PerformLayout();
             this.tabControl.ResumeLayout(false);
             this.ResumeLayout(false);
         }
@@ -578,6 +619,9 @@
 
         #endregion
 
+        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.Label lblHeaderTitle;
+        private System.Windows.Forms.Button btnBack;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabDept;
         private System.Windows.Forms.TabPage tabPos;

@@ -29,6 +29,7 @@ namespace HRApplicantSystem.Forms.HR
         private Button btnInterviews;
         private Button btnHiring;
         private Button btnMissingReqs;
+        private Button btnBack; // Declared Back button variable
 
         private PrintDocument printDoc = new PrintDocument();
         private PrintPreviewDialog printPreview = new PrintPreviewDialog();
@@ -55,13 +56,60 @@ namespace HRApplicantSystem.Forms.HR
                 return;
             }
 
+            // Centering Fix: Manually align the form over the parent dashboard form
+            CenterFormOnDashboard();
+
             LoadDepartmentsDropdown();
             isInitializing = false;
 
             SwitchReport("ApplicantList", btnApplicantList);
         }
 
-        // ... (the rest of the layout, query, and print methods remain the same)
+        /// <summary>
+        /// Scans active application forms and centers this window precisely over the main dashboard.
+        /// Bypasses WinForms high-DPI scaling offsets.
+        /// </summary>
+        private void CenterFormOnDashboard()
+        {
+            Form dashboard = null;
+
+            // Search for the dashboard or main menu form
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm != this && (openForm.Name.Contains("Dashboard") || openForm.Name.Contains("Main") || openForm.Name.Contains("Portal")))
+                {
+                    dashboard = openForm;
+                    break;
+                }
+            }
+
+            // Fallback to the first open form if no name matches
+            if (dashboard == null)
+            {
+                foreach (Form openForm in Application.OpenForms)
+                {
+                    if (openForm != this)
+                    {
+                        dashboard = openForm;
+                        break;
+                    }
+                }
+            }
+
+            if (dashboard != null)
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.Location = new Point(
+                    dashboard.Location.X + (dashboard.Width - this.Width) / 2,
+                    dashboard.Location.Y + (dashboard.Height - this.Height) / 2
+                );
+            }
+            else
+            {
+                // Absolute fallback to physical monitor center if no other forms are running
+                this.StartPosition = FormStartPosition.CenterScreen;
+            }
+        }
 
         #region Modern UI Layout Initialization
         private void InitializeCustomLayout()
@@ -71,6 +119,9 @@ namespace HRApplicantSystem.Forms.HR
             this.MinimumSize = new Size(950, 600);
             this.Text = "HR Recruitment Reports Dashboard";
             this.BackColor = Color.FromArgb(243, 244, 246); // Modern Light Gray Background
+
+            // Subscribe to the Load event so Reports_Load runs when the form displays
+            this.Load += new System.EventHandler(this.Reports_Load);
 
             // 1. Sidebar Panel
             pnlSidebar = new Panel
@@ -98,6 +149,25 @@ namespace HRApplicantSystem.Forms.HR
             btnHiring = CreateSidebarButton("🤝  Hiring Outcomes", 265);
             btnMissingReqs = CreateSidebarButton("⚠️  Missing Documents", 320);
 
+            // Back to Dashboard button docked elegantly to the bottom of the Sidebar
+            btnBack = new Button
+            {
+                Text = "⬅  Back to Dashboard",
+                Dock = DockStyle.Bottom,
+                Height = 55,
+                FlatStyle = FlatStyle.Flat,
+                ForeColor = Color.FromArgb(156, 163, 175), // Muted Gray
+                BackColor = Color.Transparent,
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(20, 0, 0, 0),
+                Cursor = Cursors.Hand
+            };
+            btnBack.FlatAppearance.BorderSize = 0;
+            btnBack.FlatAppearance.MouseOverBackColor = Color.FromArgb(55, 65, 81);
+            btnBack.Click += (s, e) => this.Close();
+            pnlSidebar.Controls.Add(btnBack);
+
             btnApplicantList.Click += (s, e) => SwitchReport("ApplicantList", btnApplicantList);
             btnPending.Click += (s, e) => SwitchReport("Pending", btnPending);
             btnInterviews.Click += (s, e) => SwitchReport("Interviews", btnInterviews);
@@ -105,10 +175,13 @@ namespace HRApplicantSystem.Forms.HR
             btnMissingReqs.Click += (s, e) => SwitchReport("MissingReqs", btnMissingReqs);
 
             // 2. Top Navigation & Filters Bar
+            int topBarBaseWidth = 1100 - 240; // Form Width - Sidebar Width = 860
+
             pnlTopBar = new Panel
             {
                 Dock = DockStyle.Top,
                 Height = 85,
+                Width = topBarBaseWidth,
                 BackColor = Color.White,
                 Padding = new Padding(20, 10, 20, 10)
             };
@@ -119,7 +192,7 @@ namespace HRApplicantSystem.Forms.HR
                 Font = new Font("Segoe UI", 15, FontStyle.Bold),
                 ForeColor = Color.FromArgb(17, 24, 39),
                 Location = new Point(20, 15),
-                Size = new Size(400, 30)
+                Size = new Size(250, 30)
             };
             lblSubtitle = new Label
             {
@@ -127,53 +200,12 @@ namespace HRApplicantSystem.Forms.HR
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 ForeColor = Color.FromArgb(107, 114, 128),
                 Location = new Point(21, 45),
-                Size = new Size(400, 20)
+                Size = new Size(250, 20)
             };
             pnlTopBar.Controls.Add(lblTitle);
             pnlTopBar.Controls.Add(lblSubtitle);
 
-            // Department Dropdown Filter
-            Label lblDept = new Label { Text = "Department:", Font = new Font("Segoe UI", 9, FontStyle.Bold), Location = new Point(440, 18), Size = new Size(120, 15), ForeColor = Color.FromArgb(75, 85, 99) };
-            cmbDepartment = new ComboBox
-            {
-                Location = new Point(440, 38),
-                Size = new Size(180, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 9)
-            };
-            cmbDepartment.SelectedIndexChanged += cmbDepartment_SelectedIndexChanged;
-            pnlTopBar.Controls.Add(lblDept);
-            pnlTopBar.Controls.Add(cmbDepartment);
-
-            // Dynamic Search Box
-            Label lblSearch = new Label { Text = "Search Filter:", Font = new Font("Segoe UI", 9, FontStyle.Bold), Location = new Point(640, 18), Size = new Size(120, 15), ForeColor = Color.FromArgb(75, 85, 99) };
-            txtSearch = new TextBox
-            {
-                Location = new Point(640, 38),
-                Size = new Size(180, 25),
-                Font = new Font("Segoe UI", 9)
-            };
-            txtSearch.TextChanged += txtSearch_TextChanged;
-            pnlTopBar.Controls.Add(lblSearch);
-            pnlTopBar.Controls.Add(txtSearch);
-
-            // Export Button
-            btnExport = new Button
-            {
-                Text = "💾 Export CSV",
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                BackColor = Color.FromArgb(16, 185, 129), // Emerald Green
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Location = new Point(840, 34),
-                Size = new Size(100, 32),
-                Cursor = Cursors.Hand
-            };
-            btnExport.FlatAppearance.BorderSize = 0;
-            btnExport.Click += btnExport_Click;
-            pnlTopBar.Controls.Add(btnExport);
-
-            // Print Button
+            // Print Button (Anchored to Far Right)
             btnPrint = new Button
             {
                 Text = "🖨️ Print",
@@ -181,13 +213,74 @@ namespace HRApplicantSystem.Forms.HR
                 BackColor = Color.FromArgb(59, 130, 246), // Modern Blue
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Location = new Point(950, 34),
+                Location = new Point(topBarBaseWidth - 80 - 20, 34),
                 Size = new Size(80, 32),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Cursor = Cursors.Hand
             };
             btnPrint.FlatAppearance.BorderSize = 0;
             btnPrint.Click += btnPrint_Click;
             pnlTopBar.Controls.Add(btnPrint);
+
+            // Export Button (Anchored to Right, left of Print)
+            btnExport = new Button
+            {
+                Text = "💾 Export CSV",
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                BackColor = Color.FromArgb(16, 185, 129), // Emerald Green
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Location = new Point(topBarBaseWidth - 80 - 20 - 110 - 10, 34),
+                Size = new Size(110, 32),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Cursor = Cursors.Hand
+            };
+            btnExport.FlatAppearance.BorderSize = 0;
+            btnExport.Click += btnExport_Click;
+            pnlTopBar.Controls.Add(btnExport);
+
+            // Dynamic Search Box (Anchored to Right)
+            Label lblSearch = new Label
+            {
+                Text = "Search Filter:",
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Location = new Point(topBarBaseWidth - 80 - 20 - 110 - 10 - 150 - 15, 18),
+                Size = new Size(150, 15),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                ForeColor = Color.FromArgb(75, 85, 99)
+            };
+            txtSearch = new TextBox
+            {
+                Location = new Point(topBarBaseWidth - 80 - 20 - 110 - 10 - 150 - 15, 38),
+                Size = new Size(150, 25),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Font = new Font("Segoe UI", 9)
+            };
+            txtSearch.TextChanged += txtSearch_TextChanged;
+            pnlTopBar.Controls.Add(lblSearch);
+            pnlTopBar.Controls.Add(txtSearch);
+
+            // Department Dropdown Filter (Anchored to Right)
+            Label lblDept = new Label
+            {
+                Text = "Department:",
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Location = new Point(topBarBaseWidth - 80 - 20 - 110 - 10 - 150 - 15 - 150 - 15, 18),
+                Size = new Size(150, 15),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                ForeColor = Color.FromArgb(75, 85, 99)
+            };
+            cmbDepartment = new ComboBox
+            {
+                Location = new Point(topBarBaseWidth - 80 - 20 - 110 - 10 - 150 - 15 - 150 - 15, 38),
+                Size = new Size(150, 25),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 9)
+            };
+            cmbDepartment.SelectedIndexChanged += cmbDepartment_SelectedIndexChanged;
+            pnlTopBar.Controls.Add(lblDept);
+            pnlTopBar.Controls.Add(cmbDepartment);
 
             // 3. Main Data Workspace
             pnlMainContent = new Panel
@@ -228,7 +321,7 @@ namespace HRApplicantSystem.Forms.HR
 
             pnlMainContent.Controls.Add(dgvReports);
 
-            // Add all panels to the main form
+            // Add all panels to the main form (reverse Z-order handles docking priority)
             this.Controls.Add(pnlMainContent);
             this.Controls.Add(pnlTopBar);
             this.Controls.Add(pnlSidebar);
@@ -262,6 +355,9 @@ namespace HRApplicantSystem.Forms.HR
             {
                 if (ctrl is Button btn)
                 {
+                    // Do not reset back button highlight properties
+                    if (btn == btnBack) continue;
+
                     btn.BackColor = Color.Transparent;
                     btn.ForeColor = Color.FromArgb(156, 163, 175);
                 }

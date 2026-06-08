@@ -34,9 +34,59 @@ namespace HRApplicantSystem.Forms.HR
         private void HiringDecisionForm_Load(object sender, EventArgs e)
         {
             ApplyThemeColors();
+
+            // Centering Fix: Snap form coordinates precisely over the main dashboard
+            CenterFormOnDashboard();
+
             LoadApplications();
             rdoAccepted.Checked = true;
             UpdateDecisionCardUI();
+        }
+
+        /// <summary>
+        /// Locates the open HR Dashboard application window and centers this workspace directly over it.
+        /// Resolves high-DPI scaling offsets at runtime.
+        /// </summary>
+        private void CenterFormOnDashboard()
+        {
+            Form dashboard = null;
+
+            // Search for the dashboard or main menu form
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm != this && (openForm.Name.Contains("Dashboard") || openForm.Name.Contains("Main") || openForm.Name.Contains("Portal")))
+                {
+                    dashboard = openForm;
+                    break;
+                }
+            }
+
+            // Fallback to the first open form if no exact name matches
+            if (dashboard == null)
+            {
+                foreach (Form openForm in Application.OpenForms)
+                {
+                    if (openForm != this)
+                    {
+                        dashboard = openForm;
+                        break;
+                    }
+                }
+            }
+
+            if (dashboard != null)
+            {
+                this.StartPosition = FormStartPosition.Manual;
+                this.Location = new Point(
+                    dashboard.Location.X + (dashboard.Width - this.Width) / 2,
+                    dashboard.Location.Y + (dashboard.Height - this.Height) / 2
+                );
+            }
+            else
+            {
+                // Fallback to primary screen center if no caller dashboard is detected
+                this.StartPosition = FormStartPosition.CenterScreen;
+            }
         }
 
         /// <summary>

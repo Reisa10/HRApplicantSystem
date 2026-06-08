@@ -218,6 +218,9 @@ namespace HRApplicantSystem.Forms.HR
             // Dynamic User action styling
             if (btnSaveUser != null) UITheme.StylePrimaryButton(btnSaveUser);
             if (btnClearUser != null) UITheme.StyleSecondaryButton(btnClearUser);
+
+            // Style Back Button dynamically
+            if (btnBack != null) UITheme.StyleSecondaryButton(btnBack);
         }
 
         private void LoadAllData()
@@ -1163,6 +1166,11 @@ namespace HRApplicantSystem.Forms.HR
             {
                 bs.Filter = "";
             }
+        }
+
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

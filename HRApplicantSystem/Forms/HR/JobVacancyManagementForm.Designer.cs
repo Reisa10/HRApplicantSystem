@@ -20,6 +20,7 @@
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.lblSubtitle = new System.Windows.Forms.Label();
             this.lblTitle = new System.Windows.Forms.Label();
+            this.btnBack = new System.Windows.Forms.Button();
             this.pnlMainLayout = new System.Windows.Forms.TableLayoutPanel();
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.lblSearchLabel = new System.Windows.Forms.Label();
@@ -51,6 +52,7 @@
             // 
             // pnlHeader
             // 
+            this.pnlHeader.Controls.Add(this.btnBack);
             this.pnlHeader.Controls.Add(this.lblSubtitle);
             this.pnlHeader.Controls.Add(this.lblTitle);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -76,6 +78,17 @@
             this.lblTitle.Size = new System.Drawing.Size(262, 30);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "Job Vacancy Management";
+            // 
+            // btnBack
+            // 
+            this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBack.Location = new System.Drawing.Point(890, 25);
+            this.btnBack.Name = "btnBack";
+            this.btnBack.Size = new System.Drawing.Size(110, 35);
+            this.btnBack.TabIndex = 2;
+            this.btnBack.Text = "Back";
+            this.btnBack.UseVisualStyleBackColor = true;
+            this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
             // 
             // pnlMainLayout
             // 
@@ -345,6 +358,7 @@
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblSubtitle;
         private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Button btnBack;
         private System.Windows.Forms.TableLayoutPanel pnlMainLayout;
         private System.Windows.Forms.Panel pnlLeft;
         private System.Windows.Forms.Label lblSearchLabel;
