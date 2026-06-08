@@ -118,6 +118,10 @@
     <Compile Include="Forms\HR\ApplicantReviewForm.Designer.cs">
       <DependentUpon>ApplicantReviewForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\HR\AssessmentEvaluationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\HR\AssessmentEvaluationForm.Designer.cs" />
     <Compile Include="Forms\HR\HiringDecisionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -186,6 +190,7 @@
     <EmbeddedResource Include="Forms\HR\ApplicantReviewForm.resx">
       <DependentUpon>ApplicantReviewForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\HR\AssessmentEvaluationForm.resx" />
     <EmbeddedResource Include="Forms\HR\HiringDecisionForm.resx">
       <DependentUpon>HiringDecisionForm.cs</DependentUpon>
     </EmbeddedResource>

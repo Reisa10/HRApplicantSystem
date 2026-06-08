@@ -48,6 +48,13 @@ namespace HRApplicantSystem.Forms.HR
 
         }
 
+        private void AssessmentEvaluation_Click(object sender, EventArgs e)
+        {
+            AssessmentEvaluationForm frm = new AssessmentEvaluationForm();
+            frm.Show();
+            this.Close();
+        }
+
         private void HiringDecision_Click(object sender, EventArgs e)
         {
             if (UserSession.Role != "HR Manager" && UserSession.Role != "Admin")

@@ -96,7 +96,10 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             using (DocumentsForm docForm = new DocumentsForm(UserSession.UserID))
             {
+                this.Hide();
                 docForm.ShowDialog();
+                this.Show();
+                RefreshDashboardSummary();
             }
             // Instantly refresh the button status line when returning from Documents form
             RefreshDashboardSummary();

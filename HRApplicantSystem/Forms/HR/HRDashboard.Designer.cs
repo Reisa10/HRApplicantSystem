@@ -34,6 +34,7 @@
             this.Reports = new System.Windows.Forms.Button();
             this.Logout = new System.Windows.Forms.Button();
             this.InterviewEvaluation = new System.Windows.Forms.Button();
+            this.AssessmentEvaluation = new System.Windows.Forms.Button();
             this.HiringDecision = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -69,7 +70,7 @@
             // 
             // Reports
             // 
-            this.Reports.Location = new System.Drawing.Point(12, 286);
+            this.Reports.Location = new System.Drawing.Point(12, 337);
             this.Reports.Name = "Reports";
             this.Reports.Size = new System.Drawing.Size(128, 42);
             this.Reports.TabIndex = 3;
@@ -79,7 +80,7 @@
             // 
             // Logout
             // 
-            this.Logout.Location = new System.Drawing.Point(12, 333);
+            this.Logout.Location = new System.Drawing.Point(12, 384);
             this.Logout.Name = "Logout";
             this.Logout.Size = new System.Drawing.Size(128, 42);
             this.Logout.TabIndex = 4;
@@ -97,9 +98,19 @@
             this.InterviewEvaluation.UseVisualStyleBackColor = true;
             this.InterviewEvaluation.Click += new System.EventHandler(this.InterviewEvaluation_Click);
             // 
+            // AssessmentEvaluation
+            // 
+            this.AssessmentEvaluation.Location = new System.Drawing.Point(12, 234);
+            this.AssessmentEvaluation.Name = "AssessmentEvaluation";
+            this.AssessmentEvaluation.Size = new System.Drawing.Size(128, 44);
+            this.AssessmentEvaluation.TabIndex = 7;
+            this.AssessmentEvaluation.Text = "Assessment Evaluation";
+            this.AssessmentEvaluation.UseVisualStyleBackColor = true;
+            this.AssessmentEvaluation.Click += new System.EventHandler(this.AssessmentEvaluation_Click);
+            // 
             // HiringDecision
             // 
-            this.HiringDecision.Location = new System.Drawing.Point(12, 234);
+            this.HiringDecision.Location = new System.Drawing.Point(12, 285);
             this.HiringDecision.Name = "HiringDecision";
             this.HiringDecision.Size = new System.Drawing.Size(128, 45);
             this.HiringDecision.TabIndex = 6;
@@ -111,8 +122,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 500);
             this.Controls.Add(this.HiringDecision);
+            this.Controls.Add(this.AssessmentEvaluation);
             this.Controls.Add(this.InterviewEvaluation);
             this.Controls.Add(this.Logout);
             this.Controls.Add(this.Reports);
@@ -134,6 +146,7 @@
         private System.Windows.Forms.Button Reports;
         private System.Windows.Forms.Button Logout;
         private System.Windows.Forms.Button InterviewEvaluation;
+        private System.Windows.Forms.Button AssessmentEvaluation;
         private System.Windows.Forms.Button HiringDecision;
     }
 }

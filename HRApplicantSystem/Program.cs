@@ -16,8 +16,8 @@ namespace HRApplicantSystem
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new HRApplicantSystem.Forms.HR.ReportsForm());
             Application.Run(new HRApplicantSystem.Forms.Login.LoginForm());
+            //Application.Run(new HRApplicantSystem.Forms.HR.HRDashboard());
 
         }
     }

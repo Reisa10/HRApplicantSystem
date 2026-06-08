@@ -1,25 +1,21 @@
-﻿using HRApplicantSystem.Database;
+using HRApplicantSystem.Database;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.OleDb;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HRApplicantSystem.Forms.HR
 {
-    public partial class InterviewEvaluationForm : Form
+    public partial class AssessmentEvaluationForm : Form
     {
         private int selectedApplicationID = 0;
         private DataTable dtApplications = new DataTable();
-        public InterviewEvaluationForm()
+
+        public AssessmentEvaluationForm()
         {
             InitializeComponent();
         }
+
         private void LoadApplications()
         {
             try
@@ -30,57 +26,31 @@ namespace HRApplicantSystem.Forms.HR
                     if (conn == null)
                         return;
 
-                    // Join only the latest schedule row per application
-                    // to prevent duplicate rows when an interview was rescheduled.
                     string query = @"
                 SELECT
                     Applications.ApplicationID,
                     Applicants.FirstName & ' ' &
                     Applicants.LastName AS FullName,
                     JobVacancies.JobTitle,
-                    LatestSchedule.InterviewDate,
-                    LatestSchedule.Interviewer
+                    Applications.DateApplied
                 FROM
                     (
-                        (
-                            Applications
-                            INNER JOIN Applicants
-                                ON Applications.ApplicantID =
-                                   Applicants.ApplicantID
-                        )
-                        INNER JOIN JobVacancies
-                            ON Applications.JobID =
-                               JobVacancies.JobID
+                        Applications
+                        INNER JOIN Applicants
+                            ON Applications.ApplicantID =
+                               Applicants.ApplicantID
                     )
-                    INNER JOIN
-                    (
-                        SELECT s.ApplicationID,
-                               s.InterviewDate,
-                               s.Interviewer
-                        FROM   InterviewSchedules AS s
-                        INNER JOIN
-                        (
-                            SELECT ApplicationID,
-                                   MAX(ScheduleID) AS MaxID
-                            FROM   InterviewSchedules
-                            GROUP  BY ApplicationID
-                        ) AS m
-                            ON  s.ApplicationID = m.ApplicationID
-                            AND s.ScheduleID    = m.MaxID
-                    ) AS LatestSchedule
-                        ON Applications.ApplicationID =
-                           LatestSchedule.ApplicationID
-                WHERE Applications.Status = 'Interview Scheduled'";
+                    INNER JOIN JobVacancies
+                        ON Applications.JobID =
+                           JobVacancies.JobID
+                WHERE Applications.Status = 'For Assessment'";
 
                     using (OleDbDataAdapter adapter =
                         new OleDbDataAdapter(query, conn))
                     {
                         dtApplications.Clear();
-
                         adapter.Fill(dtApplications);
-
-                        dgvApplicants.DataSource =
-                            dtApplications;
+                        dgvApplicants.DataSource = dtApplications;
 
                         if (dgvApplicants.Columns["ApplicationID"] != null)
                             dgvApplicants.Columns["ApplicationID"].Visible = false;
@@ -93,18 +63,16 @@ namespace HRApplicantSystem.Forms.HR
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Error loading applicants:\n" +
-                    ex.Message,
+                    "Error loading applicants:\n" + ex.Message,
                     "Database Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
         }
 
-        private void InterviewEvaluationForm_Load(object sender, EventArgs e)
+        private void AssessmentEvaluationForm_Load(object sender, EventArgs e)
         {
             LoadApplications();
-
             rdoPass.Checked = true;
         }
 
@@ -126,12 +94,6 @@ namespace HRApplicantSystem.Forms.HR
                 lblJob.Text =
                     "Job: " +
                     row.Cells["JobTitle"].Value?.ToString();
-
-                lblInterviewDate.Text =
-                    "Interview Date: " +
-                    Convert.ToDateTime(
-                        row.Cells["InterviewDate"].Value)
-                    .ToShortDateString();
             }
         }
 
@@ -144,7 +106,16 @@ namespace HRApplicantSystem.Forms.HR
                     "Validation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
+                return;
+            }
 
+            if (string.IsNullOrWhiteSpace(txtAssessmentType.Text))
+            {
+                MessageBox.Show(
+                    "Please enter the assessment type.",
+                    "Validation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 return;
             }
 
@@ -155,43 +126,27 @@ namespace HRApplicantSystem.Forms.HR
                     "Validation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
-
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(
-                txtRecommendation.Text))
-            {
-                MessageBox.Show(
-                    "Please enter recommendation.",
-                    "Validation Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
-
-                return;
-            }
             string result =
-    rdoPass.Checked
-    ? "Pass"
-    : "Fail";
+                rdoPass.Checked ? "Pass" : "Fail";
 
             string applicationStatus =
                 rdoPass.Checked
-                ? "For Assessment"
+                ? "For Final Decision"
                 : "Rejected";
 
-            DialogResult confirm =
-    MessageBox.Show(
-        "Save interview evaluation?",
-        "Confirm",
-        MessageBoxButtons.YesNo,
-        MessageBoxIcon.Question);
+            DialogResult confirm = MessageBox.Show(
+                "Save assessment evaluation for this applicant?",
+                "Confirm",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
 
             if (confirm != DialogResult.Yes)
                 return;
 
-            OleDbConnection conn =
-    DBConnection.GetConnection();
+            OleDbConnection conn = DBConnection.GetConnection();
 
             if (conn == null)
                 return;
@@ -201,27 +156,27 @@ namespace HRApplicantSystem.Forms.HR
             try
             {
                 conn.Open();
+                transaction = conn.BeginTransaction();
 
-                transaction =
-                    conn.BeginTransaction();
-
-                string insertEvaluation =
-    @"INSERT INTO InterviewEvaluations
-    (
-        ApplicationID,
-        Score,
-        Remarks,
-        Result,
-        Recommendation
-    )
-    VALUES
-    (?, ?, ?, ?, ?)";
+                // Insert into AssessmentEvaluations table
+                string insertAssessment = @"
+                    INSERT INTO AssessmentEvaluations
+                    (
+                        ApplicationID,
+                        AssessmentType,
+                        Score,
+                        Result,
+                        Remarks,
+                        AssessedBy,
+                        DateAssessed
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 using (OleDbCommand cmd =
-    new OleDbCommand(
-        insertEvaluation,
-        conn,
-        transaction))
+                    new OleDbCommand(
+                        insertAssessment,
+                        conn,
+                        transaction))
                 {
                     cmd.Parameters.Add(
                         "@ApplicationID",
@@ -229,17 +184,14 @@ namespace HRApplicantSystem.Forms.HR
                         .Value = selectedApplicationID;
 
                     cmd.Parameters.Add(
-                        "@Score",
-                        OleDbType.Integer)
-                        .Value =
-                        Convert.ToInt32(
-                            nudScore.Value);
+                        "@AssessmentType",
+                        OleDbType.VarWChar)
+                        .Value = txtAssessmentType.Text.Trim();
 
                     cmd.Parameters.Add(
-                        "@Remarks",
-                        OleDbType.VarWChar)
-                        .Value =
-                        txtRemarks.Text.Trim();
+                        "@Score",
+                        OleDbType.Integer)
+                        .Value = Convert.ToInt32(nudScore.Value);
 
                     cmd.Parameters.Add(
                         "@Result",
@@ -247,72 +199,78 @@ namespace HRApplicantSystem.Forms.HR
                         .Value = result;
 
                     cmd.Parameters.Add(
-                        "@Recommendation",
+                        "@Remarks",
                         OleDbType.VarWChar)
-                        .Value =
-                        txtRecommendation.Text.Trim();
+                        .Value = txtRemarks.Text.Trim();
+
+                    cmd.Parameters.Add(
+                        "@AssessedBy",
+                        OleDbType.Integer)
+                        .Value = DBNull.Value;
+
+                    cmd.Parameters.Add(
+                        "@DateAssessed",
+                        OleDbType.Date)
+                        .Value = DateTime.Now;
 
                     cmd.ExecuteNonQuery();
                 }
 
-                string updateApplication =
-    @"UPDATE Applications
-      SET [Status] = ?
-      WHERE ApplicationID = ?";
+                // Update Applications.Status
+                string updateApplication = @"
+                    UPDATE Applications
+                    SET [Status] = ?
+                    WHERE ApplicationID = ?";
 
                 using (OleDbCommand cmd =
-    new OleDbCommand(
-        updateApplication,
-        conn,
-        transaction))
+                    new OleDbCommand(
+                        updateApplication,
+                        conn,
+                        transaction))
                 {
                     cmd.Parameters.Add(
                         "@Status",
                         OleDbType.VarWChar)
-                        .Value =
-                        applicationStatus;
+                        .Value = applicationStatus;
 
                     cmd.Parameters.Add(
                         "@ApplicationID",
                         OleDbType.Integer)
-                        .Value =
-                        selectedApplicationID;
+                        .Value = selectedApplicationID;
 
                     cmd.ExecuteNonQuery();
                 }
-                string insertHistory =
-    @"INSERT INTO
-      ApplicationStatusHistory
-      (
-        ApplicationID,
-        [Status],
-        DateChanged
-      )
-      VALUES
-      (?, ?, ?)";
+
+                // Insert into ApplicationStatusHistory
+                string insertHistory = @"
+                    INSERT INTO ApplicationStatusHistory
+                    (
+                        ApplicationID,
+                        [Status],
+                        DateChanged
+                    )
+                    VALUES (?, ?, ?)";
+
                 using (OleDbCommand cmd =
-    new OleDbCommand(
-        insertHistory,
-        conn,
-        transaction))
+                    new OleDbCommand(
+                        insertHistory,
+                        conn,
+                        transaction))
                 {
                     cmd.Parameters.Add(
                         "@ApplicationID",
                         OleDbType.Integer)
-                        .Value =
-                        selectedApplicationID;
+                        .Value = selectedApplicationID;
 
                     cmd.Parameters.Add(
                         "@Status",
                         OleDbType.VarWChar)
-                        .Value =
-                        applicationStatus;
+                        .Value = applicationStatus;
 
                     cmd.Parameters.Add(
                         "@DateChanged",
                         OleDbType.Date)
-                        .Value =
-                        DateTime.Now;
+                        .Value = DateTime.Now;
 
                     cmd.ExecuteNonQuery();
                 }
@@ -320,26 +278,19 @@ namespace HRApplicantSystem.Forms.HR
                 transaction.Commit();
 
                 MessageBox.Show(
-                    "Interview evaluation saved.",
+                    "Assessment evaluation saved successfully.",
                     "Success",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
+                // Reset form
                 selectedApplicationID = 0;
-
-                lblApplicant.Text =
-                    "Applicant: -";
-
-                lblJob.Text =
-                    "Job: -";
-
-                lblInterviewDate.Text =
-                    "Interview Date: -";
-
+                lblApplicant.Text = "Applicant: —";
+                lblJob.Text = "Job: —";
+                txtAssessmentType.Clear();
                 txtRemarks.Clear();
-                txtRecommendation.Clear();
-
                 nudScore.Value = 75;
+                rdoPass.Checked = true;
 
                 LoadApplications();
             }
@@ -348,19 +299,15 @@ namespace HRApplicantSystem.Forms.HR
                 transaction?.Rollback();
 
                 MessageBox.Show(
-                    "Error saving evaluation:\n" +
-                    ex.Message,
+                    "Error saving assessment:\n" + ex.Message,
                     "Database Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
             finally
             {
-                if (conn.State ==
-                    ConnectionState.Open)
-                {
+                if (conn.State == ConnectionState.Open)
                     conn.Close();
-                }
             }
         }
 
