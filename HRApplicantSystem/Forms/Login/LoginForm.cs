@@ -57,6 +57,13 @@ namespace HRApplicantSystem.Forms.Login
                         {
                             if (reader.Read())
                             {
+                                // Check account status before allowing login
+                                if (reader["AccountStatus"].ToString() != "Active")
+                                {
+                                    MessageBox.Show("Your account is inactive. Please contact the administrator.", "Account Inactive", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    return;
+                                }
+
                                 // Save user details to active session
                                 UserSession.UserID = Convert.ToInt32(reader["UserID"]);
                                 UserSession.Username = reader["Username"].ToString();
