@@ -484,10 +484,15 @@ namespace HRApplicantSystem.Forms.HR
                     break;
 
                 case "MissingReqs":
-                    // Generates missing documents list using a Cartesian product (Applicants * IsRequired) and a NOT EXISTS condition
+                    // Generates missing documents list only for applicants with active, non-finalized applications
                     query = @"SELECT a.ApplicantID, a.FirstName, a.LastName, r.RequirementName, 'Missing' AS DocumentStatus
                              FROM Applicants a, RequirementTypes r
                              WHERE r.IsRequired = True
+                               AND a.ApplicantID IN (
+                                   SELECT ap.ApplicantID 
+                                   FROM Applications ap 
+                                   WHERE ap.Status NOT IN ('Accepted', 'Rejected', 'Withdrawn')
+                               )
                                AND NOT EXISTS (
                                    SELECT 1 
                                    FROM ApplicantDocuments ad 

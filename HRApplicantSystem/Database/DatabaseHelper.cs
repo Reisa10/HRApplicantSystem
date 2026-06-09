@@ -43,7 +43,7 @@ namespace HRApplicantSystem.Database
                     string activeJobQuery = @"SELECT j.RequiredDocuments 
                                               FROM Applications a 
                                               INNER JOIN JobVacancies j ON a.JobID = j.JobID 
-                                              WHERE a.ApplicantID = ? AND a.Status NOT IN ('Withdrawn', 'Rejected')";
+                                              WHERE a.ApplicantID = ? AND a.Status NOT IN ('Withdrawn', 'Rejected', 'Accepted')";
 
                     string requiredDocsCSV = "";
                     using (OleDbCommand jobCmd = new OleDbCommand(activeJobQuery, con))

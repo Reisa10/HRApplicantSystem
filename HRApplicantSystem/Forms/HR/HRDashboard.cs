@@ -19,6 +19,9 @@ namespace HRApplicantSystem.Forms.HR
 
         private void HRDashboard_Load(object sender, EventArgs e)
         {
+            // Rename the header panel title
+            lblHeaderTitle.Text = "HR PROCESSING DASHBOARD";
+
             // Populate welcome user details dynamically
             lblUserFullName.Text = !string.IsNullOrEmpty(UserSession.FullName) ? UserSession.FullName : "System User";
             lblUserRole.Text = !string.IsNullOrEmpty(UserSession.Role) ? UserSession.Role.ToUpper() : "SPECIALIST";
@@ -111,8 +114,11 @@ namespace HRApplicantSystem.Forms.HR
 
             workspaceContainerPanel.Controls.Add(kpiPanel);
 
-            // Load counts dynamically from database
-            int candidates = 0, openApps = 0, hiredCount = 0;
+            // Initialize counts
+            int candidates = 0;
+            int openApps = 0;
+            int hiredCount = 0;
+
             using (OleDbConnection con = DBConnection.GetConnection())
             {
                 if (con != null)
@@ -120,23 +126,50 @@ namespace HRApplicantSystem.Forms.HR
                     try
                     {
                         con.Open();
+
+                        // 1. TOTAL CANDIDATES IN SYSTEM (All registered profiles)
                         using (OleDbCommand cmd = new OleDbCommand("SELECT COUNT(*) FROM Applicants", con))
+                        {
                             candidates = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
 
-                        using (OleDbCommand cmd = new OleDbCommand("SELECT COUNT(*) FROM Applications WHERE Status IN ('Submitted', 'Under Review', 'Shortlisted')", con))
+                        // 2. ACTIVE OPERATION PIPELINE (Include all active process statuses)
+                        string activePipelineQuery = @"
+                    SELECT COUNT(*) 
+                    FROM Applications 
+                    WHERE Status IN (
+                        'Submitted', 
+                        'Under Review', 
+                        'Shortlisted', 
+                        'For Interview', 
+                        'For Assessment', 
+                        'For Final Review'
+                    )";
+
+                        using (OleDbCommand cmd = new OleDbCommand(activePipelineQuery, con))
+                        {
                             openApps = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
 
+                        // 3. SUCCESSFUL PLACEMENTS (Official finalized hires)
                         using (OleDbCommand cmd = new OleDbCommand("SELECT COUNT(*) FROM Applications WHERE Status = 'Accepted'", con))
+                        {
                             hiredCount = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
                     }
-                    catch { /* Fallback */ }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("HR Dashboard loading failed: " + ex.Message);
+                    }
                 }
             }
 
+            // Bind metrics to programmatic dashboard cards
             kpiPanel.Controls.Add(CreateStatCard("TOTAL CANDIDATES IN SYSTEM", candidates.ToString(), Color.FromArgb(41, 128, 185)), 0, 0);
             kpiPanel.Controls.Add(CreateStatCard("ACTIVE OPERATION PIPELINE", openApps.ToString(), Color.FromArgb(230, 126, 34)), 1, 0);
             kpiPanel.Controls.Add(CreateStatCard("SUCCESSFUL PLACEMENTS", hiredCount.ToString(), Color.FromArgb(39, 174, 96)), 2, 0);
 
+            // Add welcome banner panel
             // Add welcome banner panel
             Panel welcomeBanner = new Panel
             {
@@ -148,9 +181,10 @@ namespace HRApplicantSystem.Forms.HR
             workspaceContainerPanel.Controls.Add(welcomeBanner);
             welcomeBanner.BringToFront();
 
+            // UPDATE: Renamed to remove the '&' symbol causing the underscore
             Label lblWelcomeHeader = new Label
             {
-                Text = "Talent Acquisition & Recruitment Portal",
+                Text = "Applicant Recruitment Portal",
                 Font = new Font("Segoe UI Semibold", 16, FontStyle.Bold),
                 ForeColor = Color.FromArgb(44, 62, 80),
                 Location = new Point(30, 30),
@@ -158,6 +192,7 @@ namespace HRApplicantSystem.Forms.HR
             };
             welcomeBanner.Controls.Add(lblWelcomeHeader);
 
+            // UPDATE: Added Anchor properties and a relative Width so the message dynamically fits the page
             Label lblWelcomeBody = new Label
             {
                 Text = "Select an operation from the sidebar navigation panel on the left to launch the respective module. " +
@@ -165,7 +200,9 @@ namespace HRApplicantSystem.Forms.HR
                 Font = new Font("Segoe UI", 10, FontStyle.Regular),
                 ForeColor = Color.DimGray,
                 Location = new Point(33, 75),
-                Size = new Size(700, 80)
+                Size = new Size(welcomeBanner.Width - 66, 80), // Subtracts horizontal margin offsets dynamically
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right, // Allows the text to automatically resize with the page
+                AutoSize = false
             };
             welcomeBanner.Controls.Add(lblWelcomeBody);
         }

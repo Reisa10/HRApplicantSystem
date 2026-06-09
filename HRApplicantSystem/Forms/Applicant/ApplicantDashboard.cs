@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using HRApplicantSystem.Classes;
+﻿using HRApplicantSystem.Classes;
 using HRApplicantSystem.Database;
 using HRApplicantSystem.Forms.Login;
+using System;
+using System.Collections.Generic;
+using System.Data.OleDb;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace HRApplicantSystem.Forms.Applicant
 {
@@ -26,7 +27,57 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void RefreshDashboardSummary()
         {
+            // Retain your original sidebar styling logic
             btnDocuments.Text = "    📁   My Documents";
+
+            int totalApps = 0;
+            int activeApps = 0;
+            int approvedApps = 0;
+
+            using (OleDbConnection con = DBConnection.GetConnection())
+            {
+                if (con != null)
+                {
+                    try
+                    {
+                        con.Open();
+
+                        // 1. Fetch Total Applications for this specific logged-in applicant
+                        string totalQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ?";
+                        using (OleDbCommand cmd = new OleDbCommand(totalQuery, con))
+                        {
+                            cmd.Parameters.AddWithValue("?", UserSession.UserID);
+                            totalApps = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        // 2. Fetch Active Applications (applications not yet finalized as Accepted, Rejected, or Withdrawn)
+                        string activeQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND Status NOT IN ('Accepted', 'Rejected', 'Withdrawn')";
+                        using (OleDbCommand cmd = new OleDbCommand(activeQuery, con))
+                        {
+                            cmd.Parameters.AddWithValue("?", UserSession.UserID);
+                            activeApps = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        // 3. Fetch Approved (Hired) Applications for this applicant
+                        string approvedQuery = "SELECT COUNT(*) FROM Applications WHERE ApplicantID = ? AND Status = 'Accepted'";
+                        using (OleDbCommand cmd = new OleDbCommand(approvedQuery, con))
+                        {
+                            cmd.Parameters.AddWithValue("?", UserSession.UserID);
+                            approvedApps = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Logs errors silently during debugging to keep the dashboard stable if database is locked
+                        System.Diagnostics.Debug.WriteLine("Error loading dashboard metrics: " + ex.Message);
+                    }
+                }
+            }
+
+            // Safely update the designer-defined labels with the calculated counts
+            lblCard1Value.Text = totalApps.ToString();
+            lblCard2Value.Text = activeApps.ToString();
+            lblCard3Value.Text = approvedApps.ToString();
         }
 
         private void btnProfile_Click(object sender, EventArgs e)
@@ -133,6 +184,16 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             this.BackColor = Color.FromArgb(245, 247, 250);
 
+            lblHeader.Text = "APPLICANT PROCESSING DASHBOARD";
+
+            lblMainTitle.Text = "Application Portal";
+
+            // 3. Make the body description message fit the page dynamically
+            lblMainDesc.AutoSize = false;
+            lblMainDesc.Width = panelContent.Width - 50; // Sets a proportional width with padding
+            lblMainDesc.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right; // Resizes automatically with the window size
+
+            // Keep your sidebar styling logic
             StyleSidebarButton(btnProfile, "    👤   My Profile");
             StyleSidebarButton(btnJobVacancies, "    💼   Job Vacancies");
             StyleSidebarButton(btnMyApplications, "    📝   My Applications");
