@@ -14,6 +14,7 @@ namespace HRApplicantSystem.Forms.HR
         {
             InitializeComponent();
             SetupDashboardConsole();
+            ApplyModernStyles();
         }
 
         private void HRDashboard_Load(object sender, EventArgs e)
@@ -27,6 +28,7 @@ namespace HRApplicantSystem.Forms.HR
 
             // Start the live system clock
             SystemClockTimer.Start();
+            UpdateDateTimeLabel(); // Initial layout alignment
         }
 
         /// <summary>
@@ -37,7 +39,6 @@ namespace HRApplicantSystem.Forms.HR
             string role = UserSession.Role;
             bool isManagerOrAdmin = (role == "HR Manager" || role == "Admin");
 
-            // HR Staff can view, review, screen, and schedule.
             ApplicantReview.Visible = true;
             Screening.Visible = true;
             InterviewSchedule.Visible = true;
@@ -52,34 +53,38 @@ namespace HRApplicantSystem.Forms.HR
 
         private void SystemClockTimer_Tick(object sender, EventArgs e)
         {
+            UpdateDateTimeLabel();
+        }
+
+        private void UpdateDateTimeLabel()
+        {
             lblDateTime.Text = DateTime.Now.ToString("dddd, MMMM dd, yyyy   h:mm:ss tt");
+
+            // Reposition date-time control on the right based on its auto-sized width
+            lblDateTime.Left = headerPanel.Width - lblDateTime.Width - 25;
+
+            // Vertically center labels within the header panel height dynamically
+            lblDateTime.Top = (headerPanel.Height - lblDateTime.Height) / 2;
+            lblHeaderTitle.Top = (headerPanel.Height - lblHeaderTitle.Height) / 2;
         }
 
         #region Operational Window Launcher (Hides Dashboard & Restores on Close)
-        /// <summary>
-        /// Launches child forms, hides the dashboard, and restores it when the child form is closed.
-        /// </summary>
         private void LaunchModule(Form childForm, Button senderButton)
         {
             try
             {
-                // Subscribe to the FormClosed event to bring back the dashboard
                 childForm.FormClosed += (sender, e) =>
                 {
                     this.Show();
-                    SetupDashboardConsole(); // Optional: Refresh dashboard counts upon return
+                    SetupDashboardConsole();
                 };
 
-                // Center the form on the screen
                 childForm.StartPosition = FormStartPosition.CenterScreen;
-
-                // Hide the dashboard and display the module
                 this.Hide();
                 childForm.Show();
             }
             catch (Exception ex)
             {
-                // Ensure the dashboard is visible if the child form fails to open
                 this.Show();
                 MessageBox.Show("Failed to open module: " + ex.Message, "System Notice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -132,7 +137,7 @@ namespace HRApplicantSystem.Forms.HR
             kpiPanel.Controls.Add(CreateStatCard("ACTIVE OPERATION PIPELINE", openApps.ToString(), Color.FromArgb(230, 126, 34)), 1, 0);
             kpiPanel.Controls.Add(CreateStatCard("SUCCESSFUL PLACEMENTS", hiredCount.ToString(), Color.FromArgb(39, 174, 96)), 2, 0);
 
-            // Add welcome banner graphic panel
+            // Add welcome banner panel
             Panel welcomeBanner = new Panel
             {
                 Dock = DockStyle.Fill,
@@ -167,16 +172,81 @@ namespace HRApplicantSystem.Forms.HR
 
         private Panel CreateStatCard(string header, string value, Color color)
         {
-            Panel card = new Panel { BackColor = Color.White, Dock = DockStyle.Fill, Padding = new Padding(15, 10, 10, 10), Margin = new Padding(8) };
-            Panel indicator = new Panel { Dock = DockStyle.Left, Width = 5, BackColor = color };
+            // Removed parent padding so docked accent bar sits cleanly at X = 0
+            Panel card = new Panel { BackColor = Color.White, Dock = DockStyle.Fill, Margin = new Padding(8) };
+
+            Panel indicator = new Panel { Dock = DockStyle.Left, Width = 6, BackColor = color };
             card.Controls.Add(indicator);
 
-            Label lblHeader = new Label { Text = header, Font = new Font("Segoe UI", 8, FontStyle.Bold), ForeColor = Color.DarkGray, Location = new Point(15, 12), Size = new Size(220, 15) };
-            Label lblValue = new Label { Text = value, Font = new Font("Segoe UI Semibold", 22, FontStyle.Bold), ForeColor = Color.FromArgb(44, 62, 80), Location = new Point(15, 28), Size = new Size(220, 40) };
+            // Positioned text starting at X = 22 to leave a comfortable gap from the indicator bar
+            Label lblHeader = new Label
+            {
+                Text = header,
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                ForeColor = Color.DarkGray,
+                Location = new Point(22, 14),
+                AutoSize = true
+            };
+
+            Label lblValue = new Label
+            {
+                Text = value,
+                Font = new Font("Segoe UI Semibold", 22, FontStyle.Bold),
+                ForeColor = Color.FromArgb(44, 62, 80),
+                Location = new Point(22, 32),
+                AutoSize = true
+            };
 
             card.Controls.Add(lblHeader);
             card.Controls.Add(lblValue);
             return card;
+        }
+        #endregion
+
+        #region Theme Customization
+        private void ApplyModernStyles()
+        {
+            this.BackColor = Color.FromArgb(245, 247, 250);
+            sidebarPanel.BackColor = Color.FromArgb(26, 34, 45);
+            profilePanel.BackColor = Color.FromArgb(20, 27, 36);
+
+            lblWelcome.Font = new Font("Segoe UI", 8.5F);
+            lblWelcome.ForeColor = Color.FromArgb(200, 214, 229);
+
+            StyleSidebarButton(btnHome, "🏠  Dashboard Home", true);
+            StyleSidebarButton(ApplicantReview, "👥  Applicant Review", false);
+            StyleSidebarButton(Screening, "🔍  Basic Screening", false);
+            StyleSidebarButton(InterviewSchedule, "📅  Interview Schedule", false);
+            StyleSidebarButton(InterviewEvaluation, "📝  Interview Evaluation", false);
+            StyleSidebarButton(HiringDecision, "⚖️  Hiring Decisions", false);
+            StyleSidebarButton(JobVacancyManagement, "💼  Job Vacancies", false);
+            StyleSidebarButton(SystemMaintenance, "⚙️  System Maintenance", false);
+            StyleSidebarButton(Reports, "📊  Recruitment Reports", false);
+
+            Logout.FlatStyle = FlatStyle.Flat;
+            Logout.FlatAppearance.BorderSize = 0;
+            Logout.FlatAppearance.MouseOverBackColor = Color.FromArgb(34, 45, 60);
+            Logout.FlatAppearance.MouseDownBackColor = Color.FromArgb(20, 27, 36);
+            Logout.BackColor = Color.Transparent;
+            Logout.ForeColor = Color.FromArgb(231, 76, 60);
+            Logout.Cursor = Cursors.Hand;
+            Logout.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            Logout.TextAlign = ContentAlignment.MiddleLeft;
+            Logout.Text = "🚪  Sign Out";
+        }
+
+        private void StyleSidebarButton(Button btn, string text, bool isBold)
+        {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(34, 45, 60);
+            btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(20, 27, 36);
+            btn.BackColor = Color.Transparent;
+            btn.ForeColor = isBold ? Color.White : Color.FromArgb(200, 214, 229);
+            btn.Cursor = Cursors.Hand;
+            btn.Font = new Font("Segoe UI", 9.5F, isBold ? FontStyle.Bold : FontStyle.Regular);
+            btn.TextAlign = ContentAlignment.MiddleLeft;
+            btn.Text = text;
         }
         #endregion
 

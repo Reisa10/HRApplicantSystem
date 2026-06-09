@@ -23,6 +23,7 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             InitializeComponent();
             this.currentApplicantId = applicantId;
+            this.StartPosition = FormStartPosition.CenterScreen;
 
             this.txtDocumentName.Click += txtDocumentName_Click;
             this.dgvDocuments.SelectionChanged += dgvDocuments_SelectionChanged;
@@ -41,6 +42,9 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 Directory.CreateDirectory(applicantDirectory);
             }
+
+            dgvDocuments.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
+            dgvDocuments.ScrollBars = ScrollBars.Both; // ← Ensures both scrollbars are available
 
             SetupDataGridViewColumns();
             LoadAppliedJobs();
@@ -85,6 +89,12 @@ namespace HRApplicantSystem.Forms.Applicant
         /// </summary>
         private void InitializeDynamicControls()
         {
+            // Explicitly force standard, clean labels on standard buttons
+            if (btnAdd != null) btnAdd.Text = "Add";
+            if (btnUpdate != null) btnUpdate.Text = "Update";
+            if (btnDelete != null) btnDelete.Text = "Delete";
+            if (btnBack != null) btnBack.Text = "Back";
+
             // Setup btnViewDocument programmatically if it doesn't exist
             Control[] btnMatches = this.Controls.Find("btnViewDocument", true);
             if (btnMatches.Length > 0)
@@ -96,7 +106,6 @@ namespace HRApplicantSystem.Forms.Applicant
                 btnViewDocument = new Button
                 {
                     Name = "btnViewDocument",
-                    Text = "🔍 View File",
                 };
                 btnViewDocument.Click += btnViewDocument_Click;
 
@@ -109,22 +118,27 @@ namespace HRApplicantSystem.Forms.Applicant
                     this.Controls.Add(btnViewDocument);
                 }
             }
-            StylePrimaryButton(btnViewDocument, Color.FromArgb(142, 68, 173)); // Modern Purple
+
+            btnViewDocument.Text = "View"; // Clean flat text, no glyphs
+            StylePrimaryButton(btnViewDocument, Color.FromArgb(156, 39, 176)); // Modern Purple (#9C27B0)
         }
 
         /// <summary>
-        /// Automatically organizes and snaps all buttons into a clean, unified horizontal row below inputs.
+        /// Automatically organizes, resizes, and positions all buttons horizontally.
+        /// Dynamically expands the form's client area to prevent clipping.
         /// </summary>
         private void AdjustControlsLayout()
         {
-            int startX = txtDocumentName.Left;
-            int endX = cmbRequirementType.Left + cmbRequirementType.Width;
+            // Hide unused buttons to match requirements
+            if (btnRefresh != null) btnRefresh.Visible = false;
 
+            int startX = txtDocumentName.Left;
             Control parentContainer = txtDocumentName.Parent ?? this;
 
-            // Re-parent all buttons onto the same container to avoid coordinate alignment bugs
-            Button[] buttons = new Button[] { btnAdd, btnUpdate, btnDelete, btnViewDocument, btnRefresh, btnBack };
-            foreach (Button btn in buttons)
+            Button[] actionButtons = new Button[] { btnAdd, btnUpdate, btnDelete, btnViewDocument, btnBack };
+
+            // Re-parent active buttons onto the same container to avoid coordinate alignment bugs
+            foreach (Button btn in actionButtons)
             {
                 if (btn != null && btn.Parent != parentContainer)
                 {
@@ -136,27 +150,28 @@ namespace HRApplicantSystem.Forms.Applicant
 
             // Position buttons cleanly directly below the main input fields
             int buttonsTop = txtDocumentName.Top + txtDocumentName.Height + 25;
-            int btnWidth = 85;
-            int btnHeight = 32;
-            int spacing = 8;
+            int btnWidth = 110;  // Uniform width
+            int btnHeight = 40;  // Uniform height
+            int spacing = 12;
+
+            // Prevent horizontal window clipping by scaling the Form size programmatically [1]
+            int totalRowWidth = (actionButtons.Length * btnWidth) + ((actionButtons.Length - 1) * spacing);
+            int minClientWidth = startX + totalRowWidth + startX; // Left offset + Row Width + Right symmetric margin [1]
+
+            if (this.ClientSize.Width < minClientWidth)
+            {
+                this.ClientSize = new Size(minClientWidth, this.ClientSize.Height);
+            }
 
             int currentLeft = startX;
-            for (int i = 0; i < buttons.Length; i++)
+            foreach (Button btn in actionButtons)
             {
-                if (buttons[i] != null)
+                if (btn != null)
                 {
-                    buttons[i].Size = new Size(btnWidth, btnHeight);
-
-                    // Keep the Back button aligned far right for symmetry
-                    if (buttons[i] == btnBack)
-                    {
-                        buttons[i].Location = new Point(endX - btnWidth, buttonsTop);
-                    }
-                    else
-                    {
-                        buttons[i].Location = new Point(currentLeft, buttonsTop);
-                        currentLeft += btnWidth + spacing;
-                    }
+                    btn.Size = new Size(btnWidth, btnHeight);
+                    btn.Location = new Point(currentLeft, buttonsTop);
+                    btn.Visible = true;
+                    currentLeft += btnWidth + spacing;
                 }
             }
         }
@@ -197,7 +212,8 @@ namespace HRApplicantSystem.Forms.Applicant
                 Name = "Remarks",
                 HeaderText = "Remarks",
                 DataPropertyName = "Remarks",
-                Width = 200,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 200,
                 ReadOnly = true
             });
 
@@ -944,12 +960,15 @@ namespace HRApplicantSystem.Forms.Applicant
             this.BackColor = Color.FromArgb(244, 246, 249);
             this.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
 
-            StylePrimaryButton(btnAdd, Color.FromArgb(41, 128, 185));
-            StylePrimaryButton(btnUpdate, Color.FromArgb(39, 174, 96));
-            StylePrimaryButton(btnDelete, Color.FromArgb(192, 57, 43));
+            // Styled Flat Design Color Scheme as requested
+            StylePrimaryButton(btnAdd, Color.FromArgb(33, 150, 243));         // Blue (#2196F3)
+            StylePrimaryButton(btnUpdate, Color.FromArgb(76, 175, 80));       // Green (#4CAF50)
+            StylePrimaryButton(btnDelete, Color.FromArgb(244, 67, 54));       // Red (#F44336)
+            StylePrimaryButton(btnViewDocument, Color.FromArgb(156, 39, 176)); // Purple (#9C27B0)
+            StylePrimaryButton(btnBack, Color.FromArgb(96, 125, 139));        // Slate Gray / Neutral Dark (#607D8B)
 
-            StyleSecondaryButton(btnRefresh);
-            StyleSecondaryButton(btnBack);
+            // Hidden but styled in case of external references
+            if (btnRefresh != null) StyleSecondaryButton(btnRefresh);
 
             dgvDocuments.BackgroundColor = Color.White;
             dgvDocuments.BorderStyle = BorderStyle.None;
@@ -980,23 +999,78 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void StylePrimaryButton(Button btn, Color bg)
         {
+            if (btn == null) return;
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 0;
             btn.BackColor = bg;
             btn.ForeColor = Color.White;
-            btn.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btn.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold); // Bold 10.5pt font
             btn.Cursor = Cursors.Hand;
+            btn.TextAlign = ContentAlignment.MiddleCenter;
+            btn.TextImageRelation = TextImageRelation.Overlay;
+            btn.Padding = new Padding(0);
+            btn.Margin = new Padding(0);
+            btn.UseCompatibleTextRendering = false;
+
+            ApplyButtonPaintFix(btn);
         }
 
         private void StyleSecondaryButton(Button btn)
         {
+            if (btn == null) return;
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize = 1;
             btn.FlatAppearance.BorderColor = Color.FromArgb(127, 140, 141);
             btn.BackColor = Color.White;
             btn.ForeColor = Color.FromArgb(44, 62, 80);
-            btn.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btn.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
             btn.Cursor = Cursors.Hand;
+            btn.TextAlign = ContentAlignment.MiddleCenter;
+            btn.TextImageRelation = TextImageRelation.Overlay;
+            btn.Padding = new Padding(0);
+            btn.Margin = new Padding(0);
+            btn.UseCompatibleTextRendering = false;
+
+            ApplyButtonPaintFix(btn);
+        }
+
+        /// <summary>
+        /// Registers custom paint overrides to correct system text alignment issues on disabled states.
+        /// </summary>
+        private void ApplyButtonPaintFix(Button btn)
+        {
+            if (btn == null) return;
+            btn.Paint -= Button_Paint;
+            btn.Paint += Button_Paint;
+        }
+
+        /// <summary>
+        /// Custom renders disabled button states to draw modern flat text aligned precisely in the center.
+        /// </summary>
+        private void Button_Paint(object sender, PaintEventArgs e)
+        {
+            Button btn = (Button)sender;
+            if (!btn.Enabled)
+            {
+                // Fill the background of the button with its designated flat color
+                using (Brush bgBrush = new SolidBrush(btn.BackColor))
+                {
+                    e.Graphics.FillRectangle(bgBrush, btn.ClientRectangle);
+                }
+
+                // Create a clean, modern semi-transparent text color to represent the disabled state
+                Color disabledColor = Color.White;
+
+                // Use a dark-faded color if the button background itself is white or light
+                if (btn.BackColor == Color.White)
+                {
+                    disabledColor = Color.FromArgb(110, 44, 62, 80);
+                }
+
+                // Draw centered text using standard TextRenderer for pixel-perfect GDI alignment
+                TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding;
+                TextRenderer.DrawText(e.Graphics, btn.Text, btn.Font, btn.ClientRectangle, disabledColor, flags);
+            }
         }
 
         private void lblApplicantID_Click(object sender, EventArgs e) { }

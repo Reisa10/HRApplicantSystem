@@ -30,41 +30,44 @@ namespace HRApplicantSystem.Forms.Applicant
         /// </summary>
         private void ApplyModernStyle()
         {
-            // Form Background
-            this.BackColor = Color.FromArgb(244, 246, 249);
-            this.Font = new Font("Segoe UI", 9f, FontStyle.Regular, GraphicsUnit.Point);
+            // Form Background matches dashboard off-white
+            this.BackColor = Color.FromArgb(245, 247, 250);
+            this.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
 
             // Search Panel Styling
             pnlSearch.BackColor = Color.White;
             pnlSearch.Height = 75;
 
-            lblHeaderTitle.ForeColor = Color.FromArgb(27, 54, 93); // Executive Dark Slate Navy
+            lblHeaderTitle.ForeColor = Color.FromArgb(27, 38, 59); // Standard Dark Slate Navy
             lblHeaderSubtitle.ForeColor = Color.FromArgb(127, 140, 141); // Slate Muted Gray
 
-            lblSearch.Font = new Font("Segoe UI Semibold", 9f, FontStyle.Bold);
+            lblSearch.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
             lblSearch.ForeColor = Color.FromArgb(100, 110, 120);
 
             // Input Fields Style
-            txtSearch.Font = new Font("Segoe UI", 9.5f);
-            cmbDepartment.Font = new Font("Segoe UI", 9.5f);
+            txtSearch.Font = new Font("Segoe UI", 9.5F);
+            txtSearch.BorderStyle = BorderStyle.FixedSingle;
 
-            // Flat Modern Buttons
-            StyleFlatButton(btnSearch, Color.FromArgb(52, 152, 219), Color.White); // Active Accent Blue
-            StyleFlatButton(btnReset, Color.FromArgb(149, 165, 166), Color.White); // Balanced Neutral Slate
-            StyleFlatButton(btnBack, Color.FromArgb(231, 76, 60), Color.White); // Elegant Soft Red
+            cmbDepartment.Font = new Font("Segoe UI", 9.5F);
+            cmbDepartment.FlatStyle = FlatStyle.Flat;
+
+            // Flat Modern Buttons matching dashboard accents
+            StyleFlatButton(btnSearch, Color.FromArgb(41, 128, 185), Color.White); // Dashboard Blue Accent
+            StyleFlatButton(btnReset, Color.FromArgb(149, 165, 166), Color.White); // Neutral Slate
+            StyleFlatButton(btnBack, Color.FromArgb(231, 76, 60), Color.White); // Soft Crimson Red
             StyleFlatButton(btnApply, Color.FromArgb(46, 204, 113), Color.White); // Emerald Professional Green
 
             // Details Panel Layout
             pnlDetails.BackColor = Color.White;
-            pnlAccentBar.BackColor = Color.FromArgb(52, 152, 219); // Subtle top visual cue matching active accent
+            pnlAccentBar.BackColor = Color.FromArgb(41, 128, 185); // Matches active blue
 
-            lblTitle.Font = new Font("Segoe UI", 13.5f, FontStyle.Bold);
-            lblTitle.ForeColor = Color.FromArgb(27, 54, 93);
+            lblTitle.Font = new Font("Segoe UI", 13.5F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(27, 38, 59);
 
-            lblDept.Font = new Font("Segoe UI Semibold", 9.5f, FontStyle.Italic);
+            lblDept.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Italic);
             lblDept.ForeColor = Color.FromArgb(127, 140, 141);
 
-            txtDescription.Font = new Font("Segoe UI", 9.5f, FontStyle.Regular);
+            txtDescription.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
             txtDescription.BackColor = Color.FromArgb(248, 250, 252);
             txtDescription.BorderStyle = BorderStyle.None;
 
@@ -81,10 +84,10 @@ namespace HRApplicantSystem.Forms.Applicant
             // Header Style
             DataGridViewCellStyle headerStyle = new DataGridViewCellStyle
             {
-                BackColor = Color.FromArgb(27, 54, 93),
+                BackColor = Color.FromArgb(27, 38, 59),
                 ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9.75f, FontStyle.Bold),
-                SelectionBackColor = Color.FromArgb(27, 54, 93),
+                Font = new Font("Segoe UI", 9.75F, FontStyle.Bold),
+                SelectionBackColor = Color.FromArgb(27, 38, 59),
                 Alignment = DataGridViewContentAlignment.MiddleLeft
             };
             dgvJobs.ColumnHeadersDefaultCellStyle = headerStyle;
@@ -94,9 +97,9 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 BackColor = Color.White,
                 ForeColor = Color.FromArgb(44, 62, 80),
-                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
                 SelectionBackColor = Color.FromArgb(232, 244, 253),
-                SelectionForeColor = Color.FromArgb(27, 54, 93)
+                SelectionForeColor = Color.FromArgb(27, 38, 59)
             };
             dgvJobs.DefaultCellStyle = rowStyle;
 
@@ -114,7 +117,7 @@ namespace HRApplicantSystem.Forms.Applicant
             btn.BackColor = backColor;
             btn.ForeColor = foreColor;
             btn.FlatAppearance.BorderSize = 0;
-            btn.Font = new Font("Segoe UI Semibold", 9f, FontStyle.Bold);
+            btn.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
             btn.Cursor = Cursors.Hand;
         }
 
@@ -377,7 +380,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
                         insertCmd.ExecuteNonQuery();
 
-                        // Get current session identity safely
                         insertCmd.CommandText = "SELECT @@IDENTITY";
                         generatedAppId = Convert.ToInt32(insertCmd.ExecuteScalar());
                     }
@@ -407,7 +409,6 @@ namespace HRApplicantSystem.Forms.Applicant
                     }
                     catch
                     {
-                        // Safe alternative schema check for Audit Trail database configurations
                         try
                         {
                             string auditQueryAlt = "INSERT INTO AuditTrail (ApplicantID, Activity, LogDate) VALUES (?, ?, ?)";
@@ -421,7 +422,7 @@ namespace HRApplicantSystem.Forms.Applicant
                         }
                         catch
                         {
-                            // Quiet ignore to isolate application flow from various dynamic schema edits across student teams
+                            // Quiet ignore
                         }
                     }
 

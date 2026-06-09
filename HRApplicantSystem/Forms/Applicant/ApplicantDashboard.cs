@@ -20,17 +20,13 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void ApplicantDashboard_Load(object sender, EventArgs e)
         {
-            lblWelcome.Text = $"Welcome back, {UserSession.FullName ?? "Applicant"}!";
+            lblWelcome.Text = $"Welcome back,\r\n{UserSession.FullName ?? "Applicant"}";
             RefreshDashboardSummary();
         }
 
-        /// <summary>
-        /// Updates the dashboard buttons with clean, non-misleading static labels.
-        /// </summary>
         private void RefreshDashboardSummary()
         {
-            // Fixed: Set standard text to prevent confusing global evaluations since requirements are now job-specific
-            btnDocuments.Text = "MY DOCUMENTS\r\n\r\n[Upload and Edit Documents]";
+            btnDocuments.Text = "    📁   My Documents";
         }
 
         private void btnProfile_Click(object sender, EventArgs e)
@@ -83,7 +79,6 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 docForm.ShowDialog();
             }
-            // Instantly refresh the button status line when returning from Documents form
             RefreshDashboardSummary();
         }
 
@@ -138,54 +133,56 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             this.BackColor = Color.FromArgb(245, 247, 250);
 
-            // Card Style 1: Profile Blue
-            btnProfile.FlatStyle = FlatStyle.Flat;
-            btnProfile.FlatAppearance.BorderSize = 0;
-            btnProfile.BackColor = Color.FromArgb(41, 128, 185);
-            btnProfile.ForeColor = Color.White;
-            btnProfile.Cursor = Cursors.Hand;
-            btnProfile.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            StyleSidebarButton(btnProfile, "    👤   My Profile");
+            StyleSidebarButton(btnJobVacancies, "    💼   Job Vacancies");
+            StyleSidebarButton(btnMyApplications, "    📝   My Applications");
+            StyleSidebarButton(btnStatusTracking, "    📊   Status Tracking");
+            StyleSidebarButton(btnDocuments, "    📁   My Documents");
 
-            // Card Style 2: Job Vacancy Green
-            btnJobVacancies.FlatStyle = FlatStyle.Flat;
-            btnJobVacancies.FlatAppearance.BorderSize = 0;
-            btnJobVacancies.BackColor = Color.FromArgb(39, 174, 96);
-            btnJobVacancies.ForeColor = Color.White;
-            btnJobVacancies.Cursor = Cursors.Hand;
-            btnJobVacancies.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-
-            // Card Style 3: Applications Purple
-            btnMyApplications.FlatStyle = FlatStyle.Flat;
-            btnMyApplications.FlatAppearance.BorderSize = 0;
-            btnMyApplications.BackColor = Color.FromArgb(142, 68, 173);
-            btnMyApplications.ForeColor = Color.White;
-            btnMyApplications.Cursor = Cursors.Hand;
-            btnMyApplications.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-
-            // Card Style 4: Status Tracking Amber/Orange
-            btnStatusTracking.FlatStyle = FlatStyle.Flat;
-            btnStatusTracking.FlatAppearance.BorderSize = 0;
-            btnStatusTracking.BackColor = Color.FromArgb(230, 126, 34);
-            btnStatusTracking.ForeColor = Color.White;
-            btnStatusTracking.Cursor = Cursors.Hand;
-            btnStatusTracking.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-
-            // Card Style 5: Documents Teal Accent (Immune to layout overlapping)
-            btnDocuments.FlatStyle = FlatStyle.Flat;
-            btnDocuments.FlatAppearance.BorderSize = 0;
-            btnDocuments.BackColor = Color.FromArgb(26, 188, 156);
-            btnDocuments.ForeColor = Color.White;
-            btnDocuments.Cursor = Cursors.Hand;
-            btnDocuments.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-
-            // Logout Button Style
             btnLogout.FlatStyle = FlatStyle.Flat;
-            btnLogout.FlatAppearance.BorderSize = 1;
-            btnLogout.FlatAppearance.BorderColor = Color.FromArgb(192, 57, 43);
-            btnLogout.BackColor = Color.White;
-            btnLogout.ForeColor = Color.FromArgb(192, 57, 43);
+            btnLogout.FlatAppearance.BorderSize = 0;
+            btnLogout.FlatAppearance.MouseOverBackColor = Color.FromArgb(34, 45, 60);
+            btnLogout.FlatAppearance.MouseDownBackColor = Color.FromArgb(20, 27, 36);
+            btnLogout.BackColor = Color.Transparent;
+            btnLogout.ForeColor = Color.FromArgb(231, 76, 60);
             btnLogout.Cursor = Cursors.Hand;
-            btnLogout.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnLogout.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnLogout.TextAlign = ContentAlignment.MiddleLeft;
+            btnLogout.Text = "    🚪   Sign Out";
+
+            timerDateTime.Start();
+            UpdateDateTimeLabel();
+        }
+
+        private void StyleSidebarButton(Button btn, string text)
+        {
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(34, 45, 60);
+            btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(20, 27, 36);
+            btn.BackColor = Color.Transparent;
+            btn.ForeColor = Color.FromArgb(200, 214, 229);
+            btn.Cursor = Cursors.Hand;
+            btn.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+            btn.TextAlign = ContentAlignment.MiddleLeft;
+            btn.Text = text;
+        }
+
+        private void timerDateTime_Tick(object sender, EventArgs e)
+        {
+            UpdateDateTimeLabel();
+        }
+
+        private void UpdateDateTimeLabel()
+        {
+            lblDateTime.Text = DateTime.Now.ToString("dddd, MMMM dd, yyyy  h:mm:ss tt");
+
+            // Reposition date-time control on the right based on its auto-sized width
+            lblDateTime.Left = panelHeader.Width - lblDateTime.Width - 25;
+
+            // Vertically center labels within the header panel height dynamically
+            lblDateTime.Top = (panelHeader.Height - lblDateTime.Height) / 2;
+            lblHeader.Top = (panelHeader.Height - lblHeader.Height) / 2;
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)

@@ -46,6 +46,7 @@
             // 
             // pnlSearch
             // 
+            this.pnlSearch.BackColor = System.Drawing.Color.White;
             this.pnlSearch.Controls.Add(this.lblHeaderTitle);
             this.pnlSearch.Controls.Add(this.lblHeaderSubtitle);
             this.pnlSearch.Controls.Add(this.btnBack);
@@ -64,6 +65,7 @@
             // 
             this.lblHeaderTitle.AutoSize = true;
             this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 13.5f, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(38)))), ((int)(((byte)(59)))));
             this.lblHeaderTitle.Location = new System.Drawing.Point(16, 14);
             this.lblHeaderTitle.Name = "lblHeaderTitle";
             this.lblHeaderTitle.Size = new System.Drawing.Size(217, 25);
@@ -74,6 +76,7 @@
             // 
             this.lblHeaderSubtitle.AutoSize = true;
             this.lblHeaderSubtitle.Font = new System.Drawing.Font("Segoe UI", 8.5f);
+            this.lblHeaderSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
             this.lblHeaderSubtitle.Location = new System.Drawing.Point(17, 41);
             this.lblHeaderSubtitle.Name = "lblHeaderSubtitle";
             this.lblHeaderSubtitle.Size = new System.Drawing.Size(213, 15);
@@ -93,6 +96,7 @@
             // txtSearch
             // 
             this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtSearch.Location = new System.Drawing.Point(315, 23);
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(170, 23);
@@ -102,6 +106,7 @@
             // 
             this.cmbDepartment.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbDepartment.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbDepartment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmbDepartment.FormattingEnabled = true;
             this.cmbDepartment.Location = new System.Drawing.Point(495, 23);
             this.cmbDepartment.Name = "cmbDepartment";
@@ -156,7 +161,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.pnlDetails);
             this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(10, 10, 15, 15);
-            this.splitContainer1.Size = new System.Drawing.Size(1000, 505);
+            this.splitContainer1.Size = new System.Drawing.Size(1000, 525);
             this.splitContainer1.SplitterDistance = 480;
             this.splitContainer1.TabIndex = 1;
             // 
@@ -174,7 +179,7 @@
             this.dgvJobs.ReadOnly = true;
             this.dgvJobs.RowHeadersVisible = false;
             this.dgvJobs.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvJobs.Size = new System.Drawing.Size(455, 480);
+            this.dgvJobs.Size = new System.Drawing.Size(455, 500);
             this.dgvJobs.TabIndex = 0;
             this.dgvJobs.SelectionChanged += new System.EventHandler(this.dgvJobs_SelectionChanged);
             // 
@@ -188,7 +193,7 @@
             this.pnlDetails.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlDetails.Location = new System.Drawing.Point(10, 10);
             this.pnlDetails.Name = "pnlDetails";
-            this.pnlDetails.Size = new System.Drawing.Size(491, 480);
+            this.pnlDetails.Size = new System.Drawing.Size(491, 500);
             this.pnlDetails.TabIndex = 0;
             // 
             // pnlAccentBar
@@ -203,7 +208,7 @@
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApply.Location = new System.Drawing.Point(20, 415);
+            this.btnApply.Location = new System.Drawing.Point(20, 435);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(451, 45);
             this.btnApply.TabIndex = 3;
@@ -216,13 +221,13 @@
             this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDescription.BackColor = System.Drawing.SystemColors.Window;
+            this.txtDescription.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.txtDescription.Location = new System.Drawing.Point(20, 95);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
             this.txtDescription.ReadOnly = true;
             this.txtDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDescription.Size = new System.Drawing.Size(451, 305);
+            this.txtDescription.Size = new System.Drawing.Size(451, 325);
             this.txtDescription.TabIndex = 2;
             // 
             // lblDept
@@ -247,10 +252,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1000, 580);
+            this.ClientSize = new System.Drawing.Size(1000, 600); // Standard starting bounds
+            this.MinimumSize = new System.Drawing.Size(1000, 600);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.pnlSearch);
             this.Name = "JobVacancyForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Available Job Openings";
             this.Load += new System.EventHandler(this.JobVacancyForm_Load);
             this.pnlSearch.ResumeLayout(false);

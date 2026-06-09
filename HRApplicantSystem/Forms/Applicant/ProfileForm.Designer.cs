@@ -57,9 +57,9 @@
             // lblHeader
             // 
             this.lblHeader.AutoSize = true;
-            this.lblHeader.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
-            this.lblHeader.Location = new System.Drawing.Point(25, 15);
+            this.lblHeader.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Bold);
+            this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(38)))), ((int)(((byte)(59)))));
+            this.lblHeader.Location = new System.Drawing.Point(40, 20);
             this.lblHeader.Name = "lblHeader";
             this.lblHeader.Size = new System.Drawing.Size(221, 30);
             this.lblHeader.TabIndex = 0;
@@ -70,7 +70,7 @@
             this.lblFirstName.AutoSize = true;
             this.lblFirstName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblFirstName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblFirstName.Location = new System.Drawing.Point(30, 60);
+            this.lblFirstName.Location = new System.Drawing.Point(40, 85);
             this.lblFirstName.Name = "lblFirstName";
             this.lblFirstName.Size = new System.Drawing.Size(70, 15);
             this.lblFirstName.TabIndex = 1;
@@ -78,7 +78,7 @@
             // 
             // txtFirstName
             // 
-            this.txtFirstName.Location = new System.Drawing.Point(30, 78);
+            this.txtFirstName.Location = new System.Drawing.Point(40, 105);
             this.txtFirstName.Name = "txtFirstName";
             this.txtFirstName.Size = new System.Drawing.Size(110, 22);
             this.txtFirstName.TabIndex = 2;
@@ -88,7 +88,7 @@
             this.lblMiddleName.AutoSize = true;
             this.lblMiddleName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblMiddleName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblMiddleName.Location = new System.Drawing.Point(155, 60);
+            this.lblMiddleName.Location = new System.Drawing.Point(155, 85);
             this.lblMiddleName.Name = "lblMiddleName";
             this.lblMiddleName.Size = new System.Drawing.Size(84, 15);
             this.lblMiddleName.TabIndex = 3;
@@ -96,7 +96,7 @@
             // 
             // txtMiddleName
             // 
-            this.txtMiddleName.Location = new System.Drawing.Point(155, 78);
+            this.txtMiddleName.Location = new System.Drawing.Point(155, 105);
             this.txtMiddleName.Name = "txtMiddleName";
             this.txtMiddleName.Size = new System.Drawing.Size(110, 22);
             this.txtMiddleName.TabIndex = 4;
@@ -106,7 +106,7 @@
             this.lblLastName.AutoSize = true;
             this.lblLastName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblLastName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblLastName.Location = new System.Drawing.Point(280, 60);
+            this.lblLastName.Location = new System.Drawing.Point(280, 85);
             this.lblLastName.Name = "lblLastName";
             this.lblLastName.Size = new System.Drawing.Size(68, 15);
             this.lblLastName.TabIndex = 5;
@@ -114,7 +114,7 @@
             // 
             // txtLastName
             // 
-            this.txtLastName.Location = new System.Drawing.Point(280, 78);
+            this.txtLastName.Location = new System.Drawing.Point(280, 105);
             this.txtLastName.Name = "txtLastName";
             this.txtLastName.Size = new System.Drawing.Size(110, 22);
             this.txtLastName.TabIndex = 6;
@@ -124,7 +124,7 @@
             this.lblBirthday.AutoSize = true;
             this.lblBirthday.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblBirthday.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblBirthday.Location = new System.Drawing.Point(30, 115);
+            this.lblBirthday.Location = new System.Drawing.Point(40, 150);
             this.lblBirthday.Name = "lblBirthday";
             this.lblBirthday.Size = new System.Drawing.Size(57, 15);
             this.lblBirthday.TabIndex = 7;
@@ -133,7 +133,7 @@
             // dtpBirthday
             // 
             this.dtpBirthday.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpBirthday.Location = new System.Drawing.Point(30, 133);
+            this.dtpBirthday.Location = new System.Drawing.Point(40, 170);
             this.dtpBirthday.Name = "dtpBirthday";
             this.dtpBirthday.Size = new System.Drawing.Size(170, 22);
             this.dtpBirthday.TabIndex = 8;
@@ -143,7 +143,7 @@
             this.lblGender.AutoSize = true;
             this.lblGender.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblGender.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblGender.Location = new System.Drawing.Point(220, 115);
+            this.lblGender.Location = new System.Drawing.Point(220, 150);
             this.lblGender.Name = "lblGender";
             this.lblGender.Size = new System.Drawing.Size(51, 15);
             this.lblGender.TabIndex = 9;
@@ -153,7 +153,7 @@
             // 
             this.cmbGender.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbGender.FormattingEnabled = true;
-            this.cmbGender.Location = new System.Drawing.Point(220, 133);
+            this.cmbGender.Location = new System.Drawing.Point(220, 170);
             this.cmbGender.Name = "cmbGender";
             this.cmbGender.Size = new System.Drawing.Size(170, 21);
             this.cmbGender.TabIndex = 10;
@@ -163,7 +163,7 @@
             this.lblContactNumber.AutoSize = true;
             this.lblContactNumber.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblContactNumber.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblContactNumber.Location = new System.Drawing.Point(30, 170);
+            this.lblContactNumber.Location = new System.Drawing.Point(40, 215);
             this.lblContactNumber.Name = "lblContactNumber";
             this.lblContactNumber.Size = new System.Drawing.Size(102, 15);
             this.lblContactNumber.TabIndex = 11;
@@ -171,7 +171,7 @@
             // 
             // txtContactNumber
             // 
-            this.txtContactNumber.Location = new System.Drawing.Point(30, 188);
+            this.txtContactNumber.Location = new System.Drawing.Point(40, 235);
             this.txtContactNumber.Name = "txtContactNumber";
             this.txtContactNumber.Size = new System.Drawing.Size(360, 22);
             this.txtContactNumber.TabIndex = 12;
@@ -181,7 +181,7 @@
             this.lblAddress.AutoSize = true;
             this.lblAddress.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblAddress.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblAddress.Location = new System.Drawing.Point(30, 225);
+            this.lblAddress.Location = new System.Drawing.Point(40, 280);
             this.lblAddress.Name = "lblAddress";
             this.lblAddress.Size = new System.Drawing.Size(54, 15);
             this.lblAddress.TabIndex = 13;
@@ -189,7 +189,7 @@
             // 
             // txtAddress
             // 
-            this.txtAddress.Location = new System.Drawing.Point(30, 243);
+            this.txtAddress.Location = new System.Drawing.Point(40, 300);
             this.txtAddress.Multiline = true;
             this.txtAddress.Name = "txtAddress";
             this.txtAddress.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -201,7 +201,7 @@
             this.lblEducation.AutoSize = true;
             this.lblEducation.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblEducation.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblEducation.Location = new System.Drawing.Point(430, 60);
+            this.lblEducation.Location = new System.Drawing.Point(430, 85);
             this.lblEducation.Name = "lblEducation";
             this.lblEducation.Size = new System.Drawing.Size(64, 15);
             this.lblEducation.TabIndex = 15;
@@ -209,7 +209,7 @@
             // 
             // txtEducation
             // 
-            this.txtEducation.Location = new System.Drawing.Point(430, 78);
+            this.txtEducation.Location = new System.Drawing.Point(430, 105);
             this.txtEducation.Multiline = true;
             this.txtEducation.Name = "txtEducation";
             this.txtEducation.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -221,7 +221,7 @@
             this.lblSkills.AutoSize = true;
             this.lblSkills.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblSkills.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblSkills.Location = new System.Drawing.Point(430, 170);
+            this.lblSkills.Location = new System.Drawing.Point(430, 200);
             this.lblSkills.Name = "lblSkills";
             this.lblSkills.Size = new System.Drawing.Size(38, 15);
             this.lblSkills.TabIndex = 17;
@@ -229,7 +229,7 @@
             // 
             // txtSkills
             // 
-            this.txtSkills.Location = new System.Drawing.Point(430, 188);
+            this.txtSkills.Location = new System.Drawing.Point(430, 220);
             this.txtSkills.Multiline = true;
             this.txtSkills.Name = "txtSkills";
             this.txtSkills.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -241,7 +241,7 @@
             this.lblWorkExperience.AutoSize = true;
             this.lblWorkExperience.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblWorkExperience.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
-            this.lblWorkExperience.Location = new System.Drawing.Point(430, 280);
+            this.lblWorkExperience.Location = new System.Drawing.Point(430, 315);
             this.lblWorkExperience.Name = "lblWorkExperience";
             this.lblWorkExperience.Size = new System.Drawing.Size(104, 15);
             this.lblWorkExperience.TabIndex = 19;
@@ -249,7 +249,7 @@
             // 
             // txtWorkExperience
             // 
-            this.txtWorkExperience.Location = new System.Drawing.Point(430, 298);
+            this.txtWorkExperience.Location = new System.Drawing.Point(430, 335);
             this.txtWorkExperience.Multiline = true;
             this.txtWorkExperience.Name = "txtWorkExperience";
             this.txtWorkExperience.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -258,9 +258,9 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(690, 395);
+            this.btnSave.Location = new System.Drawing.Point(690, 485);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(120, 32);
+            this.btnSave.Size = new System.Drawing.Size(130, 35);
             this.btnSave.TabIndex = 21;
             this.btnSave.Text = "Save Profile";
             this.btnSave.UseVisualStyleBackColor = true;
@@ -268,9 +268,9 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(550, 395);
+            this.btnClear.Location = new System.Drawing.Point(550, 485);
             this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(120, 32);
+            this.btnClear.Size = new System.Drawing.Size(130, 35);
             this.btnClear.TabIndex = 22;
             this.btnClear.Text = "Clear Fields";
             this.btnClear.UseVisualStyleBackColor = true;
@@ -278,9 +278,9 @@
             // 
             // btnBack
             // 
-            this.btnBack.Location = new System.Drawing.Point(410, 395);
+            this.btnBack.Location = new System.Drawing.Point(410, 485);
             this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(120, 32);
+            this.btnBack.Size = new System.Drawing.Size(130, 35);
             this.btnBack.TabIndex = 23;
             this.btnBack.Text = "Back";
             this.btnBack.UseVisualStyleBackColor = true;
@@ -290,7 +290,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(850, 450);
+            this.ClientSize = new System.Drawing.Size(950, 560); // Standard ClientSize scaled to match standard grids and padding
             this.Controls.Add(this.btnBack);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnSave);
@@ -350,9 +350,8 @@
         private System.Windows.Forms.Label lblWorkExperience;
         private System.Windows.Forms.TextBox txtWorkExperience;
 
-        // Form Controls declarations matching backend mapping [3]
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnClear;
-        private System.Windows.Forms.Button btnBack; // Declared missing Back control [3]
+        private System.Windows.Forms.Button btnBack;
     }
 }

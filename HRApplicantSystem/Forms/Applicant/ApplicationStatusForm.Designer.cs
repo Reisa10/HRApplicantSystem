@@ -42,7 +42,7 @@
             this.lblScreeningResult = new System.Windows.Forms.Label();
             this.lblScreeningDate = new System.Windows.Forms.Label();
             this.lblScreeningRemarksLabel = new System.Windows.Forms.Label();
-            this.lblScreeningRemarks = new System.Windows.Forms.Label();
+            this.lblScreeningRemarks = new System.Windows.Forms.TextBox();
 
             // tpInterview Controls
             this.lblInterviewDate = new System.Windows.Forms.Label();
@@ -56,11 +56,11 @@
             this.lblEvalResult = new System.Windows.Forms.Label();
             this.lblEvalRecommendation = new System.Windows.Forms.Label();
             this.lblEvalRemarksLabel = new System.Windows.Forms.Label();
-            this.lblEvalRemarks = new System.Windows.Forms.Label();
+            this.lblEvalRemarks = new System.Windows.Forms.TextBox();
 
             // tpHiring Controls
             this.lblRemarksLabel = new System.Windows.Forms.Label();
-            this.lblRemarksText = new System.Windows.Forms.Label();
+            this.lblRemarksText = new System.Windows.Forms.TextBox();
 
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
@@ -83,40 +83,41 @@
             this.pnlHeader.Controls.Add(this.lblHeader);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlHeader.Size = new System.Drawing.Size(960, 60);
+            this.pnlHeader.Size = new System.Drawing.Size(1000, 75);
 
             // btnBack
             this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBack.Location = new System.Drawing.Point(855, 15);
+            this.btnBack.Location = new System.Drawing.Point(895, 20);
             this.btnBack.Size = new System.Drawing.Size(85, 30);
             this.btnBack.Text = "Back";
             this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
 
             // lblHeader
             this.lblHeader.AutoSize = true;
-            this.lblHeader.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(44, 62, 80);
-            this.lblHeader.Location = new System.Drawing.Point(15, 15);
+            this.lblHeader.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblHeader.ForeColor = System.Drawing.Color.FromArgb(27, 38, 59);
+            this.lblHeader.Location = new System.Drawing.Point(15, 23);
             this.lblHeader.Text = "Applicant Status Tracking";
 
             // splitContainer
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer.Location = new System.Drawing.Point(0, 60);
-            this.splitContainer.Size = new System.Drawing.Size(960, 500);
-            this.splitContainer.SplitterDistance = 430;
+            this.splitContainer.Location = new System.Drawing.Point(0, 75);
+            this.splitContainer.Size = new System.Drawing.Size(1000, 525);
+            this.splitContainer.SplitterDistance = 470;
+            this.splitContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer_SplitterMoved); // Splitter move registration
 
             // splitContainer.Panel1
             this.splitContainer.Panel1.Controls.Add(this.dgvStatusSummary);
-            this.splitContainer.Panel1.Padding = new System.Windows.Forms.Padding(10);
+            this.splitContainer.Panel1.Padding = new System.Windows.Forms.Padding(15, 10, 10, 15);
 
             // splitContainer.Panel2
             this.splitContainer.Panel2.Controls.Add(this.grpTracking);
-            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(10);
+            this.splitContainer.Panel2.Padding = new System.Windows.Forms.Padding(10, 10, 15, 15);
 
             // dgvStatusSummary
             this.dgvStatusSummary.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvStatusSummary.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvStatusSummary.Location = new System.Drawing.Point(10, 10);
+            this.dgvStatusSummary.Location = new System.Drawing.Point(15, 10);
             this.dgvStatusSummary.SelectionChanged += new System.EventHandler(this.dgvStatusSummary_SelectionChanged);
 
             // grpTracking
@@ -125,7 +126,7 @@
             this.grpTracking.Controls.Add(this.lblSelectedJob);
             this.grpTracking.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpTracking.Location = new System.Drawing.Point(10, 10);
-            this.grpTracking.Size = new System.Drawing.Size(500, 480);
+            this.grpTracking.Size = new System.Drawing.Size(505, 500);
             this.grpTracking.Text = "Application Status Center";
 
             // lblSelectedJob
@@ -151,8 +152,9 @@
             this.tcStatusDetails.Controls.Add(this.tpEvaluation);
             this.tcStatusDetails.Controls.Add(this.tpHiring);
             this.tcStatusDetails.Location = new System.Drawing.Point(15, 80);
-            this.tcStatusDetails.Size = new System.Drawing.Size(470, 385);
+            this.tcStatusDetails.Size = new System.Drawing.Size(475, 405);
             this.tcStatusDetails.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.tcStatusDetails.SelectedIndexChanged += new System.EventHandler(this.tcStatusDetails_SelectedIndexChanged); // Tab selection registration
 
             // ==================== tpTimeline ====================
             this.tpTimeline.Controls.Add(this.lblTimelineLabel);
@@ -170,7 +172,7 @@
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lstTrackingTimeline.Location = new System.Drawing.Point(10, 30);
-            this.lstTrackingTimeline.Size = new System.Drawing.Size(440, 310);
+            this.lstTrackingTimeline.Size = new System.Drawing.Size(445, 330);
 
             // ==================== tpScreening ====================
             this.tpScreening.Controls.Add(this.lblScreeningResult);
@@ -194,12 +196,11 @@
             this.lblScreeningRemarksLabel.Location = new System.Drawing.Point(15, 80);
             this.lblScreeningRemarksLabel.Text = "HR Remarks:";
 
-            this.lblScreeningRemarks.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblScreeningRemarks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left))); // Programmatic layout computes width dynamically
             this.lblScreeningRemarks.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
             this.lblScreeningRemarks.Location = new System.Drawing.Point(15, 105);
-            this.lblScreeningRemarks.Size = new System.Drawing.Size(430, 230);
+            this.lblScreeningRemarks.Size = new System.Drawing.Size(415, 250);
             this.lblScreeningRemarks.Text = "No screening remarks available yet.";
 
             // ==================== tpInterview ====================
@@ -259,12 +260,11 @@
             this.lblEvalRemarksLabel.Location = new System.Drawing.Point(15, 110);
             this.lblEvalRemarksLabel.Text = "Evaluator Remarks:";
 
-            this.lblEvalRemarks.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblEvalRemarks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left))); // Programmatic layout computes width dynamically
             this.lblEvalRemarks.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
             this.lblEvalRemarks.Location = new System.Drawing.Point(15, 135);
-            this.lblEvalRemarks.Size = new System.Drawing.Size(430, 200);
+            this.lblEvalRemarks.Size = new System.Drawing.Size(415, 220);
             this.lblEvalRemarks.Text = "No interview evaluation remarks available yet.";
 
             // ==================== tpHiring ====================
@@ -278,24 +278,24 @@
             this.lblRemarksLabel.Location = new System.Drawing.Point(15, 15);
             this.lblRemarksLabel.Text = "Decision Remarks:";
 
-            this.lblRemarksText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblRemarksText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left))); // Programmatic layout computes width dynamically
             this.lblRemarksText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
             this.lblRemarksText.Location = new System.Drawing.Point(15, 45);
-            this.lblRemarksText.Size = new System.Drawing.Size(430, 290);
+            this.lblRemarksText.Size = new System.Drawing.Size(415, 310);
             this.lblRemarksText.Text = "Your application is active. Final decision has not been declared yet.";
 
             // ApplicationStatusForm Layout
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(960, 560);
+            this.ClientSize = new System.Drawing.Size(1000, 600);
             this.Controls.Add(this.splitContainer);
             this.Controls.Add(this.pnlHeader);
             this.Name = "ApplicationStatusForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "My Applications Status History";
             this.Load += new System.EventHandler(this.ApplicationStatusForm_Load);
+            this.Resize += new System.EventHandler(this.ApplicationStatusForm_Resize); // Form Resize registration
 
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
@@ -349,7 +349,7 @@
         private System.Windows.Forms.Label lblScreeningResult;
         private System.Windows.Forms.Label lblScreeningDate;
         private System.Windows.Forms.Label lblScreeningRemarksLabel;
-        private System.Windows.Forms.Label lblScreeningRemarks;
+        private System.Windows.Forms.TextBox lblScreeningRemarks;
 
         // tpInterview
         private System.Windows.Forms.Label lblInterviewDate;
@@ -363,10 +363,10 @@
         private System.Windows.Forms.Label lblEvalResult;
         private System.Windows.Forms.Label lblEvalRecommendation;
         private System.Windows.Forms.Label lblEvalRemarksLabel;
-        private System.Windows.Forms.Label lblEvalRemarks;
+        private System.Windows.Forms.TextBox lblEvalRemarks;
 
         // tpHiring
         private System.Windows.Forms.Label lblRemarksLabel;
-        private System.Windows.Forms.Label lblRemarksText;
+        private System.Windows.Forms.TextBox lblRemarksText;
     }
 }

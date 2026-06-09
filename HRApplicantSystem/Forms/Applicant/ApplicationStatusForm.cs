@@ -21,11 +21,18 @@ namespace HRApplicantSystem.Forms.Applicant
             currentApplicantId = UserSession.UserID;
             InitializeDynamicTimeline();
             ApplyModernStyles();
+
+            // Force creation of lazy tab page controls to ensure correct DPI layout scaling on hidden tabs
+            foreach (TabPage tab in tcStatusDetails.TabPages)
+            {
+                tab.CreateControl();
+            }
         }
 
         private void ApplicationStatusForm_Load(object sender, EventArgs e)
         {
             LoadApplications();
+            UpdateRemarksLayout();
         }
 
         /// <summary>
@@ -181,6 +188,9 @@ namespace HRApplicantSystem.Forms.Applicant
                 LoadEvaluationDetails(appId);
                 LoadDecisionDetails(appId, status);
                 CheckRequirements(appId);
+
+                // Re-evaluate container boundaries
+                UpdateRemarksLayout();
             }
             else
             {
@@ -190,7 +200,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void CheckRequirements(int appId)
         {
-            // Connects with DatabaseHelper computation
             var missing = DatabaseHelper.GetMissingRequirementsForApplication(appId);
             if (missing.Count > 0)
             {
@@ -572,25 +581,145 @@ namespace HRApplicantSystem.Forms.Applicant
             this.Close();
         }
 
+        private void tcStatusDetails_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateRemarksLayout();
+        }
+
+        private void ApplicationStatusForm_Resize(object sender, EventArgs e)
+        {
+            UpdateRemarksLayout();
+        }
+
+        private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            UpdateRemarksLayout();
+        }
+
+        private void UpdateRemarksLayout()
+        {
+            // Forces Windows Forms' layout engine to dynamically recalculate bounding boxes for lazy-loaded TabPages
+            if (tcStatusDetails != null)
+            {
+                tcStatusDetails.PerformLayout();
+                foreach (TabPage tab in tcStatusDetails.TabPages)
+                {
+                    tab.PerformLayout();
+                }
+            }
+
+            // Dynamically recalculate text box boundaries based on parent runtime ClientSize to completely prevent wrapping overlaps
+            if (lblScreeningRemarks != null && tpScreening != null)
+            {
+                lblScreeningRemarks.Width = tpScreening.Width - 30;
+                lblScreeningRemarks.PerformLayout();
+            }
+
+            if (lblEvalRemarks != null && tpEvaluation != null)
+            {
+                lblEvalRemarks.Width = tpEvaluation.Width - 30;
+                lblEvalRemarks.PerformLayout();
+            }
+
+            if (lblRemarksText != null && tpHiring != null)
+            {
+                lblRemarksText.Width = tpHiring.Width - 30;
+                lblRemarksText.PerformLayout();
+            }
+        }
+
         private void ApplyModernStyles()
         {
             this.BackColor = Color.FromArgb(245, 247, 250);
 
-            // Grid Styling
-            dgvStatusSummary.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvStatusSummary.MultiSelect = false;
-            dgvStatusSummary.RowHeadersVisible = false;
-            dgvStatusSummary.AllowUserToAddRows = false;
-            dgvStatusSummary.ReadOnly = true;
-            dgvStatusSummary.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvStatusSummary.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 247, 250);
-            dgvStatusSummary.GridColor = Color.FromArgb(230, 230, 230);
+            // Sleek Header styling
+            pnlHeader.BackColor = Color.White;
+            lblHeader.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblHeader.ForeColor = Color.FromArgb(27, 38, 59);
 
+            // Grouping panels styling
+            grpTracking.BackColor = Color.White;
+            grpTracking.ForeColor = Color.FromArgb(127, 140, 141);
+            lblSelectedJob.ForeColor = Color.FromArgb(27, 38, 59);
+
+            // Tab layouts backgrounds
+            tpTimeline.BackColor = Color.White;
+            tpScreening.BackColor = Color.White;
+            tpInterview.BackColor = Color.White;
+            tpEvaluation.BackColor = Color.White;
+            tpHiring.BackColor = Color.White;
+
+            lblTimelineLabel.ForeColor = Color.FromArgb(127, 140, 141);
+            lblScreeningRemarksLabel.ForeColor = Color.FromArgb(127, 140, 141);
+            lblEvalRemarksLabel.ForeColor = Color.FromArgb(127, 140, 141);
+            lblRemarksLabel.ForeColor = Color.FromArgb(127, 140, 141);
+
+            // Seamless TextBox styling for remarks to prevent italic clipping and allow scrolling
+            StyleRemarksTextBox(lblScreeningRemarks);
+            StyleRemarksTextBox(lblEvalRemarks);
+            StyleRemarksTextBox(lblRemarksText);
+
+            // Grid Styling
+            dgvStatusSummary.BackgroundColor = Color.White;
+            dgvStatusSummary.BorderStyle = BorderStyle.None;
+            dgvStatusSummary.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvStatusSummary.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            dgvStatusSummary.GridColor = Color.FromArgb(235, 237, 240);
+            dgvStatusSummary.RowTemplate.Height = 42;
+            dgvStatusSummary.ColumnHeadersHeight = 40;
+            dgvStatusSummary.EnableHeadersVisualStyles = false;
+
+            // Header style
+            DataGridViewCellStyle headerStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.FromArgb(27, 38, 59),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 9.75f, FontStyle.Bold),
+                SelectionBackColor = Color.FromArgb(27, 38, 59),
+                Alignment = DataGridViewContentAlignment.MiddleLeft
+            };
+            dgvStatusSummary.ColumnHeadersDefaultCellStyle = headerStyle;
+
+            // Row style
+            DataGridViewCellStyle rowStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(44, 62, 80),
+                Font = new Font("Segoe UI", 9f, FontStyle.Regular),
+                SelectionBackColor = Color.FromArgb(232, 244, 253),
+                SelectionForeColor = Color.FromArgb(27, 38, 59)
+            };
+            dgvStatusSummary.DefaultCellStyle = rowStyle;
+
+            // Alternating Row style
+            DataGridViewCellStyle altRowStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.FromArgb(249, 251, 252)
+            };
+            dgvStatusSummary.AlternatingRowsDefaultCellStyle = altRowStyle;
+
+            // Header elements vertical positioning calculations
             btnBack.FlatStyle = FlatStyle.Flat;
             btnBack.FlatAppearance.BorderSize = 0;
-            btnBack.BackColor = Color.FromArgb(52, 152, 219);
+            btnBack.BackColor = Color.FromArgb(231, 76, 60); // Soft Red Standard back button style
             btnBack.ForeColor = Color.White;
             btnBack.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
+            btnBack.Cursor = Cursors.Hand;
+
+            btnBack.Top = (pnlHeader.Height - btnBack.Height) / 2;
+            lblHeader.Top = (pnlHeader.Height - lblHeader.Height) / 2;
+        }
+
+        private void StyleRemarksTextBox(TextBox txt)
+        {
+            txt.Multiline = true;
+            txt.ReadOnly = true;
+            txt.WordWrap = true; // Explicitly ensure wrapping is activated
+            txt.BorderStyle = BorderStyle.None;
+            txt.BackColor = Color.White;
+            txt.ForeColor = Color.FromArgb(44, 62, 80);
+            txt.Font = new Font("Segoe UI", 9F, FontStyle.Italic);
+            txt.ScrollBars = ScrollBars.Vertical;
         }
     }
 }

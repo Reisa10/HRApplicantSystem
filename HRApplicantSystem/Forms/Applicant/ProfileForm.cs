@@ -56,7 +56,8 @@ namespace HRApplicantSystem.Forms.Applicant
                     TextAlign = ContentAlignment.MiddleLeft,
                     Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
                     BorderStyle = BorderStyle.None,
-                    FlatStyle = FlatStyle.Flat
+                    FlatStyle = FlatStyle.Flat,
+                    Padding = new Padding(12, 0, 12, 0) // Clean internal margins
                 };
 
                 this.Controls.Add(lblCompletenessCard);
@@ -88,13 +89,13 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 if (percentage >= 100)
                 {
-                    lblCompletenessCard.Text = "   ✅ Your professional profile is complete and ready for application reviews!";
+                    lblCompletenessCard.Text = "✅ Your professional profile is complete and ready for application reviews!";
                     lblCompletenessCard.BackColor = Color.FromArgb(223, 240, 216); // Soft Corporate Green
                     lblCompletenessCard.ForeColor = Color.FromArgb(60, 118, 61);  // Dark Corporate Green
                 }
                 else
                 {
-                    lblCompletenessCard.Text = $"   ⚠️ Profile Completeness: {percentage:0}% — Please fill in all fields ({filledCount}/{totalFields} completed) for HR evaluation.";
+                    lblCompletenessCard.Text = $"⚠️ Profile Completeness: {percentage:0}% — Please fill in all fields ({filledCount}/{totalFields} completed) for HR evaluation.";
                     lblCompletenessCard.BackColor = Color.FromArgb(252, 248, 227); // Soft Corporate Amber
                     lblCompletenessCard.ForeColor = Color.FromArgb(138, 109, 59);  // Dark Corporate Amber
                 }
@@ -153,8 +154,8 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 titleLabel.Location = new Point(margin, 20);
                 titleLabel.AutoSize = true;
-                titleLabel.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
-                titleLabel.ForeColor = Color.FromArgb(44, 62, 80);
+                titleLabel.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+                titleLabel.ForeColor = Color.FromArgb(27, 38, 59);
 
                 // Place the completeness banner exactly where the header text finishes
                 int bannerX = titleLabel.Right + 15;
@@ -186,12 +187,12 @@ namespace HRApplicantSystem.Forms.Applicant
             int gapYLeft = availHeight / leftItemsCount;
             int leftY = topOffset;
 
-            PositionField("lblFirstName", txtFirstName, leftX, leftY, colWidth, 26);
-            PositionField("lblMiddleName", txtMiddleName, leftX, leftY += gapYLeft, colWidth, 26);
-            PositionField("lblLastName", txtLastName, leftX, leftY += gapYLeft, colWidth, 26);
-            PositionField("lblBirthday", dtpBirthday, leftX, leftY += gapYLeft, colWidth, 26);
-            PositionField("lblGender", cmbGender, leftX, leftY += gapYLeft, colWidth, 26);
-            PositionField("lblContactNumber", txtContactNumber, leftX, leftY += gapYLeft, colWidth, 26);
+            PositionField("lblFirstName", txtFirstName, leftX, leftY, colWidth, 28);
+            PositionField("lblMiddleName", txtMiddleName, leftX, leftY += gapYLeft, colWidth, 28);
+            PositionField("lblLastName", txtLastName, leftX, leftY += gapYLeft, colWidth, 28);
+            PositionField("lblBirthday", dtpBirthday, leftX, leftY += gapYLeft, colWidth, 28);
+            PositionField("lblGender", cmbGender, leftX, leftY += gapYLeft, colWidth, 28);
+            PositionField("lblContactNumber", txtContactNumber, leftX, leftY += gapYLeft, colWidth, 28);
 
             // 3. Align Right Column (4 dynamic multiline boxes spanning complete horizontal width)
             int rightItemsCount = 4;
@@ -205,8 +206,8 @@ namespace HRApplicantSystem.Forms.Applicant
             PositionField("lblWorkExperience", txtWorkExperience, rightX, rightY += gapYRight, colWidth, multilineHeight);
 
             // 4. Align Bottom Action Buttons
-            int btnWidth = 110;
-            int btnHeight = 32;
+            int btnWidth = 130;
+            int btnHeight = 35;
 
             btnSave.Size = new Size(btnWidth, btnHeight);
             btnSave.Location = new Point(leftX, buttonsTop);
@@ -234,7 +235,6 @@ namespace HRApplicantSystem.Forms.Applicant
             }
             else
             {
-                // Fallback to match label naming structures dynamically
                 string normalizedSearchName = ctrl.Name.Replace("txt", "").Replace("cmb", "").Replace("dtp", "").ToLower();
                 foreach (Control c in this.Controls)
                 {
@@ -250,7 +250,7 @@ namespace HRApplicantSystem.Forms.Applicant
             {
                 lbl.Location = new Point(x, y - 20);
                 lbl.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-                lbl.ForeColor = Color.FromArgb(52, 73, 94); // Corporate Slate Blue
+                lbl.ForeColor = Color.FromArgb(127, 140, 141); // Unified Slate Gray
             }
         }
 
@@ -287,7 +287,6 @@ namespace HRApplicantSystem.Forms.Applicant
                         {
                             if (reader.Read())
                             {
-                                // Profile already exists -> Set fields and prepare for UPDATE
                                 isNewProfile = false;
 
                                 txtFirstName.Text = reader["FirstName"]?.ToString();
@@ -314,7 +313,6 @@ namespace HRApplicantSystem.Forms.Applicant
                             }
                             else
                             {
-                                // No profile exists yet -> Prepare for INSERT
                                 isNewProfile = true;
                                 btnSave.Text = "Save Profile";
 
@@ -355,7 +353,6 @@ namespace HRApplicantSystem.Forms.Applicant
                 return false;
             }
 
-            // Verify age requirement of 15 years
             int age = DateTime.Today.Year - dtpBirthday.Value.Year;
             if (dtpBirthday.Value.Date > DateTime.Today.AddYears(-age)) age--;
 
@@ -366,7 +363,6 @@ namespace HRApplicantSystem.Forms.Applicant
                 return false;
             }
 
-            // Validate contact formatting strictly (No alphabetic text)
             string contact = txtContactNumber.Text.Trim();
             bool isNumberValid = true;
             foreach (char c in contact)
@@ -513,16 +509,20 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void ApplyModernUI()
         {
-            this.BackColor = Color.FromArgb(244, 246, 249);
+            this.BackColor = Color.FromArgb(245, 247, 250); // Matches dashboard off-white
             this.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
 
-            // Style action buttons
+            // Style header
+            lblHeader.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
+            lblHeader.ForeColor = Color.FromArgb(27, 38, 59); // Standard corporate navy
+
+            // Style buttons to match main dashboard action standards
             btnSave.FlatStyle = FlatStyle.Flat;
             btnSave.FlatAppearance.BorderSize = 0;
-            btnSave.BackColor = Color.FromArgb(41, 128, 185);
+            btnSave.BackColor = Color.FromArgb(41, 128, 185); // Standard Blue
             btnSave.ForeColor = Color.White;
             btnSave.Cursor = Cursors.Hand;
-            btnSave.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnSave.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
 
             btnClear.FlatStyle = FlatStyle.Flat;
             btnClear.FlatAppearance.BorderSize = 1;
@@ -530,7 +530,7 @@ namespace HRApplicantSystem.Forms.Applicant
             btnClear.BackColor = Color.White;
             btnClear.ForeColor = Color.FromArgb(127, 140, 141);
             btnClear.Cursor = Cursors.Hand;
-            btnClear.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+            btnClear.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
 
             btnBack.FlatStyle = FlatStyle.Flat;
             btnBack.FlatAppearance.BorderSize = 1;
@@ -538,7 +538,19 @@ namespace HRApplicantSystem.Forms.Applicant
             btnBack.BackColor = Color.White;
             btnBack.ForeColor = Color.FromArgb(44, 62, 80);
             btnBack.Cursor = Cursors.Hand;
-            btnBack.Font = new Font("Segoe UI", 10F, FontStyle.Regular);
+            btnBack.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+
+            // Sleek input borders formatting
+            StyleBorderLayout(txtFirstName);
+            StyleBorderLayout(txtMiddleName);
+            StyleBorderLayout(txtLastName);
+            StyleBorderLayout(txtContactNumber);
+            StyleBorderLayout(txtAddress);
+            StyleBorderLayout(txtEducation);
+            StyleBorderLayout(txtSkills);
+            StyleBorderLayout(txtWorkExperience);
+            StyleBorderLayout(cmbGender);
+            StyleBorderLayout(dtpBirthday);
 
             // Multiline scrollbar policies
             txtAddress.Multiline = true;
@@ -552,6 +564,22 @@ namespace HRApplicantSystem.Forms.Applicant
 
             txtWorkExperience.Multiline = true;
             txtWorkExperience.ScrollBars = ScrollBars.Vertical;
+        }
+
+        private void StyleBorderLayout(Control ctrl)
+        {
+            ctrl.BackColor = Color.White;
+            ctrl.ForeColor = Color.FromArgb(44, 62, 80);
+            ctrl.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+
+            if (ctrl is TextBox txt)
+            {
+                txt.BorderStyle = BorderStyle.FixedSingle;
+            }
+            else if (ctrl is ComboBox cmb)
+            {
+                cmb.FlatStyle = FlatStyle.Flat;
+            }
         }
     }
 }

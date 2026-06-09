@@ -45,7 +45,7 @@
             // 
             // sidebarPanel
             // 
-            this.sidebarPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(40)))), ((int)(((byte)(51)))));
+            this.sidebarPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(34)))), ((int)(((byte)(45)))));
             this.sidebarPanel.Controls.Add(this.Logout);
             this.sidebarPanel.Controls.Add(this.Reports);
             this.sidebarPanel.Controls.Add(this.SystemMaintenance);
@@ -60,12 +60,12 @@
             this.sidebarPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.sidebarPanel.Location = new System.Drawing.Point(0, 0);
             this.sidebarPanel.Name = "sidebarPanel";
-            this.sidebarPanel.Size = new System.Drawing.Size(260, 800);
+            this.sidebarPanel.Size = new System.Drawing.Size(260, 700);
             this.sidebarPanel.TabIndex = 0;
             // 
             // profilePanel
             // 
-            this.profilePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(23)))), ((int)(((byte)(30)))), ((int)(((byte)(38)))));
+            this.profilePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(27)))), ((int)(((byte)(36)))));
             this.profilePanel.Controls.Add(this.lblUserRole);
             this.profilePanel.Controls.Add(this.lblUserFullName);
             this.profilePanel.Controls.Add(this.lblWelcome);
@@ -78,11 +78,11 @@
             // lblWelcome
             // 
             this.lblWelcome.AutoSize = true;
-            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblWelcome.ForeColor = System.Drawing.Color.LightGray;
+            this.lblWelcome.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblWelcome.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(214)))), ((int)(((byte)(229)))));
             this.lblWelcome.Location = new System.Drawing.Point(15, 18);
             this.lblWelcome.Name = "lblWelcome";
-            this.lblWelcome.Size = new System.Drawing.Size(95, 19);
+            this.lblWelcome.Size = new System.Drawing.Size(107, 20);
             this.lblWelcome.TabIndex = 0;
             this.lblWelcome.Text = "Welcome back,";
             // 
@@ -103,11 +103,12 @@
             this.lblUserRole.Font = new System.Drawing.Font("Segoe UI", 7.5F, System.Drawing.FontStyle.Bold);
             this.lblUserRole.ForeColor = System.Drawing.Color.White;
             this.lblUserRole.Location = new System.Drawing.Point(16, 68);
-            this.lblUserRole.Padding = new System.Windows.Forms.Padding(6, 2, 6, 2);
+            this.lblUserRole.Padding = new System.Windows.Forms.Padding(6, 3, 6, 3);
             this.lblUserRole.Name = "lblUserRole";
-            this.lblUserRole.Size = new System.Drawing.Size(89, 21);
+            this.lblUserRole.Size = new System.Drawing.Size(89, 23);
             this.lblUserRole.TabIndex = 2;
             this.lblUserRole.Text = "SPECIALIST";
+            this.lblUserRole.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnHome
             // 
@@ -119,7 +120,7 @@
             this.btnHome.Location = new System.Drawing.Point(0, 110);
             this.btnHome.Name = "btnHome";
             this.btnHome.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.btnHome.Size = new System.Drawing.Size(260, 48);
+            this.btnHome.Size = new System.Drawing.Size(260, 44);
             this.btnHome.TabIndex = 1;
             this.btnHome.Text = "🏠  Dashboard Home";
             this.btnHome.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -133,10 +134,10 @@
             this.ApplicantReview.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ApplicantReview.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.ApplicantReview.ForeColor = System.Drawing.Color.Gainsboro;
-            this.ApplicantReview.Location = new System.Drawing.Point(0, 158);
+            this.ApplicantReview.Location = new System.Drawing.Point(0, 154);
             this.ApplicantReview.Name = "ApplicantReview";
             this.ApplicantReview.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.ApplicantReview.Size = new System.Drawing.Size(260, 48);
+            this.ApplicantReview.Size = new System.Drawing.Size(260, 44);
             this.ApplicantReview.TabIndex = 2;
             this.ApplicantReview.Text = "👥  Applicant Review";
             this.ApplicantReview.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -150,10 +151,10 @@
             this.Screening.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Screening.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.Screening.ForeColor = System.Drawing.Color.Gainsboro;
-            this.Screening.Location = new System.Drawing.Point(0, 206);
+            this.Screening.Location = new System.Drawing.Point(0, 198);
             this.Screening.Name = "Screening";
             this.Screening.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.Screening.Size = new System.Drawing.Size(260, 48);
+            this.Screening.Size = new System.Drawing.Size(260, 44);
             this.Screening.TabIndex = 3;
             this.Screening.Text = "🔍  Basic Screening";
             this.Screening.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -167,10 +168,10 @@
             this.InterviewSchedule.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.InterviewSchedule.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.InterviewSchedule.ForeColor = System.Drawing.Color.Gainsboro;
-            this.InterviewSchedule.Location = new System.Drawing.Point(0, 254);
+            this.InterviewSchedule.Location = new System.Drawing.Point(0, 242);
             this.InterviewSchedule.Name = "InterviewSchedule";
             this.InterviewSchedule.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.InterviewSchedule.Size = new System.Drawing.Size(260, 48);
+            this.InterviewSchedule.Size = new System.Drawing.Size(260, 44);
             this.InterviewSchedule.TabIndex = 4;
             this.InterviewSchedule.Text = "📅  Interview Schedule";
             this.InterviewSchedule.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -184,10 +185,10 @@
             this.InterviewEvaluation.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.InterviewEvaluation.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.InterviewEvaluation.ForeColor = System.Drawing.Color.Gainsboro;
-            this.InterviewEvaluation.Location = new System.Drawing.Point(0, 302);
+            this.InterviewEvaluation.Location = new System.Drawing.Point(0, 286);
             this.InterviewEvaluation.Name = "InterviewEvaluation";
             this.InterviewEvaluation.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.InterviewEvaluation.Size = new System.Drawing.Size(260, 48);
+            this.InterviewEvaluation.Size = new System.Drawing.Size(260, 44);
             this.InterviewEvaluation.TabIndex = 5;
             this.InterviewEvaluation.Text = "📝  Interview Evaluation";
             this.InterviewEvaluation.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -201,10 +202,10 @@
             this.HiringDecision.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.HiringDecision.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.HiringDecision.ForeColor = System.Drawing.Color.Gainsboro;
-            this.HiringDecision.Location = new System.Drawing.Point(0, 350);
+            this.HiringDecision.Location = new System.Drawing.Point(0, 330);
             this.HiringDecision.Name = "HiringDecision";
             this.HiringDecision.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.HiringDecision.Size = new System.Drawing.Size(260, 48);
+            this.HiringDecision.Size = new System.Drawing.Size(260, 44);
             this.HiringDecision.TabIndex = 6;
             this.HiringDecision.Text = "⚖️  Hiring Decisions";
             this.HiringDecision.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -218,10 +219,10 @@
             this.JobVacancyManagement.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.JobVacancyManagement.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.JobVacancyManagement.ForeColor = System.Drawing.Color.Gainsboro;
-            this.JobVacancyManagement.Location = new System.Drawing.Point(0, 398);
+            this.JobVacancyManagement.Location = new System.Drawing.Point(0, 374);
             this.JobVacancyManagement.Name = "JobVacancyManagement";
             this.JobVacancyManagement.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.JobVacancyManagement.Size = new System.Drawing.Size(260, 48);
+            this.JobVacancyManagement.Size = new System.Drawing.Size(260, 44);
             this.JobVacancyManagement.TabIndex = 7;
             this.JobVacancyManagement.Text = "💼  Job Vacancies";
             this.JobVacancyManagement.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -235,10 +236,10 @@
             this.SystemMaintenance.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.SystemMaintenance.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.SystemMaintenance.ForeColor = System.Drawing.Color.Gainsboro;
-            this.SystemMaintenance.Location = new System.Drawing.Point(0, 446);
+            this.SystemMaintenance.Location = new System.Drawing.Point(0, 418);
             this.SystemMaintenance.Name = "SystemMaintenance";
             this.SystemMaintenance.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.SystemMaintenance.Size = new System.Drawing.Size(260, 48);
+            this.SystemMaintenance.Size = new System.Drawing.Size(260, 44);
             this.SystemMaintenance.TabIndex = 8;
             this.SystemMaintenance.Text = "⚙️  System Maintenance";
             this.SystemMaintenance.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -252,10 +253,10 @@
             this.Reports.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Reports.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.Reports.ForeColor = System.Drawing.Color.Gainsboro;
-            this.Reports.Location = new System.Drawing.Point(0, 494);
+            this.Reports.Location = new System.Drawing.Point(0, 462);
             this.Reports.Name = "Reports";
             this.Reports.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.Reports.Size = new System.Drawing.Size(260, 48);
+            this.Reports.Size = new System.Drawing.Size(260, 44);
             this.Reports.TabIndex = 9;
             this.Reports.Text = "📊  Recruitment Reports";
             this.Reports.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -266,14 +267,13 @@
             // 
             this.Logout.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.Logout.FlatAppearance.BorderSize = 0;
-            this.Logout.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(57)))), ((int)(((byte)(43)))));
             this.Logout.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.Logout.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.Logout.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(231)))), ((int)(((byte)(76)))), ((int)(((byte)(60)))));
-            this.Logout.Location = new System.Drawing.Point(0, 752);
+            this.Logout.Location = new System.Drawing.Point(0, 656);
             this.Logout.Name = "Logout";
             this.Logout.Padding = new System.Windows.Forms.Padding(15, 0, 0, 0);
-            this.Logout.Size = new System.Drawing.Size(260, 48);
+            this.Logout.Size = new System.Drawing.Size(260, 44);
             this.Logout.TabIndex = 10;
             this.Logout.Text = "🚪  Sign Out";
             this.Logout.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -288,14 +288,14 @@
             this.headerPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.headerPanel.Location = new System.Drawing.Point(260, 0);
             this.headerPanel.Name = "headerPanel";
-            this.headerPanel.Size = new System.Drawing.Size(1120, 70);
+            this.headerPanel.Size = new System.Drawing.Size(840, 75);
             this.headerPanel.TabIndex = 1;
             // 
             // lblHeaderTitle
             // 
             this.lblHeaderTitle.AutoSize = true;
-            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblHeaderTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(44)))), ((int)(((byte)(62)))), ((int)(((byte)(80)))));
+            this.lblHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 11.5F, System.Drawing.FontStyle.Bold);
+            this.lblHeaderTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(38)))), ((int)(((byte)(59)))));
             this.lblHeaderTitle.Location = new System.Drawing.Point(25, 23);
             this.lblHeaderTitle.Name = "lblHeaderTitle";
             this.lblHeaderTitle.Size = new System.Drawing.Size(390, 25);
@@ -304,23 +304,22 @@
             // 
             // lblDateTime
             // 
-            this.lblDateTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblDateTime.AutoSize = true;
             this.lblDateTime.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblDateTime.ForeColor = System.Drawing.Color.DimGray;
-            this.lblDateTime.Location = new System.Drawing.Point(695, 25);
+            this.lblDateTime.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblDateTime.Location = new System.Drawing.Point(550, 27);
             this.lblDateTime.Name = "lblDateTime";
-            this.lblDateTime.Size = new System.Drawing.Size(400, 23);
+            this.lblDateTime.Size = new System.Drawing.Size(250, 23);
             this.lblDateTime.TabIndex = 1;
             this.lblDateTime.Text = "Live System Clock";
-            this.lblDateTime.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // workspaceContainerPanel
             // 
             this.workspaceContainerPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
             this.workspaceContainerPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workspaceContainerPanel.Location = new System.Drawing.Point(260, 70);
+            this.workspaceContainerPanel.Location = new System.Drawing.Point(260, 75);
             this.workspaceContainerPanel.Name = "workspaceContainerPanel";
-            this.workspaceContainerPanel.Size = new System.Drawing.Size(1120, 730);
+            this.workspaceContainerPanel.Size = new System.Drawing.Size(840, 625);
             this.workspaceContainerPanel.TabIndex = 2;
             // 
             // SystemClockTimer
@@ -332,11 +331,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1380, 800);
+            this.ClientSize = new System.Drawing.Size(1100, 700);
             this.Controls.Add(this.workspaceContainerPanel);
             this.Controls.Add(this.headerPanel);
             this.Controls.Add(this.sidebarPanel);
-            this.MinimumSize = new System.Drawing.Size(1200, 700);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "HRDashboard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Talent Acquisition Operations Portal";
