@@ -29,27 +29,31 @@
             this.rdoApplicant = new System.Windows.Forms.RadioButton();
             this.rdoAdmin = new System.Windows.Forms.RadioButton();
             this.lnkChangePassword = new System.Windows.Forms.LinkLabel();
+            this.pnlSidebar = new System.Windows.Forms.Panel();
+            this.lblSidebarTitle = new System.Windows.Forms.Label();
+            this.lblSidebarSub = new System.Windows.Forms.Label();
+            this.lblSidebarDesc = new System.Windows.Forms.Label();
+            this.pnlSidebar.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblTitle
             // 
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235))))); // Royal Blue Theme
-            this.lblTitle.Location = new System.Drawing.Point(20, 15);
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))));
+            this.lblTitle.Location = new System.Drawing.Point(205, 20);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(193, 32);
+            this.lblTitle.Size = new System.Drawing.Size(182, 30);
             this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "LOGIN PORTAL";
+            this.lblTitle.Text = "Welcome Back";
             this.lblTitle.Click += new System.EventHandler(this.label1_Click);
             // 
             // rdoApplicant
             // 
             this.rdoApplicant.AutoSize = true;
             this.rdoApplicant.Checked = true;
-            this.rdoApplicant.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rdoApplicant.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            this.rdoApplicant.Location = new System.Drawing.Point(25, 62);
+            this.rdoApplicant.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.rdoApplicant.Location = new System.Drawing.Point(205, 65);
             this.rdoApplicant.Name = "rdoApplicant";
             this.rdoApplicant.Size = new System.Drawing.Size(117, 21);
             this.rdoApplicant.TabIndex = 1;
@@ -61,9 +65,8 @@
             // rdoAdmin
             // 
             this.rdoAdmin.AutoSize = true;
-            this.rdoAdmin.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rdoAdmin.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            this.rdoAdmin.Location = new System.Drawing.Point(160, 62);
+            this.rdoAdmin.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.rdoAdmin.Location = new System.Drawing.Point(330, 65);
             this.rdoAdmin.Name = "rdoAdmin";
             this.rdoAdmin.Size = new System.Drawing.Size(130, 21);
             this.rdoAdmin.TabIndex = 2;
@@ -74,11 +77,10 @@
             // lblUsername
             // 
             this.lblUsername.AutoSize = true;
-            this.lblUsername.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUsername.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblUsername.Location = new System.Drawing.Point(22, 98);
+            this.lblUsername.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.lblUsername.Location = new System.Drawing.Point(205, 100);
             this.lblUsername.Name = "lblUsername";
-            this.lblUsername.Size = new System.Drawing.Size(87, 15);
+            this.lblUsername.Size = new System.Drawing.Size(84, 15);
             this.lblUsername.TabIndex = 3;
             this.lblUsername.Text = "Email Address:";
             this.lblUsername.Click += new System.EventHandler(this.label1_Click_1);
@@ -88,20 +90,19 @@
             this.txtUsername.BackColor = System.Drawing.Color.White;
             this.txtUsername.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtUsername.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.txtUsername.Location = new System.Drawing.Point(25, 118);
+            this.txtUsername.Location = new System.Drawing.Point(205, 120);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(300, 26);
+            this.txtUsername.Size = new System.Drawing.Size(290, 26);
             this.txtUsername.TabIndex = 4;
             this.txtUsername.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // lblPassword
             // 
             this.lblPassword.AutoSize = true;
-            this.lblPassword.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPassword.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblPassword.Location = new System.Drawing.Point(22, 158);
+            this.lblPassword.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.lblPassword.Location = new System.Drawing.Point(205, 160);
             this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(62, 15);
+            this.lblPassword.Size = new System.Drawing.Size(60, 15);
             this.lblPassword.TabIndex = 5;
             this.lblPassword.Text = "Password:";
             this.lblPassword.Click += new System.EventHandler(this.label1_Click_2);
@@ -111,9 +112,9 @@
             this.txtPassword.BackColor = System.Drawing.Color.White;
             this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtPassword.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.txtPassword.Location = new System.Drawing.Point(25, 178);
+            this.txtPassword.Location = new System.Drawing.Point(205, 180);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(300, 26);
+            this.txtPassword.Size = new System.Drawing.Size(290, 26);
             this.txtPassword.TabIndex = 6;
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.textBox1_TextChanged_1);
@@ -122,10 +123,9 @@
             // 
             this.lnkChangePassword.ActiveLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
             this.lnkChangePassword.AutoSize = true;
-            this.lnkChangePassword.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lnkChangePassword.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lnkChangePassword.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.lnkChangePassword.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.lnkChangePassword.Location = new System.Drawing.Point(225, 210);
+            this.lnkChangePassword.Location = new System.Drawing.Point(395, 212);
             this.lnkChangePassword.Name = "lnkChangePassword";
             this.lnkChangePassword.Size = new System.Drawing.Size(100, 15);
             this.lnkChangePassword.TabIndex = 11;
@@ -134,15 +134,9 @@
             // 
             // btnLogin
             // 
-            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235))))); // Primary Accent Blue
-            this.btnLogin.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLogin.FlatAppearance.BorderSize = 0;
-            this.btnLogin.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLogin.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLogin.ForeColor = System.Drawing.Color.White;
-            this.btnLogin.Location = new System.Drawing.Point(25, 235);
+            this.btnLogin.Location = new System.Drawing.Point(205, 235);
             this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(300, 36);
+            this.btnLogin.Size = new System.Drawing.Size(290, 36);
             this.btnLogin.TabIndex = 7;
             this.btnLogin.Text = "Login";
             this.btnLogin.UseVisualStyleBackColor = false;
@@ -151,9 +145,8 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.label1.Location = new System.Drawing.Point(22, 290);
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.label1.Location = new System.Drawing.Point(205, 290);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(130, 15);
             this.label1.TabIndex = 8;
@@ -162,15 +155,9 @@
             // 
             // btnRegister
             // 
-            this.btnRegister.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249))))); // Very Light Gray
-            this.btnRegister.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRegister.FlatAppearance.BorderSize = 0;
-            this.btnRegister.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRegister.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnRegister.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.btnRegister.Location = new System.Drawing.Point(25, 310);
+            this.btnRegister.Location = new System.Drawing.Point(205, 310);
             this.btnRegister.Name = "btnRegister";
-            this.btnRegister.Size = new System.Drawing.Size(300, 36);
+            this.btnRegister.Size = new System.Drawing.Size(290, 36);
             this.btnRegister.TabIndex = 9;
             this.btnRegister.Text = "Register New Account";
             this.btnRegister.UseVisualStyleBackColor = false;
@@ -178,26 +165,56 @@
             // 
             // btnExit
             // 
-            this.btnExit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240))))); // Neutral Medium Gray-Blue
-            this.btnExit.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnExit.FlatAppearance.BorderSize = 0;
-            this.btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnExit.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnExit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.btnExit.Location = new System.Drawing.Point(25, 365);
+            this.btnExit.Location = new System.Drawing.Point(205, 365);
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(300, 36);
+            this.btnExit.Size = new System.Drawing.Size(290, 36);
             this.btnExit.TabIndex = 10;
             this.btnExit.Text = "Exit";
             this.btnExit.UseVisualStyleBackColor = false;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
+            // pnlSidebar
+            // 
+            this.pnlSidebar.Controls.Add(this.lblSidebarDesc);
+            this.pnlSidebar.Controls.Add(this.lblSidebarSub);
+            this.pnlSidebar.Controls.Add(this.lblSidebarTitle);
+            this.pnlSidebar.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlSidebar.Location = new System.Drawing.Point(0, 0);
+            this.pnlSidebar.Name = "pnlSidebar";
+            this.pnlSidebar.Size = new System.Drawing.Size(180, 420);
+            this.pnlSidebar.TabIndex = 12;
+            // 
+            // lblSidebarTitle
+            // 
+            this.lblSidebarTitle.Location = new System.Drawing.Point(20, 40);
+            this.lblSidebarTitle.Name = "lblSidebarTitle";
+            this.lblSidebarTitle.Size = new System.Drawing.Size(140, 50);
+            this.lblSidebarTitle.TabIndex = 0;
+            this.lblSidebarTitle.Text = "TALENT\r\nACQUISITION";
+            // 
+            // lblSidebarSub
+            // 
+            this.lblSidebarSub.AutoSize = true;
+            this.lblSidebarSub.Location = new System.Drawing.Point(20, 95);
+            this.lblSidebarSub.Name = "lblSidebarSub";
+            this.lblSidebarSub.Size = new System.Drawing.Size(91, 13);
+            this.lblSidebarSub.TabIndex = 1;
+            this.lblSidebarSub.Text = "Operations Portal";
+            // 
+            // lblSidebarDesc
+            // 
+            this.lblSidebarDesc.Location = new System.Drawing.Point(20, 140);
+            this.lblSidebarDesc.Name = "lblSidebarDesc";
+            this.lblSidebarDesc.Size = new System.Drawing.Size(140, 80);
+            this.lblSidebarDesc.TabIndex = 2;
+            this.lblSidebarDesc.Text = "Access administration tools and candidate pipelines via our secure gateway.";
+            // 
             // LoginForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252))))); // Modern soft, light gray/blue background
-            this.ClientSize = new System.Drawing.Size(350, 420);
+            this.ClientSize = new System.Drawing.Size(520, 420);
+            this.Controls.Add(this.pnlSidebar);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnRegister);
             this.Controls.Add(this.label1);
@@ -215,6 +232,8 @@
             this.Name = "LoginForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Applicant System Login";
+            this.pnlSidebar.ResumeLayout(false);
+            this.pnlSidebar.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -234,5 +253,9 @@
         private System.Windows.Forms.RadioButton rdoApplicant;
         private System.Windows.Forms.RadioButton rdoAdmin;
         private System.Windows.Forms.LinkLabel lnkChangePassword;
+        private System.Windows.Forms.Panel pnlSidebar;
+        private System.Windows.Forms.Label lblSidebarTitle;
+        private System.Windows.Forms.Label lblSidebarSub;
+        private System.Windows.Forms.Label lblSidebarDesc;
     }
 }

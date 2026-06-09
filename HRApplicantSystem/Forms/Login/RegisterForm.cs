@@ -1,8 +1,11 @@
-﻿using System;
+﻿using HRApplicantSystem.Classes;
+using HRApplicantSystem.Database;
+using System;
+using System.Data;
 using System.Data.OleDb;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using HRApplicantSystem.Database;
 
 namespace HRApplicantSystem.Forms.Login
 {
@@ -19,16 +22,101 @@ namespace HRApplicantSystem.Forms.Login
 
             // Set max date limit for birthday input
             dtpBirthday.MaxDate = DateTime.Today;
-            dtpBirthday.Value = DateTime.Today.AddYears(-18); // Default to 18 years ago
+            dtpBirthday.Value = DateTime.Today.AddYears(-18);
+
+            ApplyThemeStyles();
         }
 
-        // Email format validation helper
+        /// <summary>
+        /// Formats and styles registration controls dynamically to match the dashboard's theme.
+        /// </summary>
+        private void ApplyThemeStyles()
+        {
+            // Main canvas background matches the dashboard's content container
+            this.BackColor = Color.FromArgb(244, 246, 247);
+
+            StyleControlsRecursive(this);
+
+            if (lblTitle != null)
+            {
+                lblTitle.ForeColor = Color.FromArgb(27, 38, 59); // Dark slate blue matching the dashboard headers
+                lblTitle.Font = new Font("Segoe UI Semibold", 16F, FontStyle.Bold);
+            }
+
+            if (pnlSidebar != null)
+            {
+                pnlSidebar.BackColor = Color.FromArgb(27, 38, 59); // Sidebar background
+            }
+
+            if (pnlAccentBar != null)
+            {
+                pnlAccentBar.BackColor = Color.FromArgb(41, 128, 185); // Indicator blue
+            }
+
+            // Button visual tuning matching system buttons
+            if (btnRegister != null)
+            {
+                UITheme.StylePrimaryButton(btnRegister);
+                btnRegister.FlatStyle = FlatStyle.Flat;
+                btnRegister.FlatAppearance.BorderSize = 0;
+                btnRegister.BackColor = Color.FromArgb(41, 128, 185); // Accent Blue
+                btnRegister.ForeColor = Color.White;
+                btnRegister.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
+            }
+
+            if (btnBack != null)
+            {
+                UITheme.StyleSecondaryButton(btnBack);
+                btnBack.FlatStyle = FlatStyle.Flat;
+                btnBack.FlatAppearance.BorderSize = 1;
+                btnBack.FlatAppearance.BorderColor = Color.FromArgb(180, 190, 200);
+                btnBack.BackColor = Color.White;
+                btnBack.ForeColor = Color.FromArgb(127, 140, 141);
+                btnBack.Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
+            }
+        }
+
+        private void StyleControlsRecursive(Control parent)
+        {
+            // Do not override branding styles inside the custom sidebar
+            if (parent.Name == "pnlSidebar") return;
+
+            foreach (Control ctrl in parent.Controls)
+            {
+                if (ctrl is Label lbl && lbl.Name != "lblTitle" && lbl.Parent?.Name != "pnlSidebar")
+                {
+                    lbl.ForeColor = Color.FromArgb(127, 140, 141); // Slate gray muted text
+                    lbl.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+                }
+                else if (ctrl is TextBox txt)
+                {
+                    txt.BackColor = Color.White;
+                    txt.ForeColor = Color.FromArgb(27, 38, 59); // Dark navy text
+                    txt.Font = new Font("Segoe UI", 9.5F);
+                    txt.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else if (ctrl is ComboBox cmb)
+                {
+                    cmb.BackColor = Color.White;
+                    cmb.ForeColor = Color.FromArgb(27, 38, 59);
+                    cmb.Font = new Font("Segoe UI", 9.5F);
+                }
+                else if (ctrl is DateTimePicker dtp)
+                {
+                    dtp.Font = new Font("Segoe UI", 9.5F);
+                }
+                else if (ctrl.HasChildren)
+                {
+                    StyleControlsRecursive(ctrl);
+                }
+            }
+        }
+
         private bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
             try
             {
-                // Simple standard regex for basic email structure validation
                 return Regex.IsMatch(email.Trim(),
                     @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
                     RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
@@ -39,7 +127,6 @@ namespace HRApplicantSystem.Forms.Login
             }
         }
 
-        // Strong password rule checker
         private bool IsStrongPassword(string password, out string errorMessage)
         {
             errorMessage = "";
@@ -63,7 +150,7 @@ namespace HRApplicantSystem.Forms.Login
                 errorMessage = "Password must contain at least one numeric digit.";
                 return false;
             }
-            if (!Regex.IsMatch(password, @"[\W_]")) // \W detects special characters (non-word alphanumeric)
+            if (!Regex.IsMatch(password, @"[\W_]"))
             {
                 errorMessage = "Password must contain at least one special character (e.g., @, $, !, %, *, ?, &).";
                 return false;
@@ -73,7 +160,6 @@ namespace HRApplicantSystem.Forms.Login
 
         private void btnRegister_Click(object sender, EventArgs e)
         {
-            // 1. Mandatory Field and Format Validations (Client-side)
             string emailInput = txtUsername.Text.Trim();
             if (string.IsNullOrWhiteSpace(emailInput))
             {
@@ -94,7 +180,6 @@ namespace HRApplicantSystem.Forms.Login
                 return;
             }
 
-            // Strong password evaluation
             if (!IsStrongPassword(passwordInput, out string passwordValidationError))
             {
                 MessageBox.Show(passwordValidationError, "Weak Password", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -128,7 +213,6 @@ namespace HRApplicantSystem.Forms.Login
             {
                 con.Open();
 
-                // 2. Check if the Email already exists (Verify database duplicates before opening a transaction)
                 string checkQuery = "SELECT COUNT(*) FROM ApplicantAccounts WHERE Email = ?";
                 using (OleDbCommand checkCmd = new OleDbCommand(checkQuery, con))
                 {
@@ -142,10 +226,9 @@ namespace HRApplicantSystem.Forms.Login
                     }
                 }
 
-                // Start transaction for atomic insertion across multi-table relationship
                 transaction = con.BeginTransaction();
 
-                // 3. Insert into ApplicantAccounts
+                // Accounts default to Active Status
                 string insertAccountQuery = "INSERT INTO ApplicantAccounts (Email, [Password], AccountStatus) VALUES (?, ?, ?)";
                 using (OleDbCommand insertAccCmd = new OleDbCommand(insertAccountQuery, con, transaction))
                 {
@@ -156,7 +239,6 @@ namespace HRApplicantSystem.Forms.Login
                     insertAccCmd.ExecuteNonQuery();
                 }
 
-                // 4. Retrieve the auto-incremented Identity ID [1, 2]
                 int newApplicantId = 0;
                 string identityQuery = "SELECT @@IDENTITY";
                 using (OleDbCommand identityCmd = new OleDbCommand(identityQuery, con, transaction))
@@ -164,13 +246,11 @@ namespace HRApplicantSystem.Forms.Login
                     newApplicantId = Convert.ToInt32(identityCmd.ExecuteScalar());
                 }
 
-                // 5. Insert full profile record into the Applicants table
                 string insertProfileQuery = "INSERT INTO Applicants (ApplicantID, FirstName, MiddleName, LastName, Birthday, Gender, Address, ContactNumber, Education, Skills, WorkExperience) " +
                                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 using (OleDbCommand insertProfileCmd = new OleDbCommand(insertProfileQuery, con, transaction))
                 {
-                    // Access evaluates parameters strictly by order of declaration (?)
                     insertProfileCmd.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = newApplicantId;
                     insertProfileCmd.Parameters.Add("@FirstName", OleDbType.VarWChar).Value = txtFirstName.Text.Trim();
                     insertProfileCmd.Parameters.Add("@MiddleName", OleDbType.VarWChar).Value = txtMiddleName.Text.Trim();
@@ -186,7 +266,6 @@ namespace HRApplicantSystem.Forms.Login
                     insertProfileCmd.ExecuteNonQuery();
                 }
 
-                // Commit transaction once everything completes successfully
                 transaction.Commit();
 
                 MessageBox.Show("Registration Successful! You can now log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -196,13 +275,13 @@ namespace HRApplicantSystem.Forms.Login
             {
                 if (transaction != null)
                 {
-                    try { transaction.Rollback(); } catch { /* Suppress rollback cascade errors */ }
+                    try { transaction.Rollback(); } catch { }
                 }
                 MessageBox.Show("An error occurred during registration:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                if (con.State == System.Data.ConnectionState.Open)
+                if (con.State == ConnectionState.Open)
                     con.Close();
             }
         }

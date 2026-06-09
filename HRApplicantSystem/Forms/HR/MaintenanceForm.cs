@@ -17,7 +17,8 @@ namespace HRApplicantSystem.Forms.HR
         private int selectedReqId = 0;
         private int selectedIntId = 0;
         private int selectedAssId = 0;
-        private int selectedUserId = 0; // Tracks selected account in Tab 7
+        private int selectedUserId = 0;     // Selected administrative user account
+        private int selectedAppAccId = 0;    // Selected applicant account
 
         // Programmatically generated User Management Controls to resolve compiler CS0103 issues
         private TabControl mainTabControl;
@@ -27,10 +28,21 @@ namespace HRApplicantSystem.Forms.HR
         private TextBox txtUserFullName;
         private TextBox txtUserPassword;
         private ComboBox cmbUserRole;
+        private CheckBox chkUserActive; // Added User Status Control
         private Button btnSaveUser;
         private Button btnClearUser;
         private Label lblPasswordHelp;
         private TextBox txtSearchUsers;
+
+        // Programmatically generated Applicant Account Status Controls
+        private TabPage tabApplicantAccounts;
+        private DataGridView dgvAppAccounts;
+        private TextBox txtAppEmail;
+        private TextBox txtAppFullName;
+        private ComboBox cmbAppStatus;
+        private Button btnSaveAppAcc;
+        private Button btnClearAppAcc;
+        private TextBox txtSearchAppAcc;
 
         // Suspends selection logic during reloads and clearing states to prevent UI feedback loops
         private bool isResetting = false;
@@ -52,8 +64,11 @@ namespace HRApplicantSystem.Forms.HR
                 return;
             }
 
-            // Programmatically construct Tab 7 (User Management UI) dynamically
+            // Programmatically construct Tab 7 (User Accounts) dynamically
             InitializeUserManagementTab();
+
+            // Programmatically construct Tab 8 (Applicant Accounts) dynamically
+            InitializeApplicantAccountsTab();
 
             // Apply modern UI Styling dynamically on Load
             ApplyThemeStyles();
@@ -66,12 +81,9 @@ namespace HRApplicantSystem.Forms.HR
         /// </summary>
         private void InitializeUserManagementTab()
         {
-            // Search controls to locate existing TabControl on form
             mainTabControl = FindTabControl(this);
-
             if (mainTabControl == null) return;
 
-            // Instantiation and sizing of Tab 7
             tabUsers = new TabPage("User Accounts");
             tabUsers.BackColor = Color.White;
             mainTabControl.TabPages.Add(tabUsers);
@@ -123,7 +135,12 @@ namespace HRApplicantSystem.Forms.HR
             cmbUserRole.Items.AddRange(new object[] { "Admin", "HR Manager", "HR Staff" });
             if (cmbUserRole.Items.Count > 0) cmbUserRole.SelectedIndex = 0;
             pnlInput.Controls.Add(cmbUserRole);
-            yOffset += 40;
+            yOffset += 35;
+
+            // Administrative Active Status Checkbox
+            chkUserActive = new CheckBox { Text = "Account Active", Location = new Point(5, yOffset), Size = new Size(270, 20), Font = new Font("Segoe UI", 9F), Checked = true };
+            pnlInput.Controls.Add(chkUserActive);
+            yOffset += 30;
 
             btnSaveUser = new Button { Text = "Save", Location = new Point(5, yOffset), Size = new Size(130, 32) };
             btnSaveUser.Click += btnSaveUser_Click;
@@ -160,13 +177,96 @@ namespace HRApplicantSystem.Forms.HR
             dgvUsers.SelectionChanged += dgvUsers_SelectionChanged;
             pnlGrid.Controls.Add(dgvUsers);
 
-            // Map search textbox tag directly to its datagrid to inherit base-class filtering automatically
             txtSearchUsers.Tag = dgvUsers;
         }
 
         /// <summary>
-        /// Recursively navigates nested layouts to find parent tab containers automatically.
+        /// Programmatic layout manager that builds the Applicant Account administration tab.
         /// </summary>
+        private void InitializeApplicantAccountsTab()
+        {
+            mainTabControl = FindTabControl(this);
+            if (mainTabControl == null) return;
+
+            tabApplicantAccounts = new TabPage("Applicant Accounts");
+            tabApplicantAccounts.BackColor = Color.White;
+            mainTabControl.TabPages.Add(tabApplicantAccounts);
+
+            // Left Side Panel: Inputs
+            Panel pnlInput = new Panel
+            {
+                Location = new Point(15, 15),
+                Size = new Size(290, tabApplicantAccounts.Height - 30),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left
+            };
+            tabApplicantAccounts.Controls.Add(pnlInput);
+
+            int yOffset = 10;
+
+            Label lblEmail = new Label { Text = "Email Address (Read-Only):", Location = new Point(5, yOffset), AutoSize = true, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), ForeColor = UITheme.ColorSecondary };
+            pnlInput.Controls.Add(lblEmail);
+            yOffset += 20;
+
+            txtAppEmail = new TextBox { Location = new Point(5, yOffset), Size = new Size(270, 25), Font = new Font("Segoe UI", 9F), ReadOnly = true, BackColor = Color.FromArgb(241, 245, 249) };
+            pnlInput.Controls.Add(txtAppEmail);
+            yOffset += 35;
+
+            Label lblFullName = new Label { Text = "Full Name (Read-Only):", Location = new Point(5, yOffset), AutoSize = true, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), ForeColor = UITheme.ColorSecondary };
+            pnlInput.Controls.Add(lblFullName);
+            yOffset += 20;
+
+            txtAppFullName = new TextBox { Location = new Point(5, yOffset), Size = new Size(270, 25), Font = new Font("Segoe UI", 9F), ReadOnly = true, BackColor = Color.FromArgb(241, 245, 249) };
+            pnlInput.Controls.Add(txtAppFullName);
+            yOffset += 35;
+
+            Label lblStatus = new Label { Text = "Account Status:", Location = new Point(5, yOffset), AutoSize = true, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), ForeColor = UITheme.ColorSecondary };
+            pnlInput.Controls.Add(lblStatus);
+            yOffset += 20;
+
+            cmbAppStatus = new ComboBox { Location = new Point(5, yOffset), Size = new Size(270, 25), DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9F) };
+            cmbAppStatus.Items.AddRange(new object[] { "Active", "Inactive" });
+            cmbAppStatus.SelectedIndex = 0;
+            pnlInput.Controls.Add(cmbAppStatus);
+            yOffset += 40;
+
+            btnSaveAppAcc = new Button { Text = "Update Status", Location = new Point(5, yOffset), Size = new Size(130, 32) };
+            btnSaveAppAcc.Click += btnSaveAppAcc_Click;
+            pnlInput.Controls.Add(btnSaveAppAcc);
+
+            btnClearAppAcc = new Button { Text = "Clear", Location = new Point(145, yOffset), Size = new Size(130, 32) };
+            btnClearAppAcc.Click += btnClearAppAcc_Click;
+            pnlInput.Controls.Add(btnClearAppAcc);
+
+            // Right Side Panel: Grid & Filters
+            Panel pnlGrid = new Panel
+            {
+                Location = new Point(320, 15),
+                Size = new Size(tabApplicantAccounts.Width - 335, tabApplicantAccounts.Height - 30),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right
+            };
+            tabApplicantAccounts.Controls.Add(pnlGrid);
+
+            Label lblSearch = new Label { Text = "Search Applicant Accounts:", Location = new Point(5, 10), AutoSize = true, Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold), ForeColor = UITheme.ColorSecondary };
+            pnlGrid.Controls.Add(lblSearch);
+
+            txtSearchAppAcc = new TextBox { Location = new Point(180, 7), Size = new Size(220, 25), Font = new Font("Segoe UI", 9F) };
+            txtSearchAppAcc.TextChanged += txtSearch_TextChanged;
+            pnlGrid.Controls.Add(txtSearchAppAcc);
+
+            dgvAppAccounts = new DataGridView
+            {
+                Location = new Point(5, 40),
+                Size = new Size(pnlGrid.Width - 10, pnlGrid.Height - 50),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                AllowUserToAddRows = false,
+                ReadOnly = true
+            };
+            dgvAppAccounts.SelectionChanged += dgvAppAccounts_SelectionChanged;
+            pnlGrid.Controls.Add(dgvAppAccounts);
+
+            txtSearchAppAcc.Tag = dgvAppAccounts;
+        }
+
         private TabControl FindTabControl(Control parent)
         {
             foreach (Control child in parent.Controls)
@@ -178,9 +278,6 @@ namespace HRApplicantSystem.Forms.HR
             return null;
         }
 
-        /// <summary>
-        /// Programs aesthetic formatting across form controls on startup.
-        /// </summary>
         private void ApplyThemeStyles()
         {
             this.BackColor = UITheme.ColorBg;
@@ -193,8 +290,9 @@ namespace HRApplicantSystem.Forms.HR
             UITheme.StyleDataGridView(dgvInterviews);
             UITheme.StyleDataGridView(dgvAssessments);
 
-            // Dynamic User Grid styling
+            // Dynamic Grids styling
             if (dgvUsers != null) UITheme.StyleDataGridView(dgvUsers);
+            if (dgvAppAccounts != null) UITheme.StyleDataGridView(dgvAppAccounts);
 
             // Form element actions styling
             UITheme.StylePrimaryButton(btnSaveDept);
@@ -215,11 +313,13 @@ namespace HRApplicantSystem.Forms.HR
             UITheme.StylePrimaryButton(btnSaveAss);
             UITheme.StyleSecondaryButton(btnClearAss);
 
-            // Dynamic User action styling
+            // Dynamic User and Applicant Actions Styling
             if (btnSaveUser != null) UITheme.StylePrimaryButton(btnSaveUser);
             if (btnClearUser != null) UITheme.StyleSecondaryButton(btnClearUser);
 
-            // Style Back Button dynamically
+            if (btnSaveAppAcc != null) UITheme.StylePrimaryButton(btnSaveAppAcc);
+            if (btnClearAppAcc != null) UITheme.StyleSecondaryButton(btnClearAppAcc);
+
             if (btnBack != null) UITheme.StyleSecondaryButton(btnBack);
         }
 
@@ -232,10 +332,10 @@ namespace HRApplicantSystem.Forms.HR
             LoadRequirementTypes();
             LoadInterviewTypes();
             LoadAssessmentTypes();
-            LoadUserAccounts(); // Auto-load users
+            LoadUserAccounts();
+            LoadApplicantAccounts();
         }
 
-        // --- Database Helper Methods ---
         private void ExecuteDataFill(string query, DataGridView dgv)
         {
             using (OleDbConnection con = DBConnection.GetConnection())
@@ -249,7 +349,6 @@ namespace HRApplicantSystem.Forms.HR
                         DataTable dt = new DataTable();
                         da.Fill(dt);
 
-                        // Use BindingSource to safely support programmatic searching/filtering
                         BindingSource bs = new BindingSource { DataSource = dt };
                         dgv.DataSource = bs;
                     }
@@ -312,7 +411,6 @@ namespace HRApplicantSystem.Forms.HR
                 }
                 catch
                 {
-                    // Fallback to 0 if table or column does not exist, keeping execution safe
                     return 0;
                 }
             }
@@ -336,16 +434,11 @@ namespace HRApplicantSystem.Forms.HR
                         cmd.ExecuteNonQuery();
                     }
                 }
-                catch
-                {
-                    // Fail silently so auditing issues do not interrupt configurations
-                }
+                catch { }
             }
         }
 
-        // ==========================================
-        // TAB 1: DEPARTMENTS LOGIC
-        // ==========================================
+        // --- TAB 1: DEPARTMENTS LOGIC ---
         private void LoadDepartments()
         {
             string query = "SELECT DepartmentID, DepartmentName, Description, IsActive FROM Departments";
@@ -452,9 +545,7 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // TAB 2: POSITIONS LOGIC
-        // ==========================================
+        // --- TAB 2: POSITIONS LOGIC ---
         private void LoadPositions()
         {
             string query = "SELECT p.PositionID, p.PositionName, d.DepartmentName, p.IsActive, p.DepartmentID " +
@@ -599,9 +690,7 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // TAB 3: EMPLOYMENT TYPES LOGIC
-        // ==========================================
+        // --- TAB 3: EMPLOYMENT TYPES LOGIC ---
         private void LoadEmploymentTypes()
         {
             string query = "SELECT EmploymentTypeID, TypeName, IsActive FROM EmploymentTypes";
@@ -691,9 +780,7 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // TAB 4: REQUIREMENT TYPES LOGIC
-        // ==========================================
+        // --- TAB 4: REQUIREMENT TYPES LOGIC ---
         private void LoadRequirementTypes()
         {
             string query = "SELECT RequirementTypeID, RequirementName, IsRequired FROM RequirementTypes";
@@ -783,9 +870,7 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // TAB 5: INTERVIEW TYPES LOGIC
-        // ==========================================
+        // --- TAB 5: INTERVIEW TYPES LOGIC ---
         private void LoadInterviewTypes()
         {
             string query = "SELECT InterviewTypeID, TypeName, IsActive FROM InterviewTypes";
@@ -875,9 +960,7 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // TAB 6: ASSESSMENT TYPES LOGIC
-        // ==========================================
+        // --- TAB 6: ASSESSMENT TYPES LOGIC ---
         private void LoadAssessmentTypes()
         {
             string query = "SELECT AssessmentTypeID, TypeName, IsActive FROM AssessmentTypes";
@@ -967,13 +1050,11 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // TAB 7: USER ACCOUNTS LOGIC
-        // ==========================================
+        // --- TAB 7: USER ACCOUNTS LOGIC (Administrative Logins with Status Support) ---
         private void LoadUserAccounts()
         {
-            // Note: Users table column mapping handles reserved Access keyword [Password]
-            string query = "SELECT UserID, Username, [Full Name] as FullName, Role FROM Users";
+            // Safely retrieves administrative status indicator
+            string query = "SELECT UserID, Username, [Full Name] as FullName, Role, IsActive FROM Users";
             try
             {
                 if (dgvUsers != null)
@@ -981,7 +1062,15 @@ namespace HRApplicantSystem.Forms.HR
                     ExecuteDataFill(query, dgvUsers);
                 }
             }
-            catch { }
+            catch
+            {
+                // Graceful fallback if database schema does not have IsActive column yet
+                string fallbackQuery = "SELECT UserID, Username, [Full Name] as FullName, Role FROM Users";
+                if (dgvUsers != null)
+                {
+                    ExecuteDataFill(fallbackQuery, dgvUsers);
+                }
+            }
         }
 
         private void dgvUsers_SelectionChanged(object sender, EventArgs e)
@@ -1000,9 +1089,17 @@ namespace HRApplicantSystem.Forms.HR
                     txtUserFullName.Text = Convert.ToString(row.Cells["FullName"].Value);
                     cmbUserRole.SelectedItem = Convert.ToString(row.Cells["Role"].Value);
 
-                    // Clear password textbox for visual security
-                    txtUserPassword.Clear();
+                    // CORRECTED: Check the Grid columns directly to see if IsActive is present
+                    if (dgvUsers.Columns.Contains("IsActive") && row.Cells["IsActive"].Value != DBNull.Value)
+                    {
+                        chkUserActive.Checked = Convert.ToBoolean(row.Cells["IsActive"].Value);
+                    }
+                    else
+                    {
+                        chkUserActive.Checked = true;
+                    }
 
+                    txtUserPassword.Clear();
                     btnSaveUser.Text = "Update";
                 }
             }
@@ -1019,6 +1116,7 @@ namespace HRApplicantSystem.Forms.HR
                 if (txtUserFullName != null) txtUserFullName.Clear();
                 if (txtUserPassword != null) txtUserPassword.Clear();
                 if (cmbUserRole != null && cmbUserRole.Items.Count > 0) cmbUserRole.SelectedIndex = 0;
+                if (chkUserActive != null) chkUserActive.Checked = true;
                 if (btnSaveUser != null) btnSaveUser.Text = "Save";
                 if (dgvUsers != null) dgvUsers.ClearSelection();
             }
@@ -1035,6 +1133,7 @@ namespace HRApplicantSystem.Forms.HR
             string fullName = txtUserFullName.Text.Trim();
             string role = cmbUserRole.SelectedItem?.ToString();
             string password = txtUserPassword.Text;
+            bool isActive = chkUserActive.Checked;
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(fullName) || string.IsNullOrEmpty(role))
             {
@@ -1059,13 +1158,13 @@ namespace HRApplicantSystem.Forms.HR
 
             if (selectedUserId == 0)
             {
-                query = "INSERT INTO Users (Username, [Password], [Full Name], Role) VALUES (?, ?, ?, ?)";
+                query = "INSERT INTO Users (Username, [Password], [Full Name], Role, IsActive) VALUES (?, ?, ?, ?, ?)";
             }
             else
             {
                 query = updatingPassword
-                    ? "UPDATE Users SET Username = ?, [Password] = ?, [Full Name] = ?, Role = ? WHERE UserID = ?"
-                    : "UPDATE Users SET Username = ?, [Full Name] = ?, Role = ? WHERE UserID = ?";
+                    ? "UPDATE Users SET Username = ?, [Password] = ?, [Full Name] = ?, Role = ?, IsActive = ? WHERE UserID = ?"
+                    : "UPDATE Users SET Username = ?, [Full Name] = ?, Role = ?, IsActive = ? WHERE UserID = ?";
             }
 
             using (OleDbConnection con = DBConnection.GetConnection())
@@ -1083,6 +1182,7 @@ namespace HRApplicantSystem.Forms.HR
                         }
                         cmd.Parameters.AddWithValue("?", fullName);
                         cmd.Parameters.AddWithValue("?", role);
+                        cmd.Parameters.AddWithValue("?", isActive);
 
                         if (selectedUserId > 0)
                             cmd.Parameters.AddWithValue("?", selectedUserId);
@@ -1091,7 +1191,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedUserId == 0 ? "Create User" : "Update User";
-                    LogActivity(logAction, $"User Account '{username}' ({role}) modified by Admin/Manager: {UserSession.Username}.");
+                    LogActivity(logAction, $"User Account '{username}' ({role}, Active: {isActive}) modified by Admin/Manager: {UserSession.Username}.");
 
                     MessageBox.Show("User configuration recorded successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadUserAccounts();
@@ -1104,9 +1204,111 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        // ==========================================
-        // DYNAMIC IN-MEMORY FILTER LOGIC (SEARCH)
-        // ==========================================
+        // --- TAB 8: APPLICANT ACCOUNTS LOGIC (Controls AccountStatus) ---
+        private void LoadApplicantAccounts()
+        {
+            // Dynamically joins profiles for clear and unified views
+            string query = @"SELECT aa.ApplicantID, aa.Email, aa.AccountStatus, 
+                             (a.FirstName + ' ' + a.LastName) AS FullName 
+                             FROM ApplicantAccounts aa 
+                             LEFT JOIN Applicants a ON aa.ApplicantID = a.ApplicantID";
+            try
+            {
+                if (dgvAppAccounts != null)
+                {
+                    ExecuteDataFill(query, dgvAppAccounts);
+                }
+            }
+            catch { }
+        }
+
+        private void dgvAppAccounts_SelectionChanged(object sender, EventArgs e)
+        {
+            if (isResetting) return;
+
+            try
+            {
+                if (dgvAppAccounts != null && dgvAppAccounts.SelectedRows.Count > 0)
+                {
+                    DataGridViewRow row = dgvAppAccounts.SelectedRows[0];
+                    if (row.Cells["ApplicantID"].Value == null || row.Cells["ApplicantID"].Value == DBNull.Value) return;
+
+                    selectedAppAccId = Convert.ToInt32(row.Cells["ApplicantID"].Value);
+                    txtAppEmail.Text = Convert.ToString(row.Cells["Email"].Value);
+                    txtAppFullName.Text = Convert.ToString(row.Cells["FullName"].Value);
+
+                    string status = Convert.ToString(row.Cells["AccountStatus"].Value);
+                    if (cmbAppStatus.Items.Contains(status))
+                    {
+                        cmbAppStatus.SelectedItem = status;
+                    }
+                    else
+                    {
+                        cmbAppStatus.SelectedIndex = 0;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void btnClearAppAcc_Click(object sender, EventArgs e)
+        {
+            isResetting = true;
+            try
+            {
+                selectedAppAccId = 0;
+                if (txtAppEmail != null) txtAppEmail.Clear();
+                if (txtAppFullName != null) txtAppFullName.Clear();
+                if (cmbAppStatus != null && cmbAppStatus.Items.Count > 0) cmbAppStatus.SelectedIndex = 0;
+                if (dgvAppAccounts != null) dgvAppAccounts.ClearSelection();
+            }
+            catch { }
+            finally
+            {
+                isResetting = false;
+            }
+        }
+
+        private void btnSaveAppAcc_Click(object sender, EventArgs e)
+        {
+            if (selectedAppAccId == 0)
+            {
+                MessageBox.Show("Please select an applicant account from the table to update.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string newStatus = cmbAppStatus.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(newStatus)) return;
+
+            string query = "UPDATE ApplicantAccounts SET AccountStatus = ? WHERE ApplicantID = ?";
+
+            using (OleDbConnection con = DBConnection.GetConnection())
+            {
+                if (con == null) return;
+                try
+                {
+                    con.Open();
+                    using (OleDbCommand cmd = new OleDbCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("?", newStatus);
+                        cmd.Parameters.AddWithValue("?", selectedAppAccId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    LogActivity("Update Applicant Account Status", $"Applicant account status for ID {selectedAppAccId} ({txtAppEmail.Text}) updated to {newStatus} by {UserSession.Username}.");
+
+                    MessageBox.Show("Applicant account status updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadApplicantAccounts();
+                    btnClearAppAcc_Click(null, null);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error updating applicant account status: " + ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        // --- DYNAMIC IN-MEMORY FILTER LOGIC (SEARCH) ---
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
             TextBox txt = sender as TextBox;
@@ -1155,7 +1357,19 @@ namespace HRApplicantSystem.Forms.HR
             }
             else if (dgv == dgvUsers)
             {
-                filterExpression = $"Username LIKE '%{filterText}%' OR FullName LIKE '%{filterText}%' OR Role LIKE '%{filterText}%'";
+                // Dynamic checks to prevent search queries from throwing errors on fallback schemas
+                if (bs.DataSource is DataTable dt && dt.Columns.Contains("IsActive"))
+                {
+                    filterExpression = $"Username LIKE '%{filterText}%' OR FullName LIKE '%{filterText}%' OR Role LIKE '%{filterText}%'";
+                }
+                else
+                {
+                    filterExpression = $"Username LIKE '%{filterText}%' OR FullName LIKE '%{filterText}%' OR Role LIKE '%{filterText}%'";
+                }
+            }
+            else if (dgv == dgvAppAccounts)
+            {
+                filterExpression = $"Email LIKE '%{filterText}%' OR FullName LIKE '%{filterText}%' OR AccountStatus LIKE '%{filterText}%'";
             }
 
             try

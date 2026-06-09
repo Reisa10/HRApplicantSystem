@@ -12,6 +12,15 @@ namespace HRApplicantSystem.Forms.Login
 {
     public partial class LoginForm : Form
     {
+        // Colors extracted from the dashboard design theme
+        private static readonly Color ColorSidebarBg = Color.FromArgb(17, 24, 39);       // Slate 900 (Sidebar)
+        private static readonly Color ColorMainBg = Color.FromArgb(248, 250, 252);       // Slate 50 (Workspace)
+        private static readonly Color ColorTextPrimary = Color.FromArgb(15, 23, 42);     // Slate 900 (Text)
+        private static readonly Color ColorTextSecondary = Color.FromArgb(100, 116, 139); // Slate 500 (Subtext)
+        private static readonly Color ColorAccentBlue = Color.FromArgb(37, 99, 235);      // Blue 600 (Primary actions)
+        private static readonly Color ColorLightButton = Color.FromArgb(241, 245, 249);   // Slate 100 (Secondary buttons)
+        private static readonly Color ColorExitButton = Color.FromArgb(226, 232, 240);    // Slate 200 (Neutral actions)
+
         public LoginForm()
         {
             InitializeComponent();
@@ -19,6 +28,86 @@ namespace HRApplicantSystem.Forms.Login
             // Set default state
             rdoApplicant.Checked = true;
             UpdateUiLayout();
+            ApplyThemeStyles();
+        }
+
+        /// <summary>
+        /// Applies cohesive color palette and typography from the dashboard theme.
+        /// </summary>
+        private void ApplyThemeStyles()
+        {
+            this.BackColor = ColorMainBg;
+            pnlSidebar.BackColor = ColorSidebarBg;
+
+            // Brand Sidebar Styling
+            lblSidebarTitle.ForeColor = Color.White;
+            lblSidebarTitle.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblSidebarSub.ForeColor = Color.FromArgb(148, 163, 184); // Slate 400
+            lblSidebarSub.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            lblSidebarDesc.ForeColor = Color.FromArgb(100, 116, 139); // Slate 500
+            lblSidebarDesc.Font = new Font("Segoe UI", 8F, FontStyle.Regular);
+
+            // Styling form controls recursively
+            StyleControlsRecursive(this);
+
+            // Fine-tune specific key actions
+            if (lblTitle != null)
+            {
+                lblTitle.ForeColor = ColorTextPrimary;
+                lblTitle.Font = new Font("Segoe UI Semibold", 16F, FontStyle.Bold);
+            }
+
+            if (lnkChangePassword != null)
+            {
+                lnkChangePassword.LinkColor = ColorAccentBlue;
+                lnkChangePassword.ActiveLinkColor = Color.FromArgb(29, 78, 216);
+            }
+
+            // Styled buttons with flat properties to match the clean dashboard
+            StyleFlatButton(btnLogin, ColorAccentBlue, Color.White);
+            StyleFlatButton(btnRegister, ColorLightButton, ColorAccentBlue);
+            StyleFlatButton(btnExit, ColorExitButton, Color.FromArgb(71, 85, 105));
+        }
+
+        private void StyleControlsRecursive(Control parent)
+        {
+            foreach (Control ctrl in parent.Controls)
+            {
+                if (ctrl == pnlSidebar) continue; // Skip styling sidebar controls with main form styles
+
+                if (ctrl is Label lbl && lbl.Name != "lblTitle")
+                {
+                    lbl.ForeColor = ColorTextSecondary;
+                    lbl.Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold);
+                }
+                else if (ctrl is TextBox txt)
+                {
+                    txt.BackColor = Color.White;
+                    txt.ForeColor = ColorTextPrimary;
+                    txt.Font = new Font("Segoe UI", 10F);
+                    txt.BorderStyle = BorderStyle.FixedSingle;
+                }
+                else if (ctrl is RadioButton rdo)
+                {
+                    rdo.ForeColor = ColorTextPrimary;
+                    rdo.Font = new Font("Segoe UI", 9.5F);
+                }
+                else if (ctrl.HasChildren)
+                {
+                    StyleControlsRecursive(ctrl);
+                }
+            }
+        }
+
+        private void StyleFlatButton(Button btn, Color backColor, Color foreColor)
+        {
+            if (btn == null) return;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = backColor;
+            btn.ForeColor = foreColor;
+            btn.Cursor = Cursors.Hand;
+            btn.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -57,7 +146,24 @@ namespace HRApplicantSystem.Forms.Login
                         {
                             if (reader.Read())
                             {
-                                // Save user details to active session
+                                try
+                                {
+                                    int activeOrdinal = reader.GetOrdinal("IsActive");
+                                    if (!reader.IsDBNull(activeOrdinal))
+                                    {
+                                        bool isActive = Convert.ToBoolean(reader[activeOrdinal]);
+                                        if (!isActive)
+                                        {
+                                            MessageBox.Show("Your staff account is currently inactive. Please contact the System Administrator.", "Account Inactive", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                            return;
+                                        }
+                                    }
+                                }
+                                catch (IndexOutOfRangeException)
+                                {
+                                    // Fallback if schema does not have IsActive column yet
+                                }
+
                                 UserSession.UserID = Convert.ToInt32(reader["UserID"]);
                                 UserSession.Username = reader["Username"].ToString();
                                 UserSession.FullName = reader["Full Name"].ToString();
@@ -68,7 +174,7 @@ namespace HRApplicantSystem.Forms.Login
                                 HRDashboard dashboard = new HRDashboard();
                                 dashboard.Show();
                                 this.Hide();
-                                return; // Exit method
+                                return;
                             }
                         }
                     }
@@ -93,12 +199,10 @@ namespace HRApplicantSystem.Forms.Login
                                     return;
                                 }
 
-                                // Save core credentials to active session
                                 UserSession.UserID = Convert.ToInt32(reader["ApplicantID"]);
                                 UserSession.Username = reader["Email"].ToString();
                                 UserSession.Role = "Applicant";
 
-                                // Attempt to pull their real name from the Applicants table if profile exists
                                 string nameQuery = "SELECT FirstName, LastName FROM Applicants WHERE ApplicantID = ?";
                                 using (OleDbCommand nameCmd = new OleDbCommand(nameQuery, con))
                                 {
@@ -167,7 +271,7 @@ namespace HRApplicantSystem.Forms.Login
         }
 
         /// <summary>
-        /// Dynamically alters UI labels, hides register controls, and adjusts form height [3].
+        /// Updates coordinates to match the split-screen design layout when changing roles.
         /// </summary>
         private void UpdateUiLayout()
         {
@@ -176,16 +280,16 @@ namespace HRApplicantSystem.Forms.Login
                 lblUsername.Text = "Email Address:";
                 label1.Visible = true;
                 btnRegister.Visible = true;
-                btnExit.Location = new Point(25, 365); // Centered and realigned perfectly
-                this.ClientSize = new Size(350, 420);
+                btnExit.Location = new Point(205, 365);
+                this.ClientSize = new Size(520, 420);
             }
-            else // HR / Management Login Mode
+            else
             {
                 lblUsername.Text = "Username:";
                 label1.Visible = false;
                 btnRegister.Visible = false;
-                btnExit.Location = new Point(25, 295); // Shifted cleanly up 
-                this.ClientSize = new Size(350, 350);
+                btnExit.Location = new Point(205, 295);
+                this.ClientSize = new Size(520, 350);
             }
         }
 
