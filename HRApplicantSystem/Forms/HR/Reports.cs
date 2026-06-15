@@ -10,7 +10,7 @@ using System.Drawing.Printing;
 
 namespace HRApplicantSystem.Forms.HR
 {
-    // 1. Ensure Class is named 'ReportsForm' to avoid name collisions with the dashboard button 'Reports'
+    // Ensure Class is named 'ReportsForm' to avoid name collisions with the dashboard button 'Reports'
     public partial class ReportsForm : Form
     {
         private Panel pnlSidebar;
@@ -38,7 +38,7 @@ namespace HRApplicantSystem.Forms.HR
         private string activeReportType = "ApplicantList";
         private bool isInitializing = true;
 
-        // 2. Ensure the constructor matches the class name 'ReportsForm'
+        // Ensure the constructor matches the class name 'ReportsForm'
         public ReportsForm()
         {
             InitializeCustomLayout();
@@ -442,44 +442,48 @@ namespace HRApplicantSystem.Forms.HR
             {
                 case "ApplicantList":
                     query = @"SELECT a.ApplicantID, a.FirstName, a.LastName, a.ContactNumber, 
-                                     p.PositionName, d.DepartmentName, ap.Status, ap.DateApplied
-                             FROM ((((Applicants a
+                                     p.PositionName, et.TypeName AS EmploymentType, d.DepartmentName, ap.Status, ap.DateApplied
+                             FROM (((((Applicants a
                              LEFT JOIN Applications ap ON a.ApplicantID = ap.ApplicantID)
                              LEFT JOIN JobVacancies jv ON ap.JobID = jv.JobID)
                              LEFT JOIN Positions p ON jv.PositionID = p.PositionID)
-                             LEFT JOIN Departments d ON jv.DepartmentID = d.DepartmentID)";
+                             LEFT JOIN Departments d ON jv.DepartmentID = d.DepartmentID)
+                             LEFT JOIN EmploymentTypes et ON jv.EmploymentTypeID = et.EmploymentTypeID)";
                     break;
 
                 case "Pending":
-                    query = @"SELECT ap.ApplicationID, a.FirstName, a.LastName, p.PositionName, 
+                    query = @"SELECT ap.ApplicationID, a.FirstName, a.LastName, p.PositionName, et.TypeName AS EmploymentType, 
                                      d.DepartmentName, ap.Status, ap.DateApplied
-                             FROM ((((Applications ap
+                             FROM (((((Applications ap
                              INNER JOIN Applicants a ON ap.ApplicantID = a.ApplicantID)
                              INNER JOIN JobVacancies jv ON ap.JobID = jv.JobID)
                              INNER JOIN Positions p ON jv.PositionID = p.PositionID)
                              INNER JOIN Departments d ON jv.DepartmentID = d.DepartmentID)
+                             LEFT JOIN EmploymentTypes et ON jv.EmploymentTypeID = et.EmploymentTypeID)
                              WHERE ap.Status IN ('Draft', 'Submitted', 'Under Review')";
                     break;
 
                 case "Interviews":
-                    query = @"SELECT i.InterviewScheduleID, a.FirstName, a.LastName, p.PositionName, 
+                    query = @"SELECT i.InterviewScheduleID, a.FirstName, a.LastName, p.PositionName, et.TypeName AS EmploymentType, 
                                      d.DepartmentName, i.InterviewDate, i.Interviewer, i.Mode, i.Location, i.Status
-                             FROM (((((InterviewSchedules i
+                             FROM ((((((InterviewSchedules i
                              INNER JOIN Applications ap ON i.ApplicationID = ap.ApplicationID)
                              INNER JOIN Applicants a ON ap.ApplicantID = a.ApplicantID)
                              INNER JOIN JobVacancies jv ON ap.JobID = jv.JobID)
                              INNER JOIN Positions p ON jv.PositionID = p.PositionID)
-                             INNER JOIN Departments d ON jv.DepartmentID = d.DepartmentID)";
+                             INNER JOIN Departments d ON jv.DepartmentID = d.DepartmentID)
+                             LEFT JOIN EmploymentTypes et ON jv.EmploymentTypeID = et.EmploymentTypeID)";
                     break;
 
                 case "Hiring":
-                    query = @"SELECT ap.ApplicationID, a.FirstName, a.LastName, p.PositionName, 
+                    query = @"SELECT ap.ApplicationID, a.FirstName, a.LastName, p.PositionName, et.TypeName AS EmploymentType, 
                                      d.DepartmentName, ap.Status, ap.DateApplied
-                             FROM ((((Applications ap
+                             FROM (((((Applications ap
                              INNER JOIN Applicants a ON ap.ApplicantID = a.ApplicantID)
                              INNER JOIN JobVacancies jv ON ap.JobID = jv.JobID)
                              INNER JOIN Positions p ON jv.PositionID = p.PositionID)
                              INNER JOIN Departments d ON jv.DepartmentID = d.DepartmentID)
+                             LEFT JOIN EmploymentTypes et ON jv.EmploymentTypeID = et.EmploymentTypeID)
                              WHERE ap.Status IN ('Accepted', 'Rejected')";
                     break;
 
@@ -564,6 +568,7 @@ namespace HRApplicantSystem.Forms.HR
                     case "LastName": col.HeaderText = "Last Name"; break;
                     case "ContactNumber": col.HeaderText = "Phone No."; break;
                     case "PositionName": col.HeaderText = "Applied Position"; break;
+                    case "EmploymentType": col.HeaderText = "Employment Type"; break;
                     case "DepartmentName": col.HeaderText = "Department"; break;
                     case "Status": col.HeaderText = "Workflow Status"; break;
                     case "DateApplied": col.HeaderText = "Application Date"; break;
@@ -603,11 +608,11 @@ namespace HRApplicantSystem.Forms.HR
             }
             else if (activeReportType == "Interviews")
             {
-                filterExpression = $"FirstName LIKE '%{searchText}%' OR LastName LIKE '%{searchText}%' OR PositionName LIKE '%{searchText}%' OR Interviewer LIKE '%{searchText}%'";
+                filterExpression = $"FirstName LIKE '%{searchText}%' OR LastName LIKE '%{searchText}%' OR PositionName LIKE '%{searchText}%' OR Interviewer LIKE '%{searchText}%' OR EmploymentType LIKE '%{searchText}%'";
             }
             else
             {
-                filterExpression = $"FirstName LIKE '%{searchText}%' OR LastName LIKE '%{searchText}%' OR PositionName LIKE '%{searchText}%'";
+                filterExpression = $"FirstName LIKE '%{searchText}%' OR LastName LIKE '%{searchText}%' OR PositionName LIKE '%{searchText}%' OR EmploymentType LIKE '%{searchText}%'";
             }
 
             try
@@ -656,11 +661,7 @@ namespace HRApplicantSystem.Forms.HR
                             if (row.IsNewRow) continue;
                             string[] fields = new string[dgvReports.Columns.Count];
                             for (int i = 0; i < dgvReports.Columns.Count; i++)
-                            {
-                                string cellValue = row.Cells[i].Value?.ToString() ?? "";
-                                fields[i] = $"\"{cellValue.Replace("\"", "\"\"")}\""; // Escapes quotes
-                            }
-                            sw.WriteLine(string.Join(",", fields));
+                                sw.WriteLine(string.Join(",", fields));
                         }
                     }
 

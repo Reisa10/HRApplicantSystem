@@ -28,7 +28,7 @@ namespace HRApplicantSystem.Forms.Applicant
         }
 
         /// <summary>
-        /// Loads applicant's current applications from the database.
+        /// Loads applicant's current applications from the database incorporating the EmploymentType join.
         /// </summary>
         private void LoadApplications()
         {
@@ -37,13 +37,14 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                // Multi-join syntax optimized for MS Access OLEDB standard nesting
+                // Multi-join syntax optimized for MS Access OLEDB standard nesting (4 tables)
                 string query = "SELECT a.ApplicationID, p.PositionName AS JobTitle, d.DepartmentName AS Department, " +
-                               "a.Status, a.DateApplied, a.JobID " +
-                               "FROM (((Applications a " +
+                               "et.TypeName AS EmploymentType, a.Status, a.DateApplied, a.JobID " +
+                               "FROM ((((Applications a " +
                                "INNER JOIN JobVacancies j ON a.JobID = j.JobID) " +
                                "INNER JOIN Positions p ON j.PositionID = p.PositionID) " +
                                "INNER JOIN Departments d ON j.DepartmentID = d.DepartmentID) " +
+                               "LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID) " +
                                "WHERE a.ApplicantID = ? " +
                                "ORDER BY a.DateApplied DESC";
 
@@ -63,6 +64,7 @@ namespace HRApplicantSystem.Forms.Applicant
 
                         if (dgvApplications.Columns["JobTitle"] != null) dgvApplications.Columns["JobTitle"].HeaderText = "Job Title";
                         if (dgvApplications.Columns["Department"] != null) dgvApplications.Columns["Department"].HeaderText = "Department";
+                        if (dgvApplications.Columns["EmploymentType"] != null) dgvApplications.Columns["EmploymentType"].HeaderText = "Employment Type";
                         if (dgvApplications.Columns["Status"] != null) dgvApplications.Columns["Status"].HeaderText = "Status";
                         if (dgvApplications.Columns["DateApplied"] != null) dgvApplications.Columns["DateApplied"].HeaderText = "Date Applied";
                     }
@@ -75,7 +77,7 @@ namespace HRApplicantSystem.Forms.Applicant
         }
 
         /// <summary>
-        /// Populates the ComboBox with currently open positions from the vacancy tables.
+        /// Populates the ComboBox with currently open positions and their associated EmploymentType values.
         /// </summary>
         private void LoadOpenVacancies()
         {
@@ -84,10 +86,12 @@ namespace HRApplicantSystem.Forms.Applicant
 
             try
             {
-                string query = "SELECT j.JobID, (p.PositionName + ' - ' + d.DepartmentName) AS DisplayName " +
-                               "FROM ((JobVacancies j " +
+                // Joins JobVacancies, Positions, Departments, and EmploymentTypes to present structured choices to the applicant
+                string query = "SELECT j.JobID, (p.PositionName + ' - ' + d.DepartmentName + ' (' + et.TypeName + ')') AS DisplayName " +
+                               "FROM (((JobVacancies j " +
                                "INNER JOIN Positions p ON j.PositionID = p.PositionID) " +
                                "INNER JOIN Departments d ON j.DepartmentID = d.DepartmentID) " +
+                               "LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID) " +
                                "WHERE j.Status = 'Open'";
 
                 using (OleDbCommand cmd = new OleDbCommand(query, conn))
@@ -115,8 +119,19 @@ namespace HRApplicantSystem.Forms.Applicant
                 DataGridViewRow row = dgvApplications.SelectedRows[0];
                 string status = row.Cells["Status"].Value?.ToString() ?? "";
                 int jobId = Convert.ToInt32(row.Cells["JobID"].Value);
+                string empType = row.Cells["EmploymentType"].Value?.ToString() ?? "";
 
-                lblTitle.Text = row.Cells["JobTitle"].Value?.ToString() ?? "";
+                // Display main details title appended with EmploymentType dynamically
+                string baseTitle = row.Cells["JobTitle"].Value?.ToString() ?? "";
+                if (!string.IsNullOrEmpty(empType))
+                {
+                    lblTitle.Text = $"{baseTitle} ({empType})";
+                }
+                else
+                {
+                    lblTitle.Text = baseTitle;
+                }
+
                 lblStatus.Text = "Status: " + status;
                 lblDate.Text = "Applied On: " + Convert.ToDateTime(row.Cells["DateApplied"].Value).ToString("g");
 
@@ -417,12 +432,13 @@ namespace HRApplicantSystem.Forms.Applicant
             try
             {
                 conn.Open();
-                string auditQuery = "INSERT INTO AuditTrail (UserID, [Action], [Timestamp]) VALUES (?, ?, ?)";
+                // Fixed: Changed [Timestamp] to DateCreated
+                string auditQuery = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                 using (OleDbCommand cmd = new OleDbCommand(auditQuery, conn))
                 {
                     cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = userId;
                     cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = action;
-                    cmd.Parameters.Add("@Timestamp", OleDbType.Date).Value = DateTime.Now;
+                    cmd.Parameters.Add("@DateCreated", OleDbType.Date).Value = DateTime.Now;
                     cmd.ExecuteNonQuery();
                 }
             }

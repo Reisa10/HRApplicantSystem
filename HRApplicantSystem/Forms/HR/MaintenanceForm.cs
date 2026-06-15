@@ -418,7 +418,9 @@ namespace HRApplicantSystem.Forms.HR
 
         private void LogActivity(string action, string details)
         {
-            string query = "INSERT INTO AuditTrail (UserID, [Action], ActionTimestamp, Details) VALUES (?, ?, ?, ?)";
+            // Combines the action and details into a single string to save in the single 'Action' column
+            string combinedAction = $"{action}: {details}";
+            string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
             using (OleDbConnection con = DBConnection.GetConnection())
             {
                 if (con == null) return;
@@ -427,14 +429,16 @@ namespace HRApplicantSystem.Forms.HR
                     con.Open();
                     using (OleDbCommand cmd = new OleDbCommand(query, con))
                     {
-                        cmd.Parameters.AddWithValue("?", UserSession.UserID);
-                        cmd.Parameters.AddWithValue("?", action);
+                        cmd.Parameters.AddWithValue("?", UserSession.UserID > 0 ? UserSession.UserID : 1);
+                        cmd.Parameters.AddWithValue("?", combinedAction);
                         cmd.Parameters.AddWithValue("?", DateTime.Now);
-                        cmd.Parameters.AddWithValue("?", details);
                         cmd.ExecuteNonQuery();
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("LogActivity Error: " + ex.Message);
+                }
             }
         }
 

@@ -687,6 +687,9 @@ namespace HRApplicantSystem.Forms.Applicant
                     }
                 }
 
+                // Log the file upload event directly to your audit trail
+                LogAuditTrail($"Uploaded requirement file: {originalFileName}");
+
                 MessageBox.Show("Document added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
                 if (cmbAppliedJobs.SelectedValue is int jobId)
@@ -759,6 +762,9 @@ namespace HRApplicantSystem.Forms.Applicant
                     }
                 }
 
+                // Log the file replacement event directly to your audit trail
+                LogAuditTrail($"Updated/replaced requirement file with: {Path.GetFileName(selectedFilePath)}");
+
                 MessageBox.Show("Document updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
                 if (cmbAppliedJobs.SelectedValue is int jobId)
@@ -817,6 +823,9 @@ namespace HRApplicantSystem.Forms.Applicant
                 {
                     try { File.Delete(filePath); } catch { }
                 }
+
+                // Log the file deletion event directly to your audit trail
+                LogAuditTrail($"Deleted requirement file: {fileName}");
 
                 MessageBox.Show("Document deleted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearForm();
@@ -1070,6 +1079,33 @@ namespace HRApplicantSystem.Forms.Applicant
                 // Draw centered text using standard TextRenderer for pixel-perfect GDI alignment
                 TextFormatFlags flags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding;
                 TextRenderer.DrawText(e.Graphics, btn.Text, btn.Font, btn.ClientRectangle, disabledColor, flags);
+            }
+        }
+
+        /// <summary>
+        /// Logs document upload actions to the AuditTrail table safely.
+        /// </summary>
+        private void LogAuditTrail(string action)
+        {
+            using (OleDbConnection conn = DBConnection.GetConnection())
+            {
+                if (conn == null) return;
+                try
+                {
+                    conn.Open();
+                    string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", currentApplicantId);
+                        cmd.Parameters.AddWithValue("?", action);
+                        cmd.Parameters.AddWithValue("?", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Audit Log Error: " + ex.Message);
+                }
             }
         }
 

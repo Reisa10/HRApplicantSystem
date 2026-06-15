@@ -277,18 +277,30 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
+                    // Corrected nested JOIN grouping structure with explicit OLEDB-compliant parentheses
                     string query = @"
                         SELECT App.ApplicationID,
                                App.ApplicantID,
                                Cand.FirstName & ' ' & Cand.LastName AS FullName,
                                Pos.PositionName AS JobTitle,
+                               et.TypeName AS EmploymentType,
                                Dept.DepartmentName AS Department,
                                App.Status
-                        FROM ((((Applications App
-                        INNER JOIN Applicants Cand ON App.ApplicantID = Cand.ApplicantID)
-                        INNER JOIN JobVacancies Job ON App.JobID = Job.JobID)
-                        INNER JOIN Positions Pos ON Job.PositionID = Pos.PositionID)
-                        INNER JOIN Departments Dept ON Job.DepartmentID = Dept.DepartmentID)
+                        FROM
+                            (
+                                (
+                                    (
+                                        (
+                                            Applications App
+                                            INNER JOIN Applicants Cand ON App.ApplicantID = Cand.ApplicantID
+                                        )
+                                        INNER JOIN JobVacancies Job ON App.JobID = Job.JobID
+                                    )
+                                    INNER JOIN Positions Pos ON Job.PositionID = Pos.PositionID
+                                )
+                                INNER JOIN Departments Dept ON Job.DepartmentID = Dept.DepartmentID
+                            )
+                            LEFT JOIN EmploymentTypes et ON Job.EmploymentTypeID = et.EmploymentTypeID
                         WHERE App.Status = 'Under Review'";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
@@ -308,6 +320,8 @@ namespace HRApplicantSystem.Forms.HR
                             dgvApplications.Columns["FullName"].HeaderText = "Applicant Name";
                         if (dgvApplications.Columns["JobTitle"] != null)
                             dgvApplications.Columns["JobTitle"].HeaderText = "Applied Position";
+                        if (dgvApplications.Columns["EmploymentType"] != null)
+                            dgvApplications.Columns["EmploymentType"].HeaderText = "Employment Type";
                         if (dgvApplications.Columns["Department"] != null)
                             dgvApplications.Columns["Department"].HeaderText = "Department";
 
@@ -335,18 +349,24 @@ namespace HRApplicantSystem.Forms.HR
 
                 string jobTitle = row.Cells["JobTitle"].Value?.ToString() ?? "";
                 string department = row.Cells["Department"].Value?.ToString() ?? "";
+                string empType = row.Cells["EmploymentType"].Value?.ToString() ?? "";
 
+                // Append EmploymentType into the job summary string safely
                 List<string> missing = DatabaseHelper.GetMissingRequirementsForApplication(selectedApplicationID);
-                if (missing != null && missing.Count > 0)
+                string missingStr = (missing != null && missing.Count > 0)
+                    ? $"[⚠️ Missing: {string.Join(", ", missing)}]"
+                    : "[✅ All Docs Uploaded]";
+
+                if (!string.IsNullOrEmpty(empType))
                 {
-                    lblSelectedJob.Text = $"Job: {jobTitle} ({department})  [⚠️ Missing: {string.Join(", ", missing)}]";
-                    lblSelectedJob.ForeColor = ColorDanger;
+                    lblSelectedJob.Text = $"Job: {jobTitle} ({department} - {empType})  {missingStr}";
                 }
                 else
                 {
-                    lblSelectedJob.Text = $"Job: {jobTitle} ({department})  [✅ All Docs Uploaded]";
-                    lblSelectedJob.ForeColor = ColorSuccess;
+                    lblSelectedJob.Text = $"Job: {jobTitle} ({department})  {missingStr}";
                 }
+
+                lblSelectedJob.ForeColor = (missing != null && missing.Count > 0) ? ColorDanger : ColorSuccess;
 
                 LoadApplicantProfileDetails(selectedApplicantID);
 
@@ -525,7 +545,8 @@ namespace HRApplicantSystem.Forms.HR
 
                     // 3. Map Date / Timestamp column variation
                     string matchedDate = null;
-                    if (columns.Contains("actiondate")) matchedDate = "ActionDate";
+                    if (columns.Contains("datecreated")) matchedDate = "DateCreated"; // Fixed: Added explicit DateCreated check
+                    else if (columns.Contains("actiondate")) matchedDate = "ActionDate";
                     else if (columns.Contains("logdate")) matchedDate = "LogDate";
                     else if (columns.Contains("datechanged")) matchedDate = "DateChanged";
                     else if (columns.Contains("datelogged")) matchedDate = "DateLogged";

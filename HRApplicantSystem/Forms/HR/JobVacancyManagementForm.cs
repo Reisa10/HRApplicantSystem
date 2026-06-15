@@ -62,6 +62,7 @@ namespace HRApplicantSystem.Forms.HR
 
             ConfigureLabel(lblJobTitle);
             ConfigureLabel(lblDepartment);
+            ConfigureLabel(lblEmploymentType); // Style new label control
             ConfigureLabel(lblDescription);
             ConfigureLabel(lblRequirements);
             ConfigureLabel(lblStatusText);
@@ -69,6 +70,7 @@ namespace HRApplicantSystem.Forms.HR
             // Inputs
             cmbJobTitle.FlatStyle = FlatStyle.Flat;
             cmbDepartment.FlatStyle = FlatStyle.Flat;
+            cmbEmploymentType.FlatStyle = FlatStyle.Flat; // Style new combobox control
             txtDescription.BorderStyle = BorderStyle.FixedSingle;
             clbRequirements.BorderStyle = BorderStyle.FixedSingle;
 
@@ -217,6 +219,17 @@ namespace HRApplicantSystem.Forms.HR
                         cmbDepartment.DisplayMember = "DepartmentName";
                         cmbDepartment.ValueMember = "DepartmentID";
                     }
+
+                    // Retrieve Employment Type mapping
+                    string empQuery = "SELECT EmploymentTypeID, TypeName FROM EmploymentTypes WHERE IsActive = True ORDER BY TypeName ASC";
+                    using (OleDbDataAdapter da = new OleDbDataAdapter(empQuery, con))
+                    {
+                        DataTable dtEmp = new DataTable();
+                        da.Fill(dtEmp);
+                        cmbEmploymentType.DataSource = dtEmp;
+                        cmbEmploymentType.DisplayMember = "TypeName";
+                        cmbEmploymentType.ValueMember = "EmploymentTypeID";
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -264,15 +277,18 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     con.Open();
 
+                    // Access SQL nested join syntax incorporating EmploymentTypes table
                     string query = "SELECT j.JobID, p.PositionName AS JobTitle, d.DepartmentName AS Department, " +
-                                   "j.Description, j.Status, j.RequiredDocuments, j.PositionID, j.DepartmentID " +
-                                   "FROM (JobVacancies j " +
+                                   "et.TypeName AS EmploymentType, j.Description, j.Status, j.RequiredDocuments, " +
+                                   "j.PositionID, j.DepartmentID, j.EmploymentTypeID " +
+                                   "FROM ((JobVacancies j " +
                                    "INNER JOIN Positions p ON j.PositionID = p.PositionID) " +
-                                   "INNER JOIN Departments d ON j.DepartmentID = d.DepartmentID";
+                                   "INNER JOIN Departments d ON j.DepartmentID = d.DepartmentID) " +
+                                   "LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID";
 
                     if (!string.IsNullOrEmpty(searchKeyword))
                     {
-                        query += " WHERE p.PositionName LIKE ? OR d.DepartmentName LIKE ?";
+                        query += " WHERE p.PositionName LIKE ? OR d.DepartmentName LIKE ? OR et.TypeName LIKE ?";
                     }
                     query += " ORDER BY j.JobID DESC";
 
@@ -280,6 +296,7 @@ namespace HRApplicantSystem.Forms.HR
                     {
                         if (!string.IsNullOrEmpty(searchKeyword))
                         {
+                            cmd.Parameters.AddWithValue("?", "%" + searchKeyword + "%");
                             cmd.Parameters.AddWithValue("?", "%" + searchKeyword + "%");
                             cmd.Parameters.AddWithValue("?", "%" + searchKeyword + "%");
                         }
@@ -299,7 +316,11 @@ namespace HRApplicantSystem.Forms.HR
                                 dgvVacancies.Columns["JobTitle"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
                                 dgvVacancies.Columns["Department"].HeaderText = "DEPARTMENT BLOCK";
-                                dgvVacancies.Columns["Department"].Width = 150;
+                                dgvVacancies.Columns["Department"].Width = 130;
+
+                                // Added Grid Column configuration for EmploymentType
+                                dgvVacancies.Columns["EmploymentType"].HeaderText = "EMPLOYMENT TYPE";
+                                dgvVacancies.Columns["EmploymentType"].Width = 130;
 
                                 dgvVacancies.Columns["Status"].HeaderText = "STATUS";
                                 dgvVacancies.Columns["Status"].Width = 85;
@@ -309,6 +330,7 @@ namespace HRApplicantSystem.Forms.HR
                                 dgvVacancies.Columns["RequiredDocuments"].Visible = false;
                                 dgvVacancies.Columns["PositionID"].Visible = false;
                                 dgvVacancies.Columns["DepartmentID"].Visible = false;
+                                dgvVacancies.Columns["EmploymentTypeID"].Visible = false;
                             }
                         }
                     }
@@ -334,6 +356,16 @@ namespace HRApplicantSystem.Forms.HR
                 cmbJobTitle.SelectedValue = Convert.ToInt32(row.Cells["PositionID"].Value);
                 cmbDepartment.SelectedValue = Convert.ToInt32(row.Cells["DepartmentID"].Value);
                 txtDescription.Text = row.Cells["Description"].Value.ToString();
+
+                // Select current Employment Type mapping safely
+                if (row.Cells["EmploymentTypeID"].Value != DBNull.Value)
+                {
+                    cmbEmploymentType.SelectedValue = Convert.ToInt32(row.Cells["EmploymentTypeID"].Value);
+                }
+                else
+                {
+                    cmbEmploymentType.SelectedIndex = -1;
+                }
 
                 string status = row.Cells["Status"].Value.ToString();
                 lblStatusValue.Text = status.ToUpper();
@@ -369,9 +401,9 @@ namespace HRApplicantSystem.Forms.HR
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (cmbJobTitle.SelectedValue == null || cmbDepartment.SelectedValue == null)
+            if (cmbJobTitle.SelectedValue == null || cmbDepartment.SelectedValue == null || cmbEmploymentType.SelectedValue == null)
             {
-                MessageBox.Show("Please select a Position Title and Department mapping.", "Validation Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a Position Title, Department, and Employment Type mapping.", "Validation Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -398,19 +430,21 @@ namespace HRApplicantSystem.Forms.HR
                     con.Open();
                     string query;
 
+                    // Updated insert / update SQL to persist EmploymentTypeID mapping parameter
                     if (selectedJobID == -1)
                     {
-                        query = "INSERT INTO JobVacancies (PositionID, DepartmentID, Description, [Status], RequiredDocuments) VALUES (?, ?, ?, 'Open', ?)";
+                        query = "INSERT INTO JobVacancies (PositionID, DepartmentID, EmploymentTypeID, Description, [Status], RequiredDocuments) VALUES (?, ?, ?, ?, 'Open', ?)";
                     }
                     else
                     {
-                        query = "UPDATE JobVacancies SET PositionID = ?, DepartmentID = ?, Description = ?, RequiredDocuments = ? WHERE JobID = ?";
+                        query = "UPDATE JobVacancies SET PositionID = ?, DepartmentID = ?, EmploymentTypeID = ?, Description = ?, RequiredDocuments = ? WHERE JobID = ?";
                     }
 
                     using (OleDbCommand cmd = new OleDbCommand(query, con))
                     {
                         cmd.Parameters.AddWithValue("?", Convert.ToInt32(cmbJobTitle.SelectedValue));
                         cmd.Parameters.AddWithValue("?", Convert.ToInt32(cmbDepartment.SelectedValue));
+                        cmd.Parameters.AddWithValue("?", Convert.ToInt32(cmbEmploymentType.SelectedValue));
                         cmd.Parameters.AddWithValue("?", txtDescription.Text.Trim());
                         cmd.Parameters.AddWithValue("?", reqsJoined);
 
@@ -497,6 +531,7 @@ namespace HRApplicantSystem.Forms.HR
             selectedJobID = -1;
             cmbJobTitle.SelectedIndex = -1;
             cmbDepartment.SelectedIndex = -1;
+            if (cmbEmploymentType != null) cmbEmploymentType.SelectedIndex = -1; // Added new control reset
             txtDescription.Clear();
 
             lblStatusValue.Text = "NEW DRAFT";
@@ -523,7 +558,8 @@ namespace HRApplicantSystem.Forms.HR
                 try
                 {
                     con.Open();
-                    string query = "INSERT INTO AuditTrail (UserID, ActionPerformed, ActionTimestamp) VALUES (?, ?, ?)";
+                    // Fixed: Changed ActionPerformed and ActionTimestamp to [Action] and DateCreated
+                    string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                     using (OleDbCommand cmd = new OleDbCommand(query, con))
                     {
                         cmd.Parameters.AddWithValue("?", UserSession.UserID > 0 ? UserSession.UserID : 1);
@@ -532,9 +568,9 @@ namespace HRApplicantSystem.Forms.HR
                         cmd.ExecuteNonQuery();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Fail-safe default
+                    System.Diagnostics.Debug.WriteLine("LogAuditAction Error: " + ex.Message);
                 }
             }
         }

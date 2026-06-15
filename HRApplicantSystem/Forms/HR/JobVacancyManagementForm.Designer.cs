@@ -33,6 +33,8 @@
             this.cmbJobTitle = new System.Windows.Forms.ComboBox();
             this.lblDepartment = new System.Windows.Forms.Label();
             this.cmbDepartment = new System.Windows.Forms.ComboBox();
+            this.lblEmploymentType = new System.Windows.Forms.Label();
+            this.cmbEmploymentType = new System.Windows.Forms.ComboBox();
             this.lblDescription = new System.Windows.Forms.Label();
             this.txtDescription = new System.Windows.Forms.TextBox();
             this.lblRequirements = new System.Windows.Forms.Label();
@@ -161,6 +163,8 @@
             this.pnlEditor.Controls.Add(this.cmbJobTitle);
             this.pnlEditor.Controls.Add(this.lblDepartment);
             this.pnlEditor.Controls.Add(this.cmbDepartment);
+            this.pnlEditor.Controls.Add(this.lblEmploymentType);
+            this.pnlEditor.Controls.Add(this.cmbEmploymentType);
             this.pnlEditor.Controls.Add(this.lblDescription);
             this.pnlEditor.Controls.Add(this.txtDescription);
             this.pnlEditor.Controls.Add(this.lblRequirements);
@@ -232,10 +236,29 @@
             this.cmbDepartment.Size = new System.Drawing.Size(364, 25);
             this.cmbDepartment.TabIndex = 4;
             // 
+            // lblEmploymentType
+            // 
+            this.lblEmploymentType.AutoSize = true;
+            this.lblEmploymentType.Location = new System.Drawing.Point(20, 170);
+            this.lblEmploymentType.Name = "lblEmploymentType";
+            this.lblEmploymentType.Size = new System.Drawing.Size(107, 15);
+            this.lblEmploymentType.TabIndex = 14;
+            this.lblEmploymentType.Text = "Employment Type:";
+            // 
+            // cmbEmploymentType
+            // 
+            this.cmbEmploymentType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbEmploymentType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbEmploymentType.Location = new System.Drawing.Point(20, 188);
+            this.cmbEmploymentType.Name = "cmbEmploymentType";
+            this.cmbEmploymentType.Size = new System.Drawing.Size(364, 25);
+            this.cmbEmploymentType.TabIndex = 15;
+            // 
             // lblDescription
             // 
             this.lblDescription.AutoSize = true;
-            this.lblDescription.Location = new System.Drawing.Point(20, 170);
+            this.lblDescription.Location = new System.Drawing.Point(20, 225);
             this.lblDescription.Name = "lblDescription";
             this.lblDescription.Size = new System.Drawing.Size(155, 15);
             this.lblDescription.TabIndex = 5;
@@ -245,17 +268,17 @@
             // 
             this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDescription.Location = new System.Drawing.Point(20, 188);
+            this.txtDescription.Location = new System.Drawing.Point(20, 243);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
             this.txtDescription.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDescription.Size = new System.Drawing.Size(364, 85);
+            this.txtDescription.Size = new System.Drawing.Size(364, 65);
             this.txtDescription.TabIndex = 6;
             // 
             // lblRequirements
             // 
             this.lblRequirements.AutoSize = true;
-            this.lblRequirements.Location = new System.Drawing.Point(20, 285);
+            this.lblRequirements.Location = new System.Drawing.Point(20, 320);
             this.lblRequirements.Name = "lblRequirements";
             this.lblRequirements.Size = new System.Drawing.Size(182, 15);
             this.lblRequirements.TabIndex = 7;
@@ -267,9 +290,9 @@
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.clbRequirements.FormattingEnabled = true;
-            this.clbRequirements.Location = new System.Drawing.Point(20, 303);
+            this.clbRequirements.Location = new System.Drawing.Point(20, 338);
             this.clbRequirements.Name = "clbRequirements";
-            this.clbRequirements.Size = new System.Drawing.Size(364, 144);
+            this.clbRequirements.Size = new System.Drawing.Size(364, 110);
             this.clbRequirements.TabIndex = 8;
             // 
             // lblStatusText
@@ -371,6 +394,8 @@
         private System.Windows.Forms.ComboBox cmbJobTitle;
         private System.Windows.Forms.Label lblDepartment;
         private System.Windows.Forms.ComboBox cmbDepartment;
+        private System.Windows.Forms.Label lblEmploymentType;
+        private System.Windows.Forms.ComboBox cmbEmploymentType;
         private System.Windows.Forms.Label lblDescription;
         private System.Windows.Forms.TextBox txtDescription;
         private System.Windows.Forms.Label lblRequirements;

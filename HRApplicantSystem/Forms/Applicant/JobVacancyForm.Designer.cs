@@ -23,6 +23,7 @@
             this.lblSearch = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.cmbDepartment = new System.Windows.Forms.ComboBox();
+            this.cmbEmploymentType = new System.Windows.Forms.ComboBox();
             this.btnSearch = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
@@ -52,6 +53,7 @@
             this.pnlSearch.Controls.Add(this.btnBack);
             this.pnlSearch.Controls.Add(this.btnReset);
             this.pnlSearch.Controls.Add(this.btnSearch);
+            this.pnlSearch.Controls.Add(this.cmbEmploymentType);
             this.pnlSearch.Controls.Add(this.cmbDepartment);
             this.pnlSearch.Controls.Add(this.txtSearch);
             this.pnlSearch.Controls.Add(this.lblSearch);
@@ -87,7 +89,7 @@
             // 
             this.lblSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblSearch.AutoSize = true;
-            this.lblSearch.Location = new System.Drawing.Point(265, 27);
+            this.lblSearch.Location = new System.Drawing.Point(215, 27);
             this.lblSearch.Name = "lblSearch";
             this.lblSearch.Size = new System.Drawing.Size(45, 15);
             this.lblSearch.TabIndex = 0;
@@ -97,9 +99,9 @@
             // 
             this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtSearch.Location = new System.Drawing.Point(315, 23);
+            this.txtSearch.Location = new System.Drawing.Point(265, 23);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(170, 23);
+            this.txtSearch.Size = new System.Drawing.Size(130, 23);
             this.txtSearch.TabIndex = 1;
             // 
             // cmbDepartment
@@ -108,17 +110,28 @@
             this.cmbDepartment.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDepartment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cmbDepartment.FormattingEnabled = true;
-            this.cmbDepartment.Location = new System.Drawing.Point(495, 23);
+            this.cmbDepartment.Location = new System.Drawing.Point(405, 23);
             this.cmbDepartment.Name = "cmbDepartment";
-            this.cmbDepartment.Size = new System.Drawing.Size(150, 23);
+            this.cmbDepartment.Size = new System.Drawing.Size(120, 23);
             this.cmbDepartment.TabIndex = 2;
+            // 
+            // cmbEmploymentType
+            // 
+            this.cmbEmploymentType.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbEmploymentType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbEmploymentType.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmbEmploymentType.FormattingEnabled = true;
+            this.cmbEmploymentType.Location = new System.Drawing.Point(535, 23);
+            this.cmbEmploymentType.Name = "cmbEmploymentType";
+            this.cmbEmploymentType.Size = new System.Drawing.Size(120, 23);
+            this.cmbEmploymentType.TabIndex = 8;
             // 
             // btnSearch
             // 
             this.btnSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSearch.Location = new System.Drawing.Point(655, 21);
+            this.btnSearch.Location = new System.Drawing.Point(665, 21);
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(85, 28);
+            this.btnSearch.Size = new System.Drawing.Size(80, 28);
             this.btnSearch.TabIndex = 3;
             this.btnSearch.Text = "Search";
             this.btnSearch.UseVisualStyleBackColor = true;
@@ -127,9 +140,9 @@
             // btnReset
             // 
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnReset.Location = new System.Drawing.Point(746, 21);
+            this.btnReset.Location = new System.Drawing.Point(751, 21);
             this.btnReset.Name = "btnReset";
-            this.btnReset.Size = new System.Drawing.Size(85, 28);
+            this.btnReset.Size = new System.Drawing.Size(80, 28);
             this.btnReset.TabIndex = 4;
             this.btnReset.Text = "Reset";
             this.btnReset.UseVisualStyleBackColor = true;
@@ -138,9 +151,9 @@
             // btnBack
             // 
             this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBack.Location = new System.Drawing.Point(887, 21);
+            this.btnBack.Location = new System.Drawing.Point(892, 21);
             this.btnBack.Name = "btnBack";
-            this.btnBack.Size = new System.Drawing.Size(85, 28);
+            this.btnBack.Size = new System.Drawing.Size(80, 28);
             this.btnBack.TabIndex = 5;
             this.btnBack.Text = "Back";
             this.btnBack.UseVisualStyleBackColor = true;
@@ -252,7 +265,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1000, 600); // Standard starting bounds
+            this.ClientSize = new System.Drawing.Size(1000, 600);
             this.MinimumSize = new System.Drawing.Size(1000, 600);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.pnlSearch);
@@ -281,6 +294,7 @@
         private System.Windows.Forms.Label lblSearch;
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.ComboBox cmbDepartment;
+        private System.Windows.Forms.ComboBox cmbEmploymentType;
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Button btnBack;

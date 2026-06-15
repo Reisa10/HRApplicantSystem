@@ -594,7 +594,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Instantly filters the loaded grid data on the client side across multiple columns.
+        /// Instantly filters the loaded grid data on the client side across multiple columns, including EmploymentType.
         /// </summary>
         private void TxtSearch_TextChanged(object sender, EventArgs e)
         {
@@ -602,9 +602,9 @@ namespace HRApplicantSystem.Forms.HR
             {
                 string filterText = txtSearch.Text.Replace("'", "''"); // Safe escape for quotes
 
-                // Dynamic filter on applicant names, job title, and status
+                // Dynamic filter on applicant names, job title, employment type, and status
                 applicationsTable.DefaultView.RowFilter = string.Format(
-                    "FirstName LIKE '%{0}%' OR LastName LIKE '%{0}%' OR JobTitle LIKE '%{0}%' OR Status LIKE '%{0}%'",
+                    "FirstName LIKE '%{0}%' OR LastName LIKE '%{0}%' OR JobTitle LIKE '%{0}%' OR EmploymentType LIKE '%{0}%' OR Status LIKE '%{0}%'",
                     filterText);
 
                 ApplyRowColoring();
@@ -649,7 +649,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Loads applications from the database, displaying ONLY those with 'Submitted' status.
+        /// Loads applications from the database, displaying ONLY those with 'Submitted' status, joining EmploymentTypes.
         /// </summary>
         private void LoadApplications()
         {
@@ -660,7 +660,7 @@ namespace HRApplicantSystem.Forms.HR
                     if (con == null) return;
                     con.Open();
 
-                    // Query corrected to resolve Jobs to their Position titles in Positions table
+                    // Query corrected to resolve Jobs and their associated EmploymentType (5-table join)
                     string query = @"
                         SELECT
                             Applications.ApplicationID,
@@ -668,12 +668,14 @@ namespace HRApplicantSystem.Forms.HR
                             Applicants.FirstName,
                             Applicants.LastName,
                             Positions.PositionName AS JobTitle,
+                            et.TypeName AS EmploymentType,
                             Applications.Status
                         FROM
-                            (((Applications
+                            ((((Applications
                             INNER JOIN Applicants ON Applications.ApplicantID = Applicants.ApplicantID)
                             INNER JOIN JobVacancies ON Applications.JobID = JobVacancies.JobID)
                             INNER JOIN Positions ON JobVacancies.PositionID = Positions.PositionID)
+                            LEFT JOIN EmploymentTypes et ON JobVacancies.EmploymentTypeID = et.EmploymentTypeID)
                         WHERE
                             Applications.Status = 'Submitted'";
 
@@ -685,6 +687,9 @@ namespace HRApplicantSystem.Forms.HR
 
                         if (dgvApplications.Columns.Contains("ApplicantID"))
                             dgvApplications.Columns["ApplicantID"].Visible = false;
+
+                        if (dgvApplications.Columns.Contains("EmploymentType"))
+                            dgvApplications.Columns["EmploymentType"].HeaderText = "Employment Type";
 
                         ApplyRowColoring();
                     }

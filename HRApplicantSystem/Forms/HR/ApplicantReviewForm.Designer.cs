@@ -212,7 +212,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1004, 641); // Adjusted height bounds
+            this.ClientSize = new System.Drawing.Size(1004, 641);
             this.Controls.Add(this.btnLockApplication);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);

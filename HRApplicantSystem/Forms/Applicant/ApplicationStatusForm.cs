@@ -67,18 +67,19 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             bool success = false;
 
-            // 1. Try advanced join query on a fresh connection mapping Applications -> JobVacancies -> Positions -> Departments
+            // 1. Try advanced join query on a fresh connection mapping Applications -> JobVacancies -> Positions -> Departments -> EmploymentTypes
             try
             {
                 using (OleDbConnection conn = DBConnection.GetConnection())
                 {
                     if (conn == null) return;
 
-                    string query = @"SELECT a.ApplicationID, p.PositionName, d.DepartmentName, a.Status, a.DateApplied 
-                                     FROM (((Applications a 
+                    string query = @"SELECT a.ApplicationID, p.PositionName, et.TypeName AS EmploymentType, d.DepartmentName, a.Status, a.DateApplied 
+                                     FROM ((((Applications a 
                                      INNER JOIN JobVacancies j ON a.JobID = j.JobID) 
                                      INNER JOIN Positions p ON j.PositionID = p.PositionID) 
                                      LEFT JOIN Departments d ON j.DepartmentID = d.DepartmentID) 
+                                     LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID) 
                                      WHERE a.ApplicantID = ? 
                                      ORDER BY a.DateApplied DESC";
 
@@ -103,7 +104,7 @@ namespace HRApplicantSystem.Forms.Applicant
                 success = false; // Silent failover to prevent popups if schema mismatches occur
             }
 
-            // 2. Fallback query on a fresh connection mapping Applications -> JobVacancies -> Positions
+            // 2. Fallback query on a fresh connection mapping Applications -> JobVacancies -> Positions -> EmploymentTypes
             if (!success)
             {
                 try
@@ -112,10 +113,11 @@ namespace HRApplicantSystem.Forms.Applicant
                     {
                         if (connFallback == null) return;
 
-                        string fallbackQuery = @"SELECT a.ApplicationID, p.PositionName, a.Status, a.DateApplied 
-                                                 FROM (Applications a 
+                        string fallbackQuery = @"SELECT a.ApplicationID, p.PositionName, et.TypeName AS EmploymentType, a.Status, a.DateApplied 
+                                                 FROM ((Applications a 
                                                  INNER JOIN JobVacancies j ON a.JobID = j.JobID) 
-                                                 INNER JOIN Positions p ON j.PositionID = p.PositionID 
+                                                 INNER JOIN Positions p ON j.PositionID = p.PositionID) 
+                                                 LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID
                                                  WHERE a.ApplicantID = ? 
                                                  ORDER BY a.DateApplied DESC";
 
@@ -146,6 +148,7 @@ namespace HRApplicantSystem.Forms.Applicant
             if (dgvStatusSummary.Columns["ApplicationID"] != null) dgvStatusSummary.Columns["ApplicationID"].Visible = false;
 
             if (dgvStatusSummary.Columns["PositionName"] != null) dgvStatusSummary.Columns["PositionName"].HeaderText = "Job Position";
+            if (dgvStatusSummary.Columns["EmploymentType"] != null) dgvStatusSummary.Columns["EmploymentType"].HeaderText = "Employment Type";
             if (dgvStatusSummary.Columns["Status"] != null) dgvStatusSummary.Columns["Status"].HeaderText = "Status";
             if (dgvStatusSummary.Columns["DateApplied"] != null) dgvStatusSummary.Columns["DateApplied"].HeaderText = "Applied Date";
 
@@ -163,11 +166,20 @@ namespace HRApplicantSystem.Forms.Applicant
                 int appId = Convert.ToInt32(row.Cells["ApplicationID"].Value);
                 string status = row.Cells["Status"].Value?.ToString() ?? "";
 
-                // Safely read job title and department parameters
+                // Safely read job title, department, and employment type parameters
                 string jobTitle = dgvStatusSummary.Columns.Contains("PositionName") ? row.Cells["PositionName"].Value?.ToString() : "";
                 string dept = dgvStatusSummary.Columns.Contains("DepartmentName") ? row.Cells["DepartmentName"].Value?.ToString() : "";
+                string empType = dgvStatusSummary.Columns.Contains("EmploymentType") ? row.Cells["EmploymentType"].Value?.ToString() : "";
 
-                lblSelectedJob.Text = jobTitle.ToUpper();
+                // Display selected job title with its associated Employment Type dynamically
+                if (!string.IsNullOrEmpty(empType))
+                {
+                    lblSelectedJob.Text = $"{jobTitle.ToUpper()} ({empType})";
+                }
+                else
+                {
+                    lblSelectedJob.Text = jobTitle.ToUpper();
+                }
 
                 if (!string.IsNullOrEmpty(dept))
                 {
@@ -388,53 +400,51 @@ namespace HRApplicantSystem.Forms.Applicant
         private void LoadInterviewDetails(int applicationId)
         {
             OleDbConnection conn = DBConnection.GetConnection();
-            if (conn == null) return;
-
-            try
             {
-                string query = "SELECT [InterviewDate], [Interviewer], [Location], [Mode], [Status] FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
-                using (OleDbCommand cmd = new OleDbCommand(query, conn))
-                {
-                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
-                    conn.Open();
-                    using (OleDbDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            string rawDate = reader["InterviewDate"] != DBNull.Value ? Convert.ToDateTime(reader["InterviewDate"]).ToString("g") : "--";
-                            string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
-                            string venue = reader["Location"] != DBNull.Value ? reader["Location"].ToString() : "--";
-                            string mode = reader["Mode"] != DBNull.Value ? reader["Mode"].ToString() : "--";
-                            string status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : "--";
+                if (conn == null) return;
 
-                            lblInterviewDate.Text = "Date & Time: " + rawDate;
-                            lblInterviewInterviewer.Text = "Interviewer: " + interviewer;
-                            lblInterviewVenue.Text = "Venue/Location: " + venue;
-                            lblInterviewMode.Text = "Mode: " + mode;
-                            lblInterviewStatus.Text = "Schedule Status: " + status;
-                        }
-                        else
+                try
+                {
+                    string query = "SELECT [InterviewDate], [Interviewer], [Location], [Mode], [Status] FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
+                        conn.Open();
+                        using (OleDbDataReader reader = cmd.ExecuteReader())
                         {
-                            lblInterviewDate.Text = "Date: Not scheduled yet";
-                            lblInterviewInterviewer.Text = "Interviewer: --";
-                            lblInterviewVenue.Text = "Venue/Location: --";
-                            lblInterviewMode.Text = "Mode: --";
-                            lblInterviewStatus.Text = "Status: --";
+                            if (reader.Read())
+                            {
+                                string rawDate = reader["InterviewDate"] != DBNull.Value ? Convert.ToDateTime(reader["InterviewDate"]).ToString("g") : "--";
+                                string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
+                                string venue = reader["Location"] != DBNull.Value ? reader["Location"].ToString() : "--";
+                                string mode = reader["Mode"] != DBNull.Value ? reader["Mode"].ToString() : "--";
+                                string status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : "--";
+
+                                lblInterviewDate.Text = "Date & Time: " + rawDate;
+                                lblInterviewInterviewer.Text = "Interviewer: " + interviewer;
+                                lblInterviewVenue.Text = "Venue/Location: " + venue;
+                                lblInterviewMode.Text = "Mode: " + mode;
+                                lblInterviewStatus.Text = "Schedule Status: " + status;
+                            }
+                            else
+                            {
+                                lblInterviewDate.Text = "Date: Not scheduled yet";
+                                lblInterviewInterviewer.Text = "Interviewer: --";
+                                lblInterviewVenue.Text = "Venue/Location: --";
+                                lblInterviewMode.Text = "Mode: --";
+                                lblInterviewStatus.Text = "Status: --";
+                            }
                         }
                     }
                 }
-            }
-            catch
-            {
-                lblInterviewDate.Text = "Date: --";
-                lblInterviewInterviewer.Text = "Interviewer: --";
-                lblInterviewVenue.Text = "Venue/Location: --";
-                lblInterviewMode.Text = "Mode: --";
-                lblInterviewStatus.Text = "Status: --";
-            }
-            finally
-            {
-                conn.Close();
+                catch
+                {
+                    lblInterviewDate.Text = "Date: --";
+                    lblInterviewInterviewer.Text = "Interviewer: --";
+                    lblInterviewVenue.Text = "Venue/Location: --";
+                    lblInterviewMode.Text = "Mode: --";
+                    lblInterviewStatus.Text = "Status: --";
+                }
             }
         }
 

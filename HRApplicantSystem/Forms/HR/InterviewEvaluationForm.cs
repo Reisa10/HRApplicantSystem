@@ -370,22 +370,33 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // Fail-safe LEFT JOIN query that relies on Application Status as the master source of truth
+                    // Corrected nested JOIN grouping structure with explicit OLEDB-compliant parentheses
                     string query = @"
                         SELECT
                             a.ApplicationID,
                             i.InterviewScheduleID,
                             ap.FirstName & ' ' & ap.LastName AS FullName,
                             p.PositionName AS JobTitle,
+                            et.TypeName AS EmploymentType,
                             i.InterviewDate,
                             i.Interviewer,
                             i.Mode,
                             i.Location
-                        FROM (((Applications a
-                        INNER JOIN Applicants ap ON a.ApplicantID = ap.ApplicantID)
-                        INNER JOIN JobVacancies j ON a.JobID = j.JobID)
-                        INNER JOIN Positions p ON j.PositionID = p.PositionID)
-                        LEFT JOIN InterviewSchedules i ON a.ApplicationID = i.ApplicationID
+                        FROM
+                            (
+                                (
+                                    (
+                                        (
+                                            Applications a
+                                            INNER JOIN Applicants ap ON a.ApplicantID = ap.ApplicantID
+                                        )
+                                        INNER JOIN JobVacancies j ON a.JobID = j.JobID
+                                    )
+                                    INNER JOIN Positions p ON j.PositionID = p.PositionID
+                                )
+                                LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID
+                            )
+                            LEFT JOIN InterviewSchedules i ON a.ApplicationID = i.ApplicationID
                         WHERE a.Status IN ('For Interview', 'Interview Scheduled')";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
@@ -403,6 +414,7 @@ namespace HRApplicantSystem.Forms.HR
                         // Format headers neatly
                         dgvApplicants.Columns["FullName"].HeaderText = "Applicant Name";
                         dgvApplicants.Columns["JobTitle"].HeaderText = "Applied Position";
+                        dgvApplicants.Columns["EmploymentType"].HeaderText = "Employment Type";
                         dgvApplicants.Columns["InterviewDate"].HeaderText = "Schedule Date";
                         dgvApplicants.Columns["Interviewer"].HeaderText = "Interviewer";
 
@@ -545,7 +557,19 @@ namespace HRApplicantSystem.Forms.HR
                 selectedScheduleID = (scheduleCell != DBNull.Value && scheduleCell != null) ? Convert.ToInt32(scheduleCell) : 0;
 
                 lblApplicant.Text = "Applicant: " + row.Cells["FullName"].Value?.ToString();
-                lblJob.Text = "Job: " + row.Cells["JobTitle"].Value?.ToString();
+
+                string jobTitle = row.Cells["JobTitle"].Value?.ToString() ?? "";
+                string empType = row.Cells["EmploymentType"].Value?.ToString() ?? "";
+
+                // Append dynamic EmploymentType into the job summary string safely
+                if (!string.IsNullOrEmpty(empType))
+                {
+                    lblJob.Text = $"Job: {jobTitle} ({empType})";
+                }
+                else
+                {
+                    lblJob.Text = "Job: " + jobTitle;
+                }
 
                 if (row.Cells["InterviewDate"].Value != DBNull.Value && row.Cells["InterviewDate"].Value != null)
                 {
@@ -685,20 +709,21 @@ namespace HRApplicantSystem.Forms.HR
                     // 5. Safely register action logs to the AuditTrail
                     try
                     {
-                        string insertAudit = "INSERT INTO AuditTrail (UserID, [Action], ActionDate) VALUES (?, ?, ?)";
+                        // Fixed: Uses correct column 'DateCreated' instead of 'ActionDate'
+                        string insertAudit = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                         using (OleDbCommand cmd = new OleDbCommand(insertAudit, conn, transaction))
                         {
                             int activeUserID = UserSession.UserID > 0 ? UserSession.UserID : 1; // Fallback helper ID
                             cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = activeUserID;
                             cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value =
                                 $"Evaluated Application ID {selectedApplicationID}. Result: {result}, Recommended Status: {applicationStatus}.";
-                            cmd.Parameters.Add("@ActionDate", OleDbType.Date).Value = DateTime.Now;
+                            cmd.Parameters.Add("@DateCreated", OleDbType.Date).Value = DateTime.Now;
                             cmd.ExecuteNonQuery();
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Fallback: If AuditTrail schema has slightly different fields, does not crash transaction commit
+                        System.Diagnostics.Debug.WriteLine("AuditTrail Log Error: " + ex.Message);
                     }
 
                     transaction.Commit();

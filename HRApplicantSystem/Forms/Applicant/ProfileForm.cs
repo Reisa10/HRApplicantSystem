@@ -448,6 +448,10 @@ namespace HRApplicantSystem.Forms.Applicant
                             MessageBox.Show(isNewProfile ? "Profile created successfully!" : "Profile updated successfully!",
                                             "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+                            // Write transaction events directly to your audit trail
+                            string actionMsg = isNewProfile ? "Created applicant profile details" : "Updated applicant profile details";
+                            LogAuditTrail(actionMsg);
+
                             isNewProfile = false;
                             btnSave.Text = "Update Profile";
                             UpdateProfileCompleteness();
@@ -579,6 +583,33 @@ namespace HRApplicantSystem.Forms.Applicant
             else if (ctrl is ComboBox cmb)
             {
                 cmb.FlatStyle = FlatStyle.Flat;
+            }
+        }
+
+        /// <summary>
+        /// Logs applicant profile actions to the AuditTrail table safely.
+        /// </summary>
+        private void LogAuditTrail(string action)
+        {
+            using (OleDbConnection conn = DBConnection.GetConnection())
+            {
+                if (conn == null) return;
+                try
+                {
+                    conn.Open();
+                    string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", UserSession.UserID);
+                        cmd.Parameters.AddWithValue("?", action);
+                        cmd.Parameters.AddWithValue("?", DateTime.Now);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Audit Log Error: " + ex.Message);
+                }
             }
         }
     }

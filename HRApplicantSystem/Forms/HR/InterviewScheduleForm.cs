@@ -540,22 +540,23 @@ namespace HRApplicantSystem.Forms.HR
                     if (conn == null)
                         return;
 
-                    // FIX: Once evaluated and moved to 'For Assessment' or 'For Final Review', 
-                    // the applicant is removed from active scheduling.
                     string statusFilter = isViewingActiveSchedules
                         ? "a.Status IN ('For Interview', 'Interview Scheduled')"
                         : "a.Status = 'Shortlisted'";
 
+                    // SQL statement optimized with 5-table OLEDB nesting to fetch Employment Type
                     string query = $@"
                         SELECT
                             a.ApplicationID,
                             ap.FirstName & ' ' & ap.LastName AS FullName,
                             p.PositionName AS JobTitle,
+                            et.TypeName AS EmploymentType,
                             a.Status
-                        FROM ((Applications a
+                        FROM (((Applications a
                         INNER JOIN Applicants ap ON a.ApplicantID = ap.ApplicantID)
                         INNER JOIN JobVacancies j ON a.JobID = j.JobID)
-                        INNER JOIN Positions p ON j.PositionID = p.PositionID
+                        INNER JOIN Positions p ON j.PositionID = p.PositionID)
+                        LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID
                         WHERE {statusFilter}";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
@@ -575,6 +576,9 @@ namespace HRApplicantSystem.Forms.HR
 
                         if (dgvApplicants.Columns["JobTitle"] != null)
                             dgvApplicants.Columns["JobTitle"].HeaderText = "Applied Position";
+
+                        if (dgvApplicants.Columns["EmploymentType"] != null)
+                            dgvApplicants.Columns["EmploymentType"].HeaderText = "Employment Type";
 
                         dgvApplicants.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                     }
@@ -599,7 +603,19 @@ namespace HRApplicantSystem.Forms.HR
                 selectedApplicationID = Convert.ToInt32(row.Cells["ApplicationID"].Value);
 
                 lblCandidateName.Text = "Candidate: " + row.Cells["FullName"].Value.ToString();
-                lblCandidateJob.Text = "Job Position: " + row.Cells["JobTitle"].Value.ToString();
+
+                string jobTitle = row.Cells["JobTitle"].Value?.ToString() ?? "";
+                string empType = row.Cells["EmploymentType"].Value?.ToString() ?? "";
+
+                // Append dynamic EmploymentType into the summary header seamlessly
+                if (!string.IsNullOrEmpty(empType))
+                {
+                    lblCandidateJob.Text = $"Job Position: {jobTitle} ({empType})";
+                }
+                else
+                {
+                    lblCandidateJob.Text = "Job Position: " + jobTitle;
+                }
 
                 if (isViewingActiveSchedules)
                 {
@@ -896,7 +912,8 @@ namespace HRApplicantSystem.Forms.HR
                 }
 
                 // Log Date checks
-                string matchedDate = columns.Contains("actiondate") ? "ActionDate" : (columns.Contains("logdate") ? "LogDate" : (columns.Contains("datechanged") ? "DateChanged" : null));
+                // Fixed: Added explicit check for "datecreated"
+                string matchedDate = columns.Contains("datecreated") ? "DateCreated" : (columns.Contains("actiondate") ? "ActionDate" : (columns.Contains("logdate") ? "LogDate" : (columns.Contains("datechanged") ? "DateChanged" : null)));
                 if (matchedDate != null)
                 {
                     insertCols.Add($"[{matchedDate}]");

@@ -150,8 +150,7 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Loads applications in 'For Final Decision' status, joining Job and Department data 
-        /// to show maintenance/organization values.
+        /// Loads applications in 'For Final Decision' status, joining Job, Department, and Employment Type data (6-table nested join).
         /// </summary>
         private void LoadApplications()
         {
@@ -161,22 +160,29 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // Properly nested JOINs for MS Access to fetch descriptive names instead of IDs
+                    // Corrected nested JOIN grouping structure with explicit OLEDB-compliant parentheses
                     string query = @"
                         SELECT
                             Applications.ApplicationID,
                             Applicants.FirstName & ' ' & Applicants.LastName AS FullName,
                             Positions.PositionName AS JobTitle,
+                            et.TypeName AS EmploymentType,
                             Departments.DepartmentName
                         FROM
                             (
                                 (
-                                    (Applications
-                                    INNER JOIN Applicants ON Applications.ApplicantID = Applicants.ApplicantID)
-                                    INNER JOIN JobVacancies ON Applications.JobID = JobVacancies.JobID)
-                                INNER JOIN Positions ON JobVacancies.PositionID = Positions.PositionID
+                                    (
+                                        (
+                                            Applications
+                                            INNER JOIN Applicants ON Applications.ApplicantID = Applicants.ApplicantID
+                                        )
+                                        INNER JOIN JobVacancies ON Applications.JobID = JobVacancies.JobID
+                                    )
+                                    INNER JOIN Positions ON JobVacancies.PositionID = Positions.PositionID
+                                )
+                                LEFT JOIN Departments ON JobVacancies.DepartmentID = Departments.DepartmentID
                             )
-                            LEFT JOIN Departments ON JobVacancies.DepartmentID = Departments.DepartmentID
+                            LEFT JOIN EmploymentTypes et ON JobVacancies.EmploymentTypeID = et.EmploymentTypeID
                         WHERE Applications.Status = 'For Final Decision'";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
@@ -193,6 +199,8 @@ namespace HRApplicantSystem.Forms.HR
                             dgvApplicants.Columns["FullName"].HeaderText = "Applicant Name";
                         if (dgvApplicants.Columns["JobTitle"] != null)
                             dgvApplicants.Columns["JobTitle"].HeaderText = "Position Applied";
+                        if (dgvApplicants.Columns["EmploymentType"] != null)
+                            dgvApplicants.Columns["EmploymentType"].HeaderText = "Employment Type";
                         if (dgvApplicants.Columns["DepartmentName"] != null)
                             dgvApplicants.Columns["DepartmentName"].HeaderText = "Department";
 
@@ -216,9 +224,19 @@ namespace HRApplicantSystem.Forms.HR
                 string applicantName = row.Cells["FullName"].Value?.ToString();
                 string jobTitle = row.Cells["JobTitle"].Value?.ToString();
                 string department = row.Cells["DepartmentName"].Value?.ToString() ?? "Unassigned Department";
+                string empType = row.Cells["EmploymentType"].Value?.ToString() ?? "";
 
                 lblApplicant.Text = "Applicant: " + applicantName;
-                lblJob.Text = $"Job: {jobTitle} | {department}";
+
+                // Append dynamic EmploymentType into the summary header seamlessly
+                if (!string.IsNullOrEmpty(empType))
+                {
+                    lblJob.Text = $"Job: {jobTitle} | {department} ({empType})";
+                }
+                else
+                {
+                    lblJob.Text = $"Job: {jobTitle} | {department}";
+                }
 
                 // 1. Fetch details from the Document Management & Requirements system
                 DisplayMissingRequirements(selectedApplicationID);
@@ -355,110 +373,114 @@ namespace HRApplicantSystem.Forms.HR
                 return;
 
             OleDbConnection conn = DBConnection.GetConnection();
-            if (conn == null) return;
-
-            OleDbTransaction transaction = null;
-            try
             {
-                conn.Open();
-                transaction = conn.BeginTransaction();
+                if (conn == null) return;
 
-                // 1. Log detailed decision details inside the HiringDecisions table
-                string insertDecision = @"
-                    INSERT INTO HiringDecisions
-                    (
-                        ApplicationID,
-                        Decision,
-                        Remarks,
-                        DecisionBy,
-                        DecisionDate
-                    )
-                    VALUES
-                    (?, ?, ?, ?, ?)";
-
-                using (OleDbCommand cmd = new OleDbCommand(insertDecision, conn, transaction))
-                {
-                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
-                    cmd.Parameters.Add("@Decision", OleDbType.VarWChar).Value = decision;
-                    cmd.Parameters.Add("@Remarks", OleDbType.VarWChar).Value = txtRemarks.Text.Trim();
-                    cmd.Parameters.Add("@DecisionBy", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
-                    cmd.Parameters.Add("@DecisionDate", OleDbType.Date).Value = DateTime.Now;
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                // 2. Set the official status inside the primary Applications registry
-                string updateApplication = @"
-                    UPDATE Applications
-                    SET [Status] = ?
-                    WHERE ApplicationID = ?";
-
-                using (OleDbCommand cmd = new OleDbCommand(updateApplication, conn, transaction))
-                {
-                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
-                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                // 3. Document the step timeline in ApplicationStatusHistory
-                string insertHistory = @"
-                    INSERT INTO ApplicationStatusHistory
-                    (
-                        ApplicationID,
-                        [Status],
-                        DateChanged
-                    )
-                    VALUES
-                    (?, ?, ?)";
-
-                using (OleDbCommand cmd = new OleDbCommand(insertHistory, conn, transaction))
-                {
-                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
-                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
-                    cmd.Parameters.Add("@DateChanged", OleDbType.Date).Value = DateTime.Now;
-
-                    cmd.ExecuteNonQuery();
-                }
-
-                // 4. Record the final administrative decision inside AuditTrail
+                OleDbTransaction transaction = null;
                 try
                 {
-                    string logActionText = $"Final decision '{decision}' declared for application #{selectedApplicationID} by User ID {UserSession.UserID}.";
-                    string insertAudit = "INSERT INTO AuditTrail (UserID, ActionPerformed, ActionTimestamp) VALUES (?, ?, ?)";
-                    using (OleDbCommand cmd = new OleDbCommand(insertAudit, conn, transaction))
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+
+                    // 1. Log detailed decision details inside the HiringDecisions table
+                    string insertDecision = @"
+                        INSERT INTO HiringDecisions
+                        (
+                            ApplicationID,
+                            Decision,
+                            Remarks,
+                            DecisionBy,
+                            DecisionDate
+                        )
+                        VALUES
+                        (?, ?, ?, ?, ?)";
+
+                    using (OleDbCommand cmd = new OleDbCommand(insertDecision, conn, transaction))
                     {
-                        cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
-                        cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = logActionText;
-                        cmd.Parameters.Add("@Timestamp", OleDbType.Date).Value = DateTime.Now;
+                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+                        cmd.Parameters.Add("@Decision", OleDbType.VarWChar).Value = decision;
+                        cmd.Parameters.Add("@Remarks", OleDbType.VarWChar).Value = txtRemarks.Text.Trim();
+                        cmd.Parameters.Add("@DecisionBy", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                        cmd.Parameters.Add("@DecisionDate", OleDbType.Date).Value = DateTime.Now;
+
                         cmd.ExecuteNonQuery();
                     }
+
+                    // 2. Set the official status inside the primary Applications registry
+                    string updateApplication = @"
+                        UPDATE Applications
+                        SET [Status] = ?
+                        WHERE ApplicationID = ?";
+
+                    using (OleDbCommand cmd = new OleDbCommand(updateApplication, conn, transaction))
+                    {
+                        cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
+                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // 3. Document the step timeline in ApplicationStatusHistory
+                    string insertHistory = @"
+                        INSERT INTO ApplicationStatusHistory
+                        (
+                            ApplicationID,
+                            [Status],
+                            DateChanged
+                        )
+                        VALUES
+                        (?, ?, ?)";
+
+                    using (OleDbCommand cmd = new OleDbCommand(insertHistory, conn, transaction))
+                    {
+                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+                        cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
+                        cmd.Parameters.Add("@DateChanged", OleDbType.Date).Value = DateTime.Now;
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // 4. Record the final administrative decision inside AuditTrail
+                    try
+                    {
+                        string logActionText = $"Final decision '{decision}' declared for application #{selectedApplicationID} by User ID {UserSession.UserID}.";
+
+                        // Fixed: Wrapped the reserved word [Action] in square brackets
+                        string insertAudit = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                        using (OleDbCommand cmd = new OleDbCommand(insertAudit, conn, transaction))
+                        {
+                            cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                            cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = logActionText;
+                            cmd.Parameters.Add("@DateCreated", OleDbType.Date).Value = DateTime.Now;
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("AuditTrail Log Error: " + ex.Message);
+                    }
+
+                    transaction.Commit();
+
+                    MessageBox.Show("Hiring decision saved successfully and timeline history updated.", "Action Succeeded", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    ResetDetailsCard();
+                    txtRemarks.Clear();
+                    rdoAccepted.Checked = true;
+
+                    LoadApplications();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Fail-safe to bypass if audit trail configuration varies slightly
+                    transaction?.Rollback();
+                    MessageBox.Show("An error occurred during transaction execution. Changes rolled back.\nDetails: " + ex.Message, "Transaction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
-                transaction.Commit();
-
-                MessageBox.Show("Hiring decision saved successfully and timeline history updated.", "Action Succeeded", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                ResetDetailsCard();
-                txtRemarks.Clear();
-                rdoAccepted.Checked = true;
-
-                LoadApplications();
-            }
-            catch (Exception ex)
-            {
-                transaction?.Rollback();
-                MessageBox.Show("An error occurred during transaction execution. Changes rolled back.\nDetails: " + ex.Message, "Transaction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                if (conn.State == ConnectionState.Open)
+                finally
                 {
-                    conn.Close();
+                    if (conn.State == ConnectionState.Open)
+                    {
+                        conn.Close();
+                    }
                 }
             }
         }

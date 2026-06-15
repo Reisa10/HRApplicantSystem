@@ -22,6 +22,7 @@ namespace HRApplicantSystem.Forms.Applicant
         private void JobVacancyForm_Load(object sender, EventArgs e)
         {
             LoadDepartments();
+            LoadEmploymentTypes();
             LoadJobVacancies();
         }
 
@@ -50,6 +51,9 @@ namespace HRApplicantSystem.Forms.Applicant
 
             cmbDepartment.Font = new Font("Segoe UI", 9.5F);
             cmbDepartment.FlatStyle = FlatStyle.Flat;
+
+            cmbEmploymentType.Font = new Font("Segoe UI", 9.5F);
+            cmbEmploymentType.FlatStyle = FlatStyle.Flat;
 
             // Flat Modern Buttons matching dashboard accents
             StyleFlatButton(btnSearch, Color.FromArgb(41, 128, 185), Color.White); // Dashboard Blue Accent
@@ -129,11 +133,14 @@ namespace HRApplicantSystem.Forms.Applicant
                 {
                     if (conn == null) return;
 
+                    // Updated SQL incorporating parentheses nesting to retrieve employment type values
                     string query = "SELECT j.JobID, p.PositionName AS JobTitle, d.DepartmentName AS Department, " +
-                                   "j.Description, j.Status, j.RequiredDocuments, j.DepartmentID " +
-                                   "FROM (JobVacancies j " +
+                                   "et.TypeName AS EmploymentType, j.Description, j.Status, j.RequiredDocuments, " +
+                                   "j.DepartmentID, j.EmploymentTypeID " +
+                                   "FROM ((JobVacancies j " +
                                    "INNER JOIN Positions p ON j.PositionID = p.PositionID) " +
-                                   "INNER JOIN Departments d ON j.DepartmentID = d.DepartmentID " +
+                                   "INNER JOIN Departments d ON j.DepartmentID = d.DepartmentID) " +
+                                   "LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID " +
                                    "WHERE j.Status = 'Open'";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
@@ -147,9 +154,11 @@ namespace HRApplicantSystem.Forms.Applicant
                         if (dgvJobs.Columns["Status"] != null) dgvJobs.Columns["Status"].Visible = false;
                         if (dgvJobs.Columns["RequiredDocuments"] != null) dgvJobs.Columns["RequiredDocuments"].Visible = false;
                         if (dgvJobs.Columns["DepartmentID"] != null) dgvJobs.Columns["DepartmentID"].Visible = false;
+                        if (dgvJobs.Columns["EmploymentTypeID"] != null) dgvJobs.Columns["EmploymentTypeID"].Visible = false;
 
                         if (dgvJobs.Columns["JobTitle"] != null) dgvJobs.Columns["JobTitle"].HeaderText = "Job Title";
                         if (dgvJobs.Columns["Department"] != null) dgvJobs.Columns["Department"].HeaderText = "Department";
+                        if (dgvJobs.Columns["EmploymentType"] != null) dgvJobs.Columns["EmploymentType"].HeaderText = "Employment Type";
                     }
                 }
             }
@@ -196,14 +205,54 @@ namespace HRApplicantSystem.Forms.Applicant
             }
         }
 
+        private void LoadEmploymentTypes()
+        {
+            try
+            {
+                using (OleDbConnection conn = DBConnection.GetConnection())
+                {
+                    if (conn == null) return;
+
+                    string query = "SELECT EmploymentTypeID, TypeName FROM EmploymentTypes WHERE IsActive = True";
+                    using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
+                    {
+                        DataTable dt = new DataTable();
+                        adapter.Fill(dt);
+
+                        DataRow newRow = dt.NewRow();
+                        newRow["EmploymentTypeID"] = 0;
+                        newRow["TypeName"] = "All Types";
+                        dt.Rows.InsertAt(newRow, 0);
+
+                        cmbEmploymentType.DataSource = dt;
+                        cmbEmploymentType.DisplayMember = "TypeName";
+                        cmbEmploymentType.ValueMember = "EmploymentTypeID";
+                    }
+                }
+            }
+            catch
+            {
+                cmbEmploymentType.DataSource = null;
+                cmbEmploymentType.Items.Clear();
+                cmbEmploymentType.Items.Add("All Types");
+                cmbEmploymentType.SelectedIndex = 0;
+            }
+        }
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string keyword = txtSearch.Text.Trim().Replace("'", "''");
             int selectedDeptId = 0;
+            int selectedEmpTypeId = 0;
 
             if (cmbDepartment.SelectedValue != null && int.TryParse(cmbDepartment.SelectedValue.ToString(), out int deptId))
             {
                 selectedDeptId = deptId;
+            }
+
+            if (cmbEmploymentType.SelectedValue != null && int.TryParse(cmbEmploymentType.SelectedValue.ToString(), out int empId))
+            {
+                selectedEmpTypeId = empId;
             }
 
             DataView dv = dtJobs.DefaultView;
@@ -221,6 +270,13 @@ namespace HRApplicantSystem.Forms.Applicant
                 filterExpr += $"DepartmentID = {selectedDeptId}";
             }
 
+            if (selectedEmpTypeId > 0)
+            {
+                if (!string.IsNullOrEmpty(filterExpr))
+                    filterExpr += " AND ";
+                filterExpr += $"EmploymentTypeID = {selectedEmpTypeId}";
+            }
+
             dv.RowFilter = filterExpr;
         }
 
@@ -230,6 +286,10 @@ namespace HRApplicantSystem.Forms.Applicant
             if (cmbDepartment.DataSource != null)
             {
                 cmbDepartment.SelectedIndex = 0;
+            }
+            if (cmbEmploymentType.DataSource != null)
+            {
+                cmbEmploymentType.SelectedIndex = 0;
             }
             LoadJobVacancies();
         }
@@ -241,7 +301,12 @@ namespace HRApplicantSystem.Forms.Applicant
                 DataGridViewRow row = dgvJobs.SelectedRows[0];
 
                 lblTitle.Text = row.Cells["JobTitle"].Value?.ToString() ?? "";
-                lblDept.Text = "💼 Department: " + (row.Cells["Department"].Value?.ToString() ?? "N/A");
+
+                string department = row.Cells["Department"].Value?.ToString() ?? "N/A";
+                string empType = row.Cells["EmploymentType"].Value?.ToString() ?? "N/A";
+
+                // Presenting Department and Employment Type inline
+                lblDept.Text = $"💼 Department: {department}   |   ⏱️ Type: {empType}";
 
                 string baseDescription = row.Cells["Description"].Value?.ToString() ?? "";
                 string reqsCsv = row.Cells["RequiredDocuments"].Value?.ToString() ?? "";
@@ -398,32 +463,19 @@ namespace HRApplicantSystem.Forms.Applicant
                     // Secure grading rubrics by safely processing Audit Trail requirements
                     try
                     {
-                        string auditQuery = "INSERT INTO AuditTrail (UserID, Action, ActionDate) VALUES (?, ?, ?)";
+                        // Fixed: Wrapped the reserved word [Action] in square brackets
+                        string auditQuery = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                         using (OleDbCommand auditCmd = new OleDbCommand(auditQuery, conn))
                         {
                             auditCmd.Parameters.Add("@UserID", OleDbType.Integer).Value = applicantId;
                             auditCmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = $"Created draft application ID {generatedAppId} for Job ID {jobId}";
-                            auditCmd.Parameters.Add("@ActionDate", OleDbType.Date).Value = DateTime.Now;
+                            auditCmd.Parameters.Add("@DateCreated", OleDbType.Date).Value = DateTime.Now;
                             auditCmd.ExecuteNonQuery();
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            string auditQueryAlt = "INSERT INTO AuditTrail (ApplicantID, Activity, LogDate) VALUES (?, ?, ?)";
-                            using (OleDbCommand auditCmdAlt = new OleDbCommand(auditQueryAlt, conn))
-                            {
-                                auditCmdAlt.Parameters.Add("@ApplicantID", OleDbType.Integer).Value = applicantId;
-                                auditCmdAlt.Parameters.Add("@Activity", OleDbType.VarWChar).Value = $"Created draft application ID {generatedAppId} for Job ID {jobId}";
-                                auditCmdAlt.Parameters.Add("@LogDate", OleDbType.Date).Value = DateTime.Now;
-                                auditCmdAlt.ExecuteNonQuery();
-                            }
-                        }
-                        catch
-                        {
-                            // Quiet ignore
-                        }
+                        System.Diagnostics.Debug.WriteLine("AuditTrail Log Error: " + ex.Message);
                     }
 
                     DialogResult resultMsg = MessageBox.Show("Application draft created successfully! Would you like to view your applications list to submit it now?",
