@@ -424,6 +424,9 @@ namespace HRApplicantSystem.Forms.Applicant
         /// <summary>
         /// Logs dynamic actions to AuditTrail table with defensive try-catch coverage.
         /// </summary>
+        /// <summary>
+        /// Logs dynamic actions to AuditTrail table with defensive try-catch coverage.
+        /// </summary>
         private void LogAuditTrail(int userId, string action)
         {
             OleDbConnection conn = DBConnection.GetConnection();
@@ -432,13 +435,13 @@ namespace HRApplicantSystem.Forms.Applicant
             try
             {
                 conn.Open();
-                // Fixed: Changed [Timestamp] to DateCreated
                 string auditQuery = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                 using (OleDbCommand cmd = new OleDbCommand(auditQuery, conn))
                 {
-                    cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = userId;
-                    cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = action;
-                    cmd.Parameters.Add("@DateCreated", OleDbType.Date).Value = DateTime.Now;
+                    // Explicitly defining data types to prevent OLEDB type mismatch errors
+                    cmd.Parameters.Add("?", OleDbType.Integer).Value = userId;
+                    cmd.Parameters.Add("?", OleDbType.VarWChar).Value = action;
+                    cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
                     cmd.ExecuteNonQuery();
                 }
             }

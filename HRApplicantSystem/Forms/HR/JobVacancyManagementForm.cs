@@ -558,13 +558,13 @@ namespace HRApplicantSystem.Forms.HR
                 try
                 {
                     con.Open();
-                    // Fixed: Changed ActionPerformed and ActionTimestamp to [Action] and DateCreated
                     string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                     using (OleDbCommand cmd = new OleDbCommand(query, con))
                     {
-                        cmd.Parameters.AddWithValue("?", UserSession.UserID > 0 ? UserSession.UserID : 1);
-                        cmd.Parameters.AddWithValue("?", actionText);
-                        cmd.Parameters.AddWithValue("?", DateTime.Now);
+                        // Explicitly defining data types to prevent OLEDB type mismatch errors
+                        cmd.Parameters.Add("?", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                        cmd.Parameters.Add("?", OleDbType.VarWChar).Value = actionText;
+                        cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
                         cmd.ExecuteNonQuery();
                     }
                 }

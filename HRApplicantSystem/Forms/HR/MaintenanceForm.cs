@@ -416,29 +416,45 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
-        private void LogActivity(string action, string details)
+        private void LogActivity(string action, string details, OleDbConnection existingCon = null)
         {
-            // Combines the action and details into a single string to save in the single 'Action' column
             string combinedAction = $"{action}: {details}";
             string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
-            using (OleDbConnection con = DBConnection.GetConnection())
+
+            try
             {
-                if (con == null) return;
-                try
+                // If an open connection is already active, reuse it to prevent MS Access file-locking
+                if (existingCon != null && existingCon.State == ConnectionState.Open)
                 {
-                    con.Open();
-                    using (OleDbCommand cmd = new OleDbCommand(query, con))
+                    using (OleDbCommand cmd = new OleDbCommand(query, existingCon))
                     {
-                        cmd.Parameters.AddWithValue("?", UserSession.UserID > 0 ? UserSession.UserID : 1);
-                        cmd.Parameters.AddWithValue("?", combinedAction);
-                        cmd.Parameters.AddWithValue("?", DateTime.Now);
+                        // Explicitly defining data types to prevent OLEDB type mismatch errors
+                        cmd.Parameters.Add("?", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                        cmd.Parameters.Add("?", OleDbType.VarWChar).Value = combinedAction;
+                        cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
                         cmd.ExecuteNonQuery();
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    System.Diagnostics.Debug.WriteLine("LogActivity Error: " + ex.Message);
+                    using (OleDbConnection con = DBConnection.GetConnection())
+                    {
+                        if (con == null) return;
+                        con.Open();
+                        using (OleDbCommand cmd = new OleDbCommand(query, con))
+                        {
+                            // Explicitly defining data types to prevent OLEDB type mismatch errors
+                            cmd.Parameters.Add("?", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                            cmd.Parameters.Add("?", OleDbType.VarWChar).Value = combinedAction;
+                            cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("LogActivity Error: " + ex.Message);
             }
         }
 
@@ -535,7 +551,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedDeptId == 0 ? "Create Department" : "Update Department";
-                    LogActivity(logAction, $"Department '{deptName}' saved by {UserSession.Username}.");
+                    LogActivity(logAction, $"Department '{deptName}' saved by {UserSession.Username}.", con);
 
                     MessageBox.Show("Department details recorded successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadDepartments();
@@ -681,7 +697,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedPosId == 0 ? "Create Position" : "Update Position";
-                    LogActivity(logAction, $"Position '{posName}' in Dept ID {deptId} saved by {UserSession.Username}.");
+                    LogActivity(logAction, $"Position '{posName}' in Dept ID {deptId} saved by {UserSession.Username}.", con);
 
                     MessageBox.Show("Position recorded successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadPositions();
@@ -771,7 +787,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedEmpId == 0 ? "Create Employment Type" : "Update Employment Type";
-                    LogActivity(logAction, $"Employment Type '{empTypeName}' saved by {UserSession.Username}.");
+                    LogActivity(logAction, $"Employment Type '{empTypeName}' saved by {UserSession.Username}.", con);
 
                     MessageBox.Show("Employment type configuration saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadEmploymentTypes();
@@ -861,7 +877,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedReqId == 0 ? "Create Requirement Type" : "Update Requirement Type";
-                    LogActivity(logAction, $"Requirement Type '{reqName}' saved by {UserSession.Username}.");
+                    LogActivity(logAction, $"Requirement Type '{reqName}' saved by {UserSession.Username}.", con);
 
                     MessageBox.Show("Requirement configuration saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadRequirementTypes();
@@ -951,7 +967,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedIntId == 0 ? "Create Interview Type" : "Update Interview Type";
-                    LogActivity(logAction, $"Interview Type '{intTypeName}' saved by {UserSession.Username}.");
+                    LogActivity(logAction, $"Interview Type '{intTypeName}' saved by {UserSession.Username}.", con);
 
                     MessageBox.Show("Interview type configuration saved.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadInterviewTypes();
@@ -1041,7 +1057,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedAssId == 0 ? "Create Assessment Type" : "Update Assessment Type";
-                    LogActivity(logAction, $"Assessment Type '{assTypeName}' saved by {UserSession.Username}.");
+                    LogActivity(logAction, $"Assessment Type '{assTypeName}' saved by {UserSession.Username}.", con);
 
                     MessageBox.Show("Assessment type configuration saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadAssessmentTypes();
@@ -1195,7 +1211,7 @@ namespace HRApplicantSystem.Forms.HR
                     }
 
                     string logAction = selectedUserId == 0 ? "Create User" : "Update User";
-                    LogActivity(logAction, $"User Account '{username}' ({role}, Active: {isActive}) modified by Admin/Manager: {UserSession.Username}.");
+                    LogActivity(logAction, $"User Account '{username}' ({role}, Active: {isActive}) modified by Admin/Manager: {UserSession.Username}.", con);
 
                     MessageBox.Show("User configuration recorded successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadUserAccounts();
@@ -1299,7 +1315,7 @@ namespace HRApplicantSystem.Forms.HR
                         cmd.ExecuteNonQuery();
                     }
 
-                    LogActivity("Update Applicant Account Status", $"Applicant account status for ID {selectedAppAccId} ({txtAppEmail.Text}) updated to {newStatus} by {UserSession.Username}.");
+                    LogActivity("Update Applicant Account Status", $"Applicant account status for ID {selectedAppAccId} ({txtAppEmail.Text}) updated to {newStatus} by {UserSession.Username}.", con);
 
                     MessageBox.Show("Applicant account status updated successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadApplicantAccounts();

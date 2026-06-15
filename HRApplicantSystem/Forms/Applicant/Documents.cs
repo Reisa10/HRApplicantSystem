@@ -1096,9 +1096,10 @@ namespace HRApplicantSystem.Forms.Applicant
                     string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("?", currentApplicantId);
-                        cmd.Parameters.AddWithValue("?", action);
-                        cmd.Parameters.AddWithValue("?", DateTime.Now);
+                        // Explicitly defining data types to prevent OLEDB type mismatch errors
+                        cmd.Parameters.Add("?", OleDbType.Integer).Value = currentApplicantId;
+                        cmd.Parameters.Add("?", OleDbType.VarWChar).Value = action;
+                        cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
                         cmd.ExecuteNonQuery();
                     }
                 }

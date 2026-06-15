@@ -589,6 +589,9 @@ namespace HRApplicantSystem.Forms.Applicant
         /// <summary>
         /// Logs applicant profile actions to the AuditTrail table safely.
         /// </summary>
+        /// <summary>
+        /// Logs applicant profile actions to the AuditTrail table safely.
+        /// </summary>
         private void LogAuditTrail(string action)
         {
             using (OleDbConnection conn = DBConnection.GetConnection())
@@ -600,9 +603,10 @@ namespace HRApplicantSystem.Forms.Applicant
                     string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("?", UserSession.UserID);
-                        cmd.Parameters.AddWithValue("?", action);
-                        cmd.Parameters.AddWithValue("?", DateTime.Now);
+                        // Explicitly defining data types to prevent OLEDB type mismatch errors
+                        cmd.Parameters.Add("?", OleDbType.Integer).Value = UserSession.UserID;
+                        cmd.Parameters.Add("?", OleDbType.VarWChar).Value = action;
+                        cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
                         cmd.ExecuteNonQuery();
                     }
                 }
