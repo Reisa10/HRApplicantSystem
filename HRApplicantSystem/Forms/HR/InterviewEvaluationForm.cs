@@ -370,7 +370,7 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // Corrected nested JOIN grouping structure with explicit OLEDB-compliant parentheses
+                    // Updated query to filter out cancelled/completed schedules
                     string query = @"
                         SELECT
                             a.ApplicationID,
@@ -382,22 +382,14 @@ namespace HRApplicantSystem.Forms.HR
                             i.Interviewer,
                             i.Mode,
                             i.Location
-                        FROM
-                            (
-                                (
-                                    (
-                                        (
-                                            Applications a
-                                            INNER JOIN Applicants ap ON a.ApplicantID = ap.ApplicantID
-                                        )
-                                        INNER JOIN JobVacancies j ON a.JobID = j.JobID
-                                    )
-                                    INNER JOIN Positions p ON j.PositionID = p.PositionID
-                                )
-                                LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID
-                            )
-                            LEFT JOIN InterviewSchedules i ON a.ApplicationID = i.ApplicationID
-                        WHERE a.Status IN ('For Interview', 'Interview Scheduled')";
+                        FROM ((((Applications a
+                        INNER JOIN Applicants ap ON a.ApplicantID = ap.ApplicantID)
+                        INNER JOIN JobVacancies j ON a.JobID = j.JobID)
+                        INNER JOIN Positions p ON j.PositionID = p.PositionID)
+                        LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID)
+                        INNER JOIN InterviewSchedules i ON a.ApplicationID = i.ApplicationID
+                        WHERE a.Status IN ('For Interview', 'Interview Scheduled')
+                          AND i.Status = 'Scheduled'"; // Fixed: Only show the active scheduled interview
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
                     {

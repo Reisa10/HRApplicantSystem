@@ -661,7 +661,12 @@ namespace HRApplicantSystem.Forms.HR
                             if (row.IsNewRow) continue;
                             string[] fields = new string[dgvReports.Columns.Count];
                             for (int i = 0; i < dgvReports.Columns.Count; i++)
-                                sw.WriteLine(string.Join(",", fields));
+                            {
+                                // Corrected: Retrieve cell value and wrap/escape correctly
+                                string cellValue = row.Cells[i].Value?.ToString() ?? "";
+                                fields[i] = $"\"{cellValue.Replace("\"", "\"\"")}\""; // Escapes quotes
+                            }
+                            sw.WriteLine(string.Join(",", fields));
                         }
                     }
 
