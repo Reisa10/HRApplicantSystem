@@ -18,6 +18,19 @@ namespace HRApplicantSystem.Forms.HR
         private int selectedApplicationID = 0;
         private DataTable dtApplications = new DataTable();
 
+        // Professional SaaS Colors
+        private readonly Color ColorSlate900 = Color.FromArgb(15, 23, 42);
+        private readonly Color ColorSlate700 = Color.FromArgb(51, 65, 85);
+        private readonly Color ColorSlate500 = Color.FromArgb(100, 116, 139);
+        private readonly Color ColorBorder = Color.FromArgb(226, 232, 240);
+
+        private readonly Color ColorGreenBg = Color.FromArgb(240, 253, 244);
+        private readonly Color ColorGreenFg = Color.FromArgb(21, 128, 61);
+        private readonly Color ColorRedBg = Color.FromArgb(254, 242, 242);
+        private readonly Color ColorRedFg = Color.FromArgb(185, 28, 28);
+        private readonly Color ColorBlueBg = Color.FromArgb(239, 246, 255);
+        private readonly Color ColorBlueFg = Color.FromArgb(29, 78, 216);
+
         public HiringDecisionForm()
         {
             InitializeComponent();
@@ -139,6 +152,50 @@ namespace HRApplicantSystem.Forms.HR
                 btnBack.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
                 btnBack.FlatAppearance.BorderSize = 0;
             }
+
+            // Hide old designer lines and static labels to paint our custom cards
+            if (pnlSeparator1 != null) pnlSeparator1.Visible = false;
+            if (pnlSeparator2 != null) pnlSeparator2.Visible = false;
+            if (lblEvalHeader != null) lblEvalHeader.Visible = false;
+            if (lblInterviewScore != null) lblInterviewScore.Visible = false;
+            if (lblMissingRequirements != null) lblMissingRequirements.Visible = false;
+
+            // Align form input labels & textboxes cleanly
+            lblApplicant.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblApplicant.ForeColor = ColorSlate900;
+            lblApplicant.Location = new Point(20, 15);
+
+            lblJob.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            lblJob.ForeColor = ColorSlate500;
+            lblJob.Location = new Point(20, 41);
+
+            label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            label1.ForeColor = ColorSlate900;
+            label1.Location = new Point(20, 245);
+
+            rdoAccepted.Location = new Point(165, 243);
+            rdoAccepted.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            rdoAccepted.ForeColor = ColorSlate700;
+
+            rdoRejected.Location = new Point(265, 243);
+            rdoRejected.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            rdoRejected.ForeColor = ColorSlate700;
+
+            rdoOnHold.Location = new Point(365, 243);
+            rdoOnHold.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            rdoOnHold.ForeColor = ColorSlate700;
+
+            label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            label2.ForeColor = ColorSlate900;
+            label2.Location = new Point(20, 282);
+
+            txtRemarks.BorderStyle = BorderStyle.FixedSingle;
+            txtRemarks.BackColor = Color.White;
+            txtRemarks.ForeColor = ColorSlate900;
+            txtRemarks.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            txtRemarks.Location = new Point(20, 305);
+            txtRemarks.Width = pnlRightCard.Width - 40;
+            txtRemarks.Height = pnlRightCard.Height - 305 - 60; // Auto-scales height elegantly
         }
 
         private void PaintCardBorder(Panel panel, PaintEventArgs ev)
@@ -160,7 +217,7 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // Corrected nested JOIN grouping structure with explicit OLEDB-compliant parentheses
+                    // Fixed: Explicit OLEDB join nesting syntax adjusted for 6 tables including EmploymentTypes et
                     string query = @"
                         SELECT
                             Applications.ApplicationID,
@@ -216,6 +273,8 @@ namespace HRApplicantSystem.Forms.HR
 
         private void dgvApplicants_SelectionChanged(object sender, EventArgs e)
         {
+            PurgeProgrammaticCards(pnlRightCard);
+
             if (dgvApplicants.SelectedRows.Count > 0)
             {
                 DataGridViewRow row = dgvApplicants.SelectedRows[0];
@@ -228,7 +287,6 @@ namespace HRApplicantSystem.Forms.HR
 
                 lblApplicant.Text = "Applicant: " + applicantName;
 
-                // Append dynamic EmploymentType into the summary header seamlessly
                 if (!string.IsNullOrEmpty(empType))
                 {
                     lblJob.Text = $"Job: {jobTitle} | {department} ({empType})";
@@ -250,6 +308,46 @@ namespace HRApplicantSystem.Forms.HR
             }
         }
 
+        private void PurgeProgrammaticCards(Panel parent)
+        {
+            List<Control> toRemove = new List<Control>();
+            foreach (Control c in parent.Controls)
+            {
+                if (c.Name.StartsWith("prog_"))
+                {
+                    toRemove.Add(c);
+                }
+            }
+            foreach (Control c in toRemove)
+            {
+                parent.Controls.Remove(c);
+                c.Dispose();
+            }
+        }
+
+        private Panel CreateBadge(string text, Color bg, Color fg, Point loc)
+        {
+            Label lbl = new Label
+            {
+                Text = text.ToUpper(),
+                ForeColor = fg,
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                Location = new Point(12, 5),
+                AutoSize = true
+            };
+
+            Panel pnl = new Panel
+            {
+                Name = "prog_badge",
+                BackColor = bg,
+                Location = loc,
+                Size = new Size(lbl.PreferredWidth + 24, lbl.PreferredHeight + 10)
+            };
+
+            pnl.Controls.Add(lbl);
+            return pnl;
+        }
+
         /// <summary>
         /// Retrieves missing requirements from the DatabaseHelper and displays them to the HR Manager.
         /// </summary>
@@ -257,16 +355,19 @@ namespace HRApplicantSystem.Forms.HR
         {
             List<string> missing = DatabaseHelper.GetMissingRequirementsForApplication(applicationId);
 
+            Color bannerBg = ColorGreenBg;
+            Color bannerFg = ColorGreenFg;
+            string bannerText = "✓ Compliance: All mandatory requirements submitted successfully.";
+
             if (missing.Count > 0)
             {
-                lblMissingRequirements.ForeColor = Color.FromArgb(220, 53, 69); // Alarm Red
-                lblMissingRequirements.Text = "⚠️ Missing Documents:\n" + string.Join(", ", missing);
+                bannerBg = ColorRedBg;
+                bannerFg = ColorRedFg;
+                bannerText = "⚠️ Compliance Gap: Missing required documents.";
             }
-            else
-            {
-                lblMissingRequirements.ForeColor = Color.FromArgb(40, 167, 69); // Emerald Green
-                lblMissingRequirements.Text = "✓ All mandatory requirements submitted successfully.";
-            }
+
+            Panel banner = CreateBadge(bannerText, bannerBg, bannerFg, new Point(20, 195));
+            pnlRightCard.Controls.Add(banner);
         }
 
         /// <summary>
@@ -281,7 +382,6 @@ namespace HRApplicantSystem.Forms.HR
                     if (conn == null) return;
                     conn.Open();
 
-                    // Query retrieving the most recent interview evaluation data
                     string query = @"
                         SELECT TOP 1 Score, Remarks, Recommendation 
                         FROM InterviewEvaluations 
@@ -293,28 +393,111 @@ namespace HRApplicantSystem.Forms.HR
                         cmd.Parameters.AddWithValue("?", applicationId);
                         using (OleDbDataReader reader = cmd.ExecuteReader())
                         {
+                            // Structured SaaS evaluation card panel
+                            Panel evalCard = new Panel
+                            {
+                                Name = "prog_card",
+                                Location = new Point(20, 75),
+                                Size = new Size(pnlRightCard.Width - 40, 110),
+                                BackColor = Color.White,
+                                Padding = new Padding(15, 10, 15, 10)
+                            };
+
+                            evalCard.Paint += (s, e) =>
+                            {
+                                using (Pen p = new Pen(ColorBorder, 1))
+                                {
+                                    e.Graphics.DrawRectangle(p, 0, 0, evalCard.Width - 1, evalCard.Height - 1);
+                                }
+                                using (SolidBrush b = new SolidBrush(ColorBlueFg))
+                                {
+                                    e.Graphics.FillRectangle(b, 0, 0, 5, evalCard.Height);
+                                }
+                            };
+
+                            Label lblHeader = new Label
+                            {
+                                Text = "INTERVIEW EVALUATION SUMMARY",
+                                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(15, 12),
+                                AutoSize = true
+                            };
+                            evalCard.Controls.Add(lblHeader);
+
                             if (reader.Read())
                             {
                                 string score = reader["Score"].ToString();
                                 string recommendation = reader["Recommendation"]?.ToString() ?? "N/A";
                                 string remarks = reader["Remarks"]?.ToString() ?? "No details written.";
 
-                                lblInterviewScore.Text = $"• Score: {score}/100\n• Recommended: {recommendation}\n• Note: {remarks}";
-                                lblInterviewScore.ForeColor = Color.FromArgb(45, 55, 72);
+                                // Round numeric score badge on the right side
+                                Panel scoreCard = new Panel
+                                {
+                                    Size = new Size(95, 45),
+                                    Location = new Point(evalCard.Width - 110, 15),
+                                    BackColor = ColorBlueBg
+                                };
+                                scoreCard.Paint += (s, ev) =>
+                                {
+                                    using (Pen p = new Pen(ColorBlueFg, 1))
+                                    {
+                                        ev.Graphics.DrawRectangle(p, 0, 0, scoreCard.Width - 1, scoreCard.Height - 1);
+                                    }
+                                };
+                                Label lblScoreVal = new Label
+                                {
+                                    Text = $"{score} / 100",
+                                    Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                                    ForeColor = ColorBlueFg,
+                                    Dock = DockStyle.Fill,
+                                    TextAlign = ContentAlignment.MiddleCenter
+                                };
+                                scoreCard.Controls.Add(lblScoreVal);
+                                evalCard.Controls.Add(scoreCard);
+
+                                // Details list on the left side
+                                Label lblRec = new Label
+                                {
+                                    Text = $"Recommended:  {recommendation}",
+                                    Font = new Font("Segoe UI Semibold", 9F, FontStyle.Bold),
+                                    ForeColor = ColorSlate700,
+                                    Location = new Point(15, 34),
+                                    AutoSize = true
+                                };
+                                evalCard.Controls.Add(lblRec);
+
+                                Label lblNote = new Label
+                                {
+                                    Text = $"Evaluator Note: \"{remarks}\"",
+                                    Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
+                                    ForeColor = ColorSlate500,
+                                    Location = new Point(15, 56),
+                                    Size = new Size(evalCard.Width - 140, 45)
+                                };
+                                evalCard.Controls.Add(lblNote);
                             }
                             else
                             {
-                                lblInterviewScore.Text = "⚠️ No active interview records found.";
-                                lblInterviewScore.ForeColor = Color.Gray;
+                                Label lblNoData = new Label
+                                {
+                                    Text = "⚠️ No interview evaluation records found for this candidate yet.",
+                                    Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                                    ForeColor = ColorSlate500,
+                                    Location = new Point(15, 35),
+                                    AutoSize = true
+                                };
+                                evalCard.Controls.Add(lblNoData);
                             }
+
+                            pnlRightCard.Controls.Add(evalCard);
                         }
                     }
                 }
             }
             catch
             {
-                lblInterviewScore.Text = "Evaluation details unavailable.";
-                lblInterviewScore.ForeColor = Color.Gray;
+                // Fallback default
             }
         }
 
@@ -373,114 +556,110 @@ namespace HRApplicantSystem.Forms.HR
                 return;
 
             OleDbConnection conn = DBConnection.GetConnection();
-            {
-                if (conn == null) return;
+            if (conn == null) return;
 
-                OleDbTransaction transaction = null;
+            OleDbTransaction transaction = null;
+            try
+            {
+                conn.Open();
+                transaction = conn.BeginTransaction();
+
+                // 1. Log detailed decision details inside the HiringDecisions table
+                string insertDecision = @"
+                    INSERT INTO HiringDecisions
+                    (
+                        ApplicationID,
+                        Decision,
+                        Remarks,
+                        DecisionBy,
+                        DecisionDate
+                    )
+                    VALUES
+                    (?, ?, ?, ?, ?)";
+
+                using (OleDbCommand cmd = new OleDbCommand(insertDecision, conn, transaction))
+                {
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+                    cmd.Parameters.Add("@Decision", OleDbType.VarWChar).Value = decision;
+                    cmd.Parameters.Add("@Remarks", OleDbType.VarWChar).Value = txtRemarks.Text.Trim();
+                    cmd.Parameters.Add("@DecisionBy", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                    cmd.Parameters.Add("@DecisionDate", OleDbType.Date).Value = DateTime.Now;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                // 2. Set the official status inside the primary Applications registry
+                string updateApplication = @"
+                    UPDATE Applications
+                    SET [Status] = ?
+                    WHERE ApplicationID = ?";
+
+                using (OleDbCommand cmd = new OleDbCommand(updateApplication, conn, transaction))
+                {
+                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                // 3. Document the step timeline in ApplicationStatusHistory
+                string insertHistory = @"
+                    INSERT INTO ApplicationStatusHistory
+                    (
+                        ApplicationID,
+                        [Status],
+                        DateChanged
+                    )
+                    VALUES
+                    (?, ?, ?)";
+
+                using (OleDbCommand cmd = new OleDbCommand(insertHistory, conn, transaction))
+                {
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
+                    cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
+                    cmd.Parameters.Add("@DateChanged", OleDbType.Date).Value = DateTime.Now;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                // 4. Record the final administrative decision inside AuditTrail
                 try
                 {
-                    conn.Open();
-                    transaction = conn.BeginTransaction();
-
-                    // 1. Log detailed decision details inside the HiringDecisions table
-                    string insertDecision = @"
-                        INSERT INTO HiringDecisions
-                        (
-                            ApplicationID,
-                            Decision,
-                            Remarks,
-                            DecisionBy,
-                            DecisionDate
-                        )
-                        VALUES
-                        (?, ?, ?, ?, ?)";
-
-                    using (OleDbCommand cmd = new OleDbCommand(insertDecision, conn, transaction))
+                    string logActionText = $"Final decision '{decision}' declared for application #{selectedApplicationID} by User ID {UserSession.UserID}.";
+                    string insertAudit = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                    using (OleDbCommand cmd = new OleDbCommand(insertAudit, conn, transaction))
                     {
-                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
-                        cmd.Parameters.Add("@Decision", OleDbType.VarWChar).Value = decision;
-                        cmd.Parameters.Add("@Remarks", OleDbType.VarWChar).Value = txtRemarks.Text.Trim();
-                        cmd.Parameters.Add("@DecisionBy", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
-                        cmd.Parameters.Add("@DecisionDate", OleDbType.Date).Value = DateTime.Now;
-
+                        cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
+                        cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = logActionText;
+                        cmd.Parameters.Add("@Timestamp", OleDbType.Date).Value = DateTime.Now;
                         cmd.ExecuteNonQuery();
                     }
-
-                    // 2. Set the official status inside the primary Applications registry
-                    string updateApplication = @"
-                        UPDATE Applications
-                        SET [Status] = ?
-                        WHERE ApplicationID = ?";
-
-                    using (OleDbCommand cmd = new OleDbCommand(updateApplication, conn, transaction))
-                    {
-                        cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
-                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
-
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    // 3. Document the step timeline in ApplicationStatusHistory
-                    string insertHistory = @"
-                        INSERT INTO ApplicationStatusHistory
-                        (
-                            ApplicationID,
-                            [Status],
-                            DateChanged
-                        )
-                        VALUES
-                        (?, ?, ?)";
-
-                    using (OleDbCommand cmd = new OleDbCommand(insertHistory, conn, transaction))
-                    {
-                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = selectedApplicationID;
-                        cmd.Parameters.Add("@Status", OleDbType.VarWChar).Value = decision;
-                        cmd.Parameters.Add("@DateChanged", OleDbType.Date).Value = DateTime.Now;
-
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    // 4. Record the final administrative decision inside AuditTrail
-                    try
-                    {
-                        string logActionText = $"Final decision '{decision}' declared for application #{selectedApplicationID} by User ID {UserSession.UserID}.";
-
-                        // Fixed: Wrapped the reserved word [Action] in square brackets
-                        string insertAudit = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
-                        using (OleDbCommand cmd = new OleDbCommand(insertAudit, conn, transaction))
-                        {
-                            cmd.Parameters.Add("@UserID", OleDbType.Integer).Value = UserSession.UserID > 0 ? UserSession.UserID : 1;
-                            cmd.Parameters.Add("@Action", OleDbType.VarWChar).Value = logActionText;
-                            cmd.Parameters.Add("@DateCreated", OleDbType.Date).Value = DateTime.Now;
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("AuditTrail Log Error: " + ex.Message);
-                    }
-
-                    transaction.Commit();
-
-                    MessageBox.Show("Hiring decision saved successfully and timeline history updated.", "Action Succeeded", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    ResetDetailsCard();
-                    txtRemarks.Clear();
-                    rdoAccepted.Checked = true;
-
-                    LoadApplications();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    transaction?.Rollback();
-                    MessageBox.Show("An error occurred during transaction execution. Changes rolled back.\nDetails: " + ex.Message, "Transaction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Fail-safe to bypass if audit trail configuration varies slightly
                 }
-                finally
+
+                transaction.Commit();
+
+                MessageBox.Show("Hiring decision saved successfully and timeline history updated.", "Action Succeeded", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                ResetDetailsCard();
+                txtRemarks.Clear();
+                rdoAccepted.Checked = true;
+
+                LoadApplications();
+            }
+            catch (Exception ex)
+            {
+                transaction?.Rollback();
+                MessageBox.Show("An error occurred during transaction execution. Changes rolled back.\nDetails: " + ex.Message, "Transaction Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
                 {
-                    if (conn.State == ConnectionState.Open)
-                    {
-                        conn.Close();
-                    }
+                    conn.Close();
                 }
             }
         }
@@ -496,11 +675,7 @@ namespace HRApplicantSystem.Forms.HR
             lblApplicant.Text = "Applicant: —";
             lblJob.Text = "Job: —";
 
-            lblMissingRequirements.Text = "Missing: Select an applicant to compute requirements.";
-            lblMissingRequirements.ForeColor = Color.Gray;
-
-            lblInterviewScore.Text = "Evaluation: Select an applicant to see scores.";
-            lblInterviewScore.ForeColor = Color.Gray;
+            PurgeProgrammaticCards(pnlRightCard);
         }
     }
 }

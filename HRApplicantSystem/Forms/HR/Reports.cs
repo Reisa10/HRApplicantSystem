@@ -464,8 +464,9 @@ namespace HRApplicantSystem.Forms.HR
                     break;
 
                 case "Interviews":
+                    // Fixed: Removed i.Mode from the select columns entirely as requested
                     query = @"SELECT i.InterviewScheduleID, a.FirstName, a.LastName, p.PositionName, et.TypeName AS EmploymentType, 
-                                     d.DepartmentName, i.InterviewDate, i.Interviewer, i.Mode, i.Location, i.Status
+                                     d.DepartmentName, i.InterviewDate, i.Interviewer, i.Location, i.Status
                              FROM ((((((InterviewSchedules i
                              INNER JOIN Applications ap ON i.ApplicationID = ap.ApplicationID)
                              INNER JOIN Applicants a ON ap.ApplicantID = a.ApplicantID)

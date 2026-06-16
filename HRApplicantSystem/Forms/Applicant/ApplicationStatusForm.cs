@@ -15,6 +15,22 @@ namespace HRApplicantSystem.Forms.Applicant
         private int currentApplicantId;
         private FlowLayoutPanel flpTimeline; // Programmatic modern timeline container
 
+        // Professional SaaS Colors
+        private readonly Color ColorSlate900 = Color.FromArgb(15, 23, 42);
+        private readonly Color ColorSlate700 = Color.FromArgb(51, 65, 85);
+        private readonly Color ColorSlate500 = Color.FromArgb(100, 116, 139);
+        private readonly Color ColorSlate100 = Color.FromArgb(241, 245, 249);
+        private readonly Color ColorBorder = Color.FromArgb(226, 232, 240);
+
+        private readonly Color ColorGreenBg = Color.FromArgb(240, 253, 244);
+        private readonly Color ColorGreenFg = Color.FromArgb(21, 128, 61);
+        private readonly Color ColorRedBg = Color.FromArgb(254, 242, 242);
+        private readonly Color ColorRedFg = Color.FromArgb(185, 28, 28);
+        private readonly Color ColorAmberBg = Color.FromArgb(255, 251, 235);
+        private readonly Color ColorAmberFg = Color.FromArgb(180, 83, 9);
+        private readonly Color ColorBlueBg = Color.FromArgb(239, 246, 255);
+        private readonly Color ColorBlueFg = Color.FromArgb(29, 78, 216);
+
         public ApplicationStatusForm()
         {
             InitializeComponent();
@@ -35,14 +51,10 @@ namespace HRApplicantSystem.Forms.Applicant
             UpdateRemarksLayout();
         }
 
-        /// <summary>
-        /// Safe dynamic UI initialization to avoid modifying the .Designer.cs file manually.
-        /// </summary>
         private void InitializeDynamicTimeline()
         {
             try
             {
-                // Programmatically replace lstTrackingTimeline with a FlowLayoutPanel
                 flpTimeline = new FlowLayoutPanel();
                 flpTimeline.Location = lstTrackingTimeline.Location;
                 flpTimeline.Size = lstTrackingTimeline.Size;
@@ -58,7 +70,6 @@ namespace HRApplicantSystem.Forms.Applicant
             }
             catch
             {
-                // Fallback protection: if dynamic creation fails, show standard listbox
                 lstTrackingTimeline.Visible = true;
             }
         }
@@ -67,7 +78,6 @@ namespace HRApplicantSystem.Forms.Applicant
         {
             bool success = false;
 
-            // 1. Try advanced join query on a fresh connection mapping Applications -> JobVacancies -> Positions -> Departments -> EmploymentTypes
             try
             {
                 using (OleDbConnection conn = DBConnection.GetConnection())
@@ -101,10 +111,9 @@ namespace HRApplicantSystem.Forms.Applicant
             }
             catch
             {
-                success = false; // Silent failover to prevent popups if schema mismatches occur
+                success = false;
             }
 
-            // 2. Fallback query on a fresh connection mapping Applications -> JobVacancies -> Positions -> EmploymentTypes
             if (!success)
             {
                 try
@@ -166,12 +175,10 @@ namespace HRApplicantSystem.Forms.Applicant
                 int appId = Convert.ToInt32(row.Cells["ApplicationID"].Value);
                 string status = row.Cells["Status"].Value?.ToString() ?? "";
 
-                // Safely read job title, department, and employment type parameters
                 string jobTitle = dgvStatusSummary.Columns.Contains("PositionName") ? row.Cells["PositionName"].Value?.ToString() : "";
                 string dept = dgvStatusSummary.Columns.Contains("DepartmentName") ? row.Cells["DepartmentName"].Value?.ToString() : "";
                 string empType = dgvStatusSummary.Columns.Contains("EmploymentType") ? row.Cells["EmploymentType"].Value?.ToString() : "";
 
-                // Display selected job title with its associated Employment Type dynamically
                 if (!string.IsNullOrEmpty(empType))
                 {
                     lblSelectedJob.Text = $"{jobTitle.ToUpper()} ({empType})";
@@ -190,7 +197,6 @@ namespace HRApplicantSystem.Forms.Applicant
                     lblCurrentState.Text = "Status: " + status;
                 }
 
-                // Apply contextual colors to the status label
                 lblCurrentState.ForeColor = GetStatusThemeColor(status);
 
                 // Load individual details dynamically
@@ -228,23 +234,114 @@ namespace HRApplicantSystem.Forms.Applicant
             if (flpTimeline != null) flpTimeline.Controls.Clear();
             lstTrackingTimeline.Items.Clear();
 
-            lblScreeningResult.Text = "Screening Result: Pending";
-            lblScreeningDate.Text = "Date Screened: --";
-            lblScreeningRemarks.Text = "No screening remarks available yet.";
-
-            lblInterviewDate.Text = "Date: Not scheduled yet";
-            lblInterviewInterviewer.Text = "Interviewer: --";
-            lblInterviewVenue.Text = "Venue/Location: --";
-            lblInterviewMode.Text = "Mode: --";
-            lblInterviewStatus.Text = "Status: --";
-
-            lblEvalScore.Text = "Score: --";
-            lblEvalResult.Text = "Result: --";
-            lblEvalRecommendation.Text = "Recommendation: --";
-            lblEvalRemarks.Text = "No interview evaluation remarks available yet.";
-
-            lblRemarksText.Text = "Please select an application from the list to view decision details.";
+            // Clear dynamic cards in each tab
+            PurgeProgrammaticCards(tpScreening);
+            PurgeProgrammaticCards(tpInterview);
+            PurgeProgrammaticCards(tpEvaluation);
+            PurgeProgrammaticCards(tpHiring);
         }
+
+        private void PurgeProgrammaticCards(TabPage tab)
+        {
+            List<Control> toRemove = new List<Control>();
+            foreach (Control c in tab.Controls)
+            {
+                if (c.Name.StartsWith("prog_"))
+                {
+                    toRemove.Add(c);
+                }
+                else
+                {
+                    c.Visible = true; // Restore designer visibility if hidden
+                }
+            }
+            foreach (Control c in toRemove)
+            {
+                tab.Controls.Remove(c);
+                c.Dispose();
+            }
+        }
+
+        #region Card & Badge Layout Generators (UI Design Improvements)
+
+        private Panel CreateBadge(string text, Color bg, Color fg, Point loc)
+        {
+            Label lbl = new Label
+            {
+                Text = text.ToUpper(),
+                ForeColor = fg,
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                Location = new Point(12, 5),
+                AutoSize = true
+            };
+
+            // Fixed: Explicit bounds sizing instead of nested AutoSize to prevent WinForms layout bugs
+            Panel pnl = new Panel
+            {
+                Name = "prog_badge",
+                BackColor = bg,
+                Location = loc,
+                Size = new Size(lbl.PreferredWidth + 24, lbl.PreferredHeight + 10)
+            };
+
+            pnl.Controls.Add(lbl);
+            return pnl;
+        }
+
+        private Panel CreateRemarksCard(string title, string text, Point loc, int width, int height, Color accentColor)
+        {
+            Panel card = new Panel
+            {
+                Name = "prog_card",
+                Location = loc,
+                Size = new Size(width, height),
+                BackColor = Color.White,
+                Padding = new Padding(15, 10, 15, 10)
+            };
+
+            card.Paint += (s, e) =>
+            {
+                // Accent left-hand border stripe (5px)
+                using (SolidBrush b = new SolidBrush(accentColor))
+                {
+                    e.Graphics.FillRectangle(b, 0, 0, 5, card.Height);
+                }
+                // Light card boundary lines
+                using (Pen p = new Pen(ColorBorder, 1))
+                {
+                    e.Graphics.DrawRectangle(p, 5, 0, card.Width - 6, card.Height - 1);
+                }
+            };
+
+            Label lblTitle = new Label
+            {
+                Text = title.ToUpper(),
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                ForeColor = ColorSlate500,
+                Location = new Point(15, 12),
+                AutoSize = true
+            };
+
+            TextBox txtText = new TextBox
+            {
+                Text = string.IsNullOrEmpty(text) ? "No remarks submitted." : $"\"{text}\"",
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                ForeColor = ColorSlate700,
+                Location = new Point(15, 30),
+                Size = new Size(card.Width - 30, card.Height - 45),
+                Multiline = true,
+                ReadOnly = true,
+                BorderStyle = BorderStyle.None,
+                BackColor = Color.White,
+                ScrollBars = ScrollBars.Vertical
+            };
+
+            card.Controls.Add(lblTitle);
+            card.Controls.Add(txtText);
+            return card;
+        }
+
+        #endregion
 
         private void LoadTimeline(int applicationId)
         {
@@ -272,7 +369,6 @@ namespace HRApplicantSystem.Forms.Applicant
                             string status = reader["Status"]?.ToString() ?? "";
                             DateTime dateVal = reader["DateChanged"] != DBNull.Value ? Convert.ToDateTime(reader["DateChanged"]) : DateTime.Now;
 
-                            // Safe dynamic UI card rendering
                             if (flpTimeline != null)
                             {
                                 AddTimelineCard(status, dateVal);
@@ -354,6 +450,7 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void LoadScreeningDetails(int applicationId)
         {
+            PurgeProgrammaticCards(tpScreening);
             OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null) return;
 
@@ -366,30 +463,65 @@ namespace HRApplicantSystem.Forms.Applicant
                     conn.Open();
                     using (OleDbDataReader reader = cmd.ExecuteReader())
                     {
+                        // Hide designer defaults to paint our card
+                        lblScreeningResult.Visible = false;
+                        lblScreeningDate.Visible = false;
+                        lblScreeningRemarksLabel.Visible = false;
+                        lblScreeningRemarks.Visible = false;
+
                         if (reader.Read())
                         {
                             string result = reader["ScreeningResult"]?.ToString() ?? "Pending";
-                            string dateStr = reader["DateScreened"] != DBNull.Value ? Convert.ToDateTime(reader["DateScreened"]).ToShortDateString() : "--";
+                            string dateStr = reader["DateScreened"] != DBNull.Value ? Convert.ToDateTime(reader["DateScreened"]).ToString("f") : "--";
                             string remarks = reader["Remarks"]?.ToString() ?? "";
 
-                            lblScreeningResult.Text = "Screening Result: " + result;
-                            lblScreeningDate.Text = "Date Screened: " + dateStr;
-                            lblScreeningRemarks.Text = string.IsNullOrWhiteSpace(remarks) ? "No screening remarks recorded." : remarks;
+                            bool isQualified = result.Equals("Qualified", StringComparison.OrdinalIgnoreCase);
+                            Color badgeBg = isQualified ? ColorGreenBg : ColorRedBg;
+                            Color badgeFg = isQualified ? ColorGreenFg : ColorRedFg;
+                            string badgeText = isQualified ? "✓ Qualified" : "⚠️ Not Qualified";
+
+                            Panel badge = CreateBadge(badgeText, badgeBg, badgeFg, new Point(20, 20));
+                            tpScreening.Controls.Add(badge);
+
+                            Label lblDate = new Label
+                            {
+                                Name = "prog_lblDate",
+                                Text = $"Screened on: {dateStr}",
+                                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(22, 55),
+                                AutoSize = true
+                            };
+                            tpScreening.Controls.Add(lblDate);
+
+                            Panel remarksCard = CreateRemarksCard("Screening feedback", remarks, new Point(20, 85), tpScreening.Width - 40, tpScreening.Height - 110, badgeFg);
+                            tpScreening.Controls.Add(remarksCard);
                         }
                         else
                         {
-                            lblScreeningResult.Text = "Screening Result: Pending";
-                            lblScreeningDate.Text = "Date Screened: --";
-                            lblScreeningRemarks.Text = "Your application has not been screened yet.";
+                            Panel badge = CreateBadge("Pending Screening", ColorAmberBg, ColorAmberFg, new Point(20, 20));
+                            tpScreening.Controls.Add(badge);
+
+                            Label lblPending = new Label
+                            {
+                                Name = "prog_lblPending",
+                                Text = "Your application submission is queued and awaiting initial screening reviews.",
+                                Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(22, 60),
+                                Size = new Size(tpScreening.Width - 44, 100)
+                            };
+                            tpScreening.Controls.Add(lblPending);
                         }
                     }
                 }
             }
             catch
             {
-                lblScreeningResult.Text = "Screening Result: Pending";
-                lblScreeningDate.Text = "Date Screened: --";
-                lblScreeningRemarks.Text = "Pending HR review.";
+                lblScreeningResult.Visible = true;
+                lblScreeningDate.Visible = true;
+                lblScreeningRemarksLabel.Visible = true;
+                lblScreeningRemarks.Visible = true;
             }
             finally
             {
@@ -399,57 +531,132 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void LoadInterviewDetails(int applicationId)
         {
+            PurgeProgrammaticCards(tpInterview);
             OleDbConnection conn = DBConnection.GetConnection();
+            if (conn == null) return;
+
+            try
             {
-                if (conn == null) return;
+                // Updated with TOP 1 descending order to retrieve the most recent reschedule details
+                string query = @"SELECT TOP 1 [InterviewDate], [Interviewer], [Location], [Mode], [Status] 
+                                 FROM [InterviewSchedules] 
+                                 WHERE [ApplicationID] = ? 
+                                 ORDER BY [InterviewScheduleID] DESC";
 
-                try
+                using (OleDbCommand cmd = new OleDbCommand(query, conn))
                 {
-                    string query = "SELECT [InterviewDate], [Interviewer], [Location], [Mode], [Status] FROM [InterviewSchedules] WHERE [ApplicationID] = ?";
-                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
+                    conn.Open();
+                    using (OleDbDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.Add("@ApplicationID", OleDbType.Integer).Value = applicationId;
-                        conn.Open();
-                        using (OleDbDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                string rawDate = reader["InterviewDate"] != DBNull.Value ? Convert.ToDateTime(reader["InterviewDate"]).ToString("g") : "--";
-                                string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
-                                string venue = reader["Location"] != DBNull.Value ? reader["Location"].ToString() : "--";
-                                string mode = reader["Mode"] != DBNull.Value ? reader["Mode"].ToString() : "--";
-                                string status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : "--";
+                        // Hide designer defaults
+                        lblInterviewDate.Visible = false;
+                        lblInterviewInterviewer.Visible = false;
+                        lblInterviewVenue.Visible = false;
+                        lblInterviewMode.Visible = false;
+                        lblInterviewStatus.Visible = false;
 
-                                lblInterviewDate.Text = "Date & Time: " + rawDate;
-                                lblInterviewInterviewer.Text = "Interviewer: " + interviewer;
-                                lblInterviewVenue.Text = "Venue/Location: " + venue;
-                                lblInterviewMode.Text = "Mode: " + mode;
-                                lblInterviewStatus.Text = "Schedule Status: " + status;
-                            }
-                            else
+                        if (reader.Read())
+                        {
+                            string rawDate = reader["InterviewDate"] != DBNull.Value ? Convert.ToDateTime(reader["InterviewDate"]).ToString("f") : "--";
+                            string interviewer = reader["Interviewer"] != DBNull.Value ? reader["Interviewer"].ToString() : "N/A";
+                            string venue = reader["Location"] != DBNull.Value ? reader["Location"].ToString() : "--";
+                            string status = reader["Status"] != DBNull.Value ? reader["Status"].ToString() : "--";
+
+                            // Generate Schedule Status Badge dynamically
+                            Color badgeBg = ColorBlueBg;
+                            Color badgeFg = ColorBlueFg;
+                            if (status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase)) { badgeBg = ColorRedBg; badgeFg = ColorRedFg; }
+                            else if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase)) { badgeBg = ColorGreenBg; badgeFg = ColorGreenFg; }
+
+                            Panel badge = CreateBadge($"Schedule State: {status}", badgeBg, badgeFg, new Point(20, 20));
+                            tpInterview.Controls.Add(badge);
+
+                            // Structured Schedule Container Panel
+                            Panel card = new Panel
                             {
-                                lblInterviewDate.Text = "Date: Not scheduled yet";
-                                lblInterviewInterviewer.Text = "Interviewer: --";
-                                lblInterviewVenue.Text = "Venue/Location: --";
-                                lblInterviewMode.Text = "Mode: --";
-                                lblInterviewStatus.Text = "Status: --";
-                            }
+                                Name = "prog_card",
+                                Location = new Point(20, 60),
+                                Size = new Size(tpInterview.Width - 40, tpInterview.Height - 85),
+                                BackColor = Color.White,
+                                Padding = new Padding(20, 15, 20, 15)
+                            };
+
+                            card.Paint += (s, ev) =>
+                            {
+                                using (Pen p = new Pen(ColorBorder, 1))
+                                {
+                                    ev.Graphics.DrawRectangle(p, 0, 0, card.Width - 1, card.Height - 1);
+                                }
+                            };
+
+                            int yOffset = 15;
+                            AddMetaLabelToCard(card, "Date & Time:", rawDate, ref yOffset);
+                            AddMetaLabelToCard(card, "Assigned Interviewer:", interviewer, ref yOffset);
+                            AddMetaLabelToCard(card, "Venue/Location:", venue, ref yOffset);
+                            // Fixed: Removed the misleading "Assigned Mode" row entirely as requested
+
+                            tpInterview.Controls.Add(card);
+                        }
+                        else
+                        {
+                            Panel badge = CreateBadge("Not Scheduled Yet", ColorAmberBg, ColorAmberFg, new Point(20, 20));
+                            tpInterview.Controls.Add(badge);
+
+                            Label lblPending = new Label
+                            {
+                                Name = "prog_lblPending",
+                                Text = "Your application is currently being evaluated for interview schedule allocations.",
+                                Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(22, 60),
+                                Size = new Size(tpInterview.Width - 44, 100)
+                            };
+                            tpInterview.Controls.Add(lblPending);
                         }
                     }
                 }
-                catch
-                {
-                    lblInterviewDate.Text = "Date: --";
-                    lblInterviewInterviewer.Text = "Interviewer: --";
-                    lblInterviewVenue.Text = "Venue/Location: --";
-                    lblInterviewMode.Text = "Mode: --";
-                    lblInterviewStatus.Text = "Status: --";
-                }
             }
+            catch
+            {
+                lblInterviewDate.Visible = true;
+                lblInterviewInterviewer.Visible = true;
+                lblInterviewVenue.Visible = true;
+                lblInterviewMode.Visible = true;
+                lblInterviewStatus.Visible = true;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        private void AddMetaLabelToCard(Panel card, string header, string val, ref int y)
+        {
+            Label lblHeader = new Label
+            {
+                Text = header,
+                Font = new Font("Segoe UI", 8F, FontStyle.Bold),
+                ForeColor = ColorSlate500,
+                Location = new Point(15, y),
+                AutoSize = true
+            };
+            Label lblVal = new Label
+            {
+                Text = val,
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                ForeColor = ColorSlate900,
+                Location = new Point(150, y - 1),
+                AutoSize = true
+            };
+            card.Controls.Add(lblHeader);
+            card.Controls.Add(lblVal);
+            y += 32;
         }
 
         private void LoadEvaluationDetails(int applicationId)
         {
+            PurgeProgrammaticCards(tpEvaluation);
             OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null) return;
 
@@ -462,6 +669,13 @@ namespace HRApplicantSystem.Forms.Applicant
                     conn.Open();
                     using (OleDbDataReader reader = cmd.ExecuteReader())
                     {
+                        // Hide designer defaults
+                        lblEvalScore.Visible = false;
+                        lblEvalResult.Visible = false;
+                        lblEvalRecommendation.Visible = false;
+                        lblEvalRemarksLabel.Visible = false;
+                        lblEvalRemarks.Visible = false;
+
                         if (reader.Read())
                         {
                             string score = reader["Score"] != DBNull.Value ? reader["Score"].ToString() : "--";
@@ -469,27 +683,83 @@ namespace HRApplicantSystem.Forms.Applicant
                             string recommendation = reader["Recommendation"]?.ToString() ?? "--";
                             string remarks = reader["Remarks"]?.ToString() ?? "";
 
-                            lblEvalScore.Text = "Score: " + score;
-                            lblEvalResult.Text = "Result: " + result;
-                            lblEvalRecommendation.Text = "Recommendation: " + recommendation;
-                            lblEvalRemarks.Text = string.IsNullOrWhiteSpace(remarks) ? "No evaluation remarks recorded." : remarks;
+                            bool isPass = result.Equals("Pass", StringComparison.OrdinalIgnoreCase);
+                            Color badgeBg = isPass ? ColorGreenBg : ColorRedBg;
+                            Color badgeFg = isPass ? ColorGreenFg : ColorRedFg;
+                            string badgeText = isPass ? "✓ Recommendation: Pass" : "⚠️ Recommendation: Fail";
+
+                            Panel badge = CreateBadge(badgeText, badgeBg, badgeFg, new Point(20, 20));
+                            tpEvaluation.Controls.Add(badge);
+
+                            // Draw a score badge/circle on the top-right dynamically
+                            Panel scoreCard = new Panel
+                            {
+                                Name = "prog_score",
+                                Size = new Size(110, 32),
+                                Location = new Point(tpEvaluation.Width - 130, 22),
+                                BackColor = isPass ? ColorGreenBg : ColorRedBg
+                            };
+                            scoreCard.Paint += (s, ev) =>
+                            {
+                                using (Pen p = new Pen(badgeFg, 1F))
+                                {
+                                    ev.Graphics.DrawRectangle(p, 0, 0, scoreCard.Width - 1, scoreCard.Height - 1);
+                                }
+                            };
+                            Label lblScoreVal = new Label
+                            {
+                                Text = $"{score} / 100",
+                                Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold),
+                                ForeColor = badgeFg,
+                                Dock = DockStyle.Fill,
+                                TextAlign = ContentAlignment.MiddleCenter
+                            };
+                            scoreCard.Controls.Add(lblScoreVal);
+                            tpEvaluation.Controls.Add(scoreCard);
+
+                            Label lblRec = new Label
+                            {
+                                Name = "prog_lblRec",
+                                Text = $"Action Route: {recommendation}",
+                                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                                ForeColor = ColorSlate900,
+                                Location = new Point(22, 58),
+                                Size = new Size(tpEvaluation.Width - 170, 35),
+                                AutoSize = false // Enabled wrapping to prevent overlaps
+                            };
+                            tpEvaluation.Controls.Add(lblRec);
+
+                            // Shifted the remarks card downward to Y=100 to prevent text overlaps
+                            int remarksCardTop = 100;
+                            Panel remarksCard = CreateRemarksCard("Evaluator feedback remarks", remarks, new Point(20, remarksCardTop), tpEvaluation.Width - 40, tpEvaluation.Height - remarksCardTop - 15, badgeFg);
+                            tpEvaluation.Controls.Add(remarksCard);
                         }
                         else
                         {
-                            lblEvalScore.Text = "Score: --";
-                            lblEvalResult.Text = "Result: --";
-                            lblEvalRecommendation.Text = "Recommendation: --";
-                            lblEvalRemarks.Text = "Interview evaluation has not been processed yet.";
+                            Panel badge = CreateBadge("Evaluation Pending", ColorAmberBg, ColorAmberFg, new Point(20, 20));
+                            tpEvaluation.Controls.Add(badge);
+
+                            Label lblPending = new Label
+                            {
+                                Name = "prog_lblPending",
+                                Text = "Your interview performance has not been evaluated by the HR department yet.",
+                                Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(22, 60),
+                                Size = new Size(tpEvaluation.Width - 44, 100)
+                            };
+                            tpEvaluation.Controls.Add(lblPending);
                         }
                     }
                 }
             }
             catch
             {
-                lblEvalScore.Text = "Score: --";
-                lblEvalResult.Text = "Result: --";
-                lblEvalRecommendation.Text = "Recommendation: --";
-                lblEvalRemarks.Text = "Evaluation pending.";
+                lblEvalScore.Visible = true;
+                lblEvalResult.Visible = true;
+                lblEvalRecommendation.Visible = true;
+                lblEvalRemarksLabel.Visible = true;
+                lblEvalRemarks.Visible = true;
             }
             finally
             {
@@ -499,6 +769,7 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void LoadDecisionDetails(int applicationId, string currentStatus)
         {
+            PurgeProgrammaticCards(tpHiring);
             OleDbConnection conn = DBConnection.GetConnection();
             if (conn == null) return;
 
@@ -516,6 +787,10 @@ namespace HRApplicantSystem.Forms.Applicant
 
                     using (OleDbDataReader reader = cmd.ExecuteReader())
                     {
+                        // Hide designer defaults
+                        lblRemarksLabel.Visible = false;
+                        lblRemarksText.Visible = false;
+
                         if (reader.Read())
                         {
                             string decision = reader["Decision"]?.ToString() ?? "";
@@ -527,58 +802,91 @@ namespace HRApplicantSystem.Forms.Applicant
                                 ? reader["ManagerName"].ToString()
                                 : "HR Department";
 
-                            lblRemarksText.Text = $"Status: {decision.ToUpper()}\r\n" +
-                                                 $"Processed On: {dateStr}\r\n" +
-                                                 $"Reviewed By: {manager}\r\n\r\n" +
-                                                 $"HR Message:\r\n\"{remarks}\"";
+                            bool isAccepted = decision.Equals("Accepted", StringComparison.OrdinalIgnoreCase);
+                            bool isRejected = decision.Equals("Rejected", StringComparison.OrdinalIgnoreCase);
+
+                            Color bannerBg = isAccepted ? ColorGreenBg : (isRejected ? ColorRedBg : ColorAmberBg);
+                            Color bannerFg = isAccepted ? ColorGreenFg : (isRejected ? ColorRedFg : ColorAmberFg);
+                            string bannerText = isAccepted ? "✓ Approved & Hired" : (isRejected ? "⚠️ Process Closed: Rejected" : "⏱️ On Hold");
+
+                            Panel banner = CreateBadge(bannerText, bannerBg, bannerFg, new Point(20, 20));
+                            tpHiring.Controls.Add(banner);
+
+                            Label lblDate = new Label
+                            {
+                                Name = "prog_lblDate",
+                                Text = $"Processed on: {dateStr}  |  Reviewed by: {manager}",
+                                Font = new Font("Segoe UI", 8.5F, FontStyle.Regular),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(22, 55),
+                                AutoSize = true
+                            };
+                            tpHiring.Controls.Add(lblDate);
+
+                            Panel remarksCard = CreateRemarksCard("Executive board message", remarks, new Point(20, 85), tpHiring.Width - 40, tpHiring.Height - 110, bannerFg);
+                            tpHiring.Controls.Add(remarksCard);
                         }
                         else
                         {
+                            Panel badge = CreateBadge("Under Review", ColorAmberBg, ColorAmberFg, new Point(20, 20));
+                            tpHiring.Controls.Add(badge);
+
+                            // Provide descriptive guidance text depending on active states
+                            string prompt = "";
                             switch (currentStatus)
                             {
                                 case "Draft":
-                                    lblRemarksText.Text = "This application is currently a Draft. Please finalize your details and submit to start the HR recruitment process.";
+                                    prompt = "This application is currently in Draft state. Please review your details and click Submit to start the HR recruitment process.";
                                     break;
                                 case "Submitted":
-                                    lblRemarksText.Text = "Your application has been submitted successfully. HR review has not started yet.";
+                                    prompt = "Your application has been received successfully! It is queued and awaiting initial screening reviews.";
                                     break;
                                 case "Under Review":
-                                    lblRemarksText.Text = "Your application is currently Under Review by the HR department. Final decision pending.";
+                                    prompt = "Your application is currently under active screening by the HR department. Final decision pending.";
                                     break;
                                 case "Shortlisted":
-                                    lblRemarksText.Text = "Congratulations! You have been Shortlisted for further evaluation. Final decision pending.";
+                                    prompt = "Congratulations! You have been shortlisted for further evaluation. HR will schedule your interviews shortly.";
                                     break;
                                 case "For Interview":
                                 case "Interview Scheduled":
-                                    lblRemarksText.Text = "You are currently in the Interview stage. The final decision will be declared after your interviews are complete.";
+                                    prompt = "You are currently undergoing the Interview stage. Executive hiring decisions are declared once all evaluations are finalized.";
                                     break;
                                 case "For Assessment":
-                                    lblRemarksText.Text = "You are scheduled for an assessment. The final decision will be declared after your results are evaluated.";
+                                    prompt = "You are scheduled for a skills assessment. Executive decisions are finalized once results are submitted.";
                                     break;
                                 case "For Final Review":
                                 case "For Final Decision":
-                                    lblRemarksText.Text = "Your application is undergoing final review by HR Management. Final decision pending.";
+                                    prompt = "Your application is undergoing final executive board review. Results will be posted here shortly.";
                                     break;
                                 case "On Hold":
-                                    lblRemarksText.Text = "Your application has been put On Hold. An HR representative will reach out to you if further requirements are needed.";
-                                    break;
-                                case "Rejected":
-                                    lblRemarksText.Text = "Thank you for your interest in our company. Your application has been reviewed, and we regret to inform you that we are moving forward with other candidates.";
+                                    prompt = "Your application has been placed on hold. HR will contact you if further requirement clarifications are needed.";
                                     break;
                                 case "Withdrawn":
-                                    lblRemarksText.Text = "This application has been withdrawn.";
+                                    prompt = "This application was withdrawn.";
                                     break;
                                 default:
-                                    lblRemarksText.Text = "Your application is active and currently under review. Final HR decision pending.";
+                                    prompt = "Your application is active and under review. The final hiring decision has not been declared yet.";
                                     break;
                             }
+
+                            Label lblPending = new Label
+                            {
+                                Name = "prog_lblPending",
+                                Text = prompt,
+                                Font = new Font("Segoe UI", 9.5F, FontStyle.Italic),
+                                ForeColor = ColorSlate500,
+                                Location = new Point(22, 60),
+                                Size = new Size(tpHiring.Width - 44, 100)
+                            };
+                            tpHiring.Controls.Add(lblPending);
                         }
                     }
                 }
             }
             catch
             {
-                lblRemarksText.Text = "HR review details are currently pending.";
+                lblRemarksLabel.Visible = true;
+                lblRemarksText.Visible = true;
             }
             finally
             {
@@ -608,7 +916,6 @@ namespace HRApplicantSystem.Forms.Applicant
 
         private void UpdateRemarksLayout()
         {
-            // Forces Windows Forms' layout engine to dynamically recalculate bounding boxes for lazy-loaded TabPages
             if (tcStatusDetails != null)
             {
                 tcStatusDetails.PerformLayout();
@@ -618,23 +925,55 @@ namespace HRApplicantSystem.Forms.Applicant
                 }
             }
 
-            // Dynamically recalculate text box boundaries based on parent runtime ClientSize to completely prevent wrapping overlaps
-            if (lblScreeningRemarks != null && tpScreening != null)
-            {
-                lblScreeningRemarks.Width = tpScreening.Width - 30;
-                lblScreeningRemarks.PerformLayout();
-            }
+            // Dynamically scale our programmatic cards to stretch elegantly on form resizes/splitter moves
+            ScaleProgrammaticCardToFit(tpScreening);
+            ScaleProgrammaticCardToFit(tpInterview);
+            ScaleProgrammaticCardToFit(tpEvaluation);
+            ScaleProgrammaticCardToFit(tpHiring);
+        }
 
-            if (lblEvalRemarks != null && tpEvaluation != null)
+        private void ScaleProgrammaticCardToFit(TabPage tab)
+        {
+            foreach (Control c in tab.Controls)
             {
-                lblEvalRemarks.Width = tpEvaluation.Width - 30;
-                lblEvalRemarks.PerformLayout();
-            }
+                if (c.Name == "prog_card")
+                {
+                    c.Width = tab.Width - 40;
 
-            if (lblRemarksText != null && tpHiring != null)
-            {
-                lblRemarksText.Width = tpHiring.Width - 30;
-                lblRemarksText.PerformLayout();
+                    // Fixed: Apply customized layout scaling offsets for Evaluation tab to prevent overlaps
+                    if (tab == tpEvaluation)
+                    {
+                        c.Top = 100;
+                        c.Height = tab.Height - 125;
+                    }
+                    else
+                    {
+                        c.Top = 85;
+                        c.Height = tab.Height - 110;
+                    }
+
+                    // Also stretch the internal scrollable remarks textbox inside the card
+                    foreach (Control child in c.Controls)
+                    {
+                        if (child is TextBox txt)
+                        {
+                            child.Width = c.Width - 30;
+                            child.Height = c.Height - 45;
+                        }
+                    }
+                }
+                else if (c.Name == "prog_lblRec")
+                {
+                    c.Width = tab.Width - 170;
+                }
+                else if (c.Name == "prog_lblPending")
+                {
+                    c.Width = tab.Width - 44;
+                }
+                else if (c.Name == "prog_score")
+                {
+                    c.Left = tab.Width - 130;
+                }
             }
         }
 

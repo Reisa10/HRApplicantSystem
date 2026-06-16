@@ -370,7 +370,9 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // Updated query to filter out cancelled/completed schedules
+                    // Corrected OLEDB 6-table nested join query:
+                    // 1. i.Mode is removed entirely
+                    // 2. INNER JOIN on InterviewSchedules with Status = 'Scheduled' is preserved to prevent duplicates
                     string query = @"
                         SELECT
                             a.ApplicationID,
@@ -380,16 +382,15 @@ namespace HRApplicantSystem.Forms.HR
                             et.TypeName AS EmploymentType,
                             i.InterviewDate,
                             i.Interviewer,
-                            i.Mode,
                             i.Location
-                        FROM ((((Applications a
+                        FROM (((((Applications a
                         INNER JOIN Applicants ap ON a.ApplicantID = ap.ApplicantID)
                         INNER JOIN JobVacancies j ON a.JobID = j.JobID)
                         INNER JOIN Positions p ON j.PositionID = p.PositionID)
                         LEFT JOIN EmploymentTypes et ON j.EmploymentTypeID = et.EmploymentTypeID)
-                        INNER JOIN InterviewSchedules i ON a.ApplicationID = i.ApplicationID
+                        INNER JOIN InterviewSchedules i ON a.ApplicationID = i.ApplicationID)
                         WHERE a.Status IN ('For Interview', 'Interview Scheduled')
-                          AND i.Status = 'Scheduled'"; // Fixed: Only show the active scheduled interview
+                          AND i.Status = 'Scheduled'";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
                     {
