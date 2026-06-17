@@ -1,0 +1,9 @@
+# AI Usage in This Project
+
+Throughout the development of the HR Applicant System, generative AI tools were utilized as development aids to enhance productivity, streamline workflows, and support problem-solving. AI was used during the planning phase to help brainstorm system features, organize project requirements, and refine the overall scope of the application.
+
+During system design, AI assisted in proposing architectural approaches, class structures, and database interaction patterns suitable for a Windows Forms and C# environment. These suggestions served as references that were reviewed, modified, and integrated according to the project's requirements.
+
+Throughout implementation, AI helped generate boilerplate code, user interface components, event handlers, and data-access logic. It was also used to provide explanations for programming concepts, suggest solutions for runtime and build-time issues, and recommend code refactoring practices to improve maintainability and readability.
+
+Additionally, AI contributed to documentation drafting, user interface improvements, and debugging assistance. All AI-generated content, code, and recommendations were carefully reviewed, tested, and validated before integration into the final system. The completed application remains the result of the developer's design decisions, implementation efforts, and quality assurance processes, with AI serving as a supportive development tool.
