@@ -106,14 +106,14 @@ namespace HRApplicantSystem.Forms.HR
         }
 
         /// <summary>
-        /// Programmatically creates and styles the profile highlights panel.
+        /// Programmatically creates and styles the profile highlights panel with explicit scrollbar configurations.
         /// </summary>
         private void InitializeDynamicProfilePanel()
         {
             pnlProfileCard = new Panel();
             pnlProfileCard.BackColor = Color.White;
             pnlProfileCard.BorderStyle = BorderStyle.FixedSingle;
-            pnlProfileCard.Size = new Size(grpDecision.Width, 200); // Optimized compact height
+            pnlProfileCard.Size = new Size(grpDecision.Width, 240); // Increased height to 240px for scrollable area and spacing
 
             lblProfileTitle = new Label();
             lblProfileTitle.Text = "APPLICANT PROFILE HIGHLIGHTS";
@@ -133,49 +133,52 @@ namespace HRApplicantSystem.Forms.HR
             lblEduTitle.Text = "Education:";
             lblEduTitle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             lblEduTitle.ForeColor = Color.DarkSlateGray;
-            lblEduTitle.Location = new Point(12, 55);
+            lblEduTitle.Location = new Point(12, 53);
             lblEduTitle.Size = new Size(80, 15);
 
             txtEducation = new TextBox();
             txtEducation.Multiline = true;
             txtEducation.ReadOnly = true;
             txtEducation.BackColor = Color.FromArgb(245, 246, 250);
-            txtEducation.BorderStyle = BorderStyle.None;
+            txtEducation.BorderStyle = BorderStyle.FixedSingle; // Styled border
+            txtEducation.ScrollBars = ScrollBars.Vertical; // Added scrollbar support
             txtEducation.Font = new Font("Segoe UI", 8.5F);
-            txtEducation.Location = new Point(12, 72);
-            txtEducation.Size = new Size(pnlProfileCard.Width - 24, 30);
+            txtEducation.Location = new Point(12, 70);
+            txtEducation.Size = new Size(pnlProfileCard.Width - 24, 32);
 
             lblSkillsTitle = new Label();
             lblSkillsTitle.Text = "Skills:";
             lblSkillsTitle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             lblSkillsTitle.ForeColor = Color.DarkSlateGray;
-            lblSkillsTitle.Location = new Point(12, 105);
+            lblSkillsTitle.Location = new Point(12, 108);
             lblSkillsTitle.Size = new Size(80, 15);
 
             txtSkills = new TextBox();
             txtSkills.Multiline = true;
             txtSkills.ReadOnly = true;
             txtSkills.BackColor = Color.FromArgb(245, 246, 250);
-            txtSkills.BorderStyle = BorderStyle.None;
+            txtSkills.BorderStyle = BorderStyle.FixedSingle; // Styled border
+            txtSkills.ScrollBars = ScrollBars.Vertical; // Added scrollbar support
             txtSkills.Font = new Font("Segoe UI", 8.5F);
-            txtSkills.Location = new Point(12, 122);
-            txtSkills.Size = new Size(pnlProfileCard.Width - 24, 30);
+            txtSkills.Location = new Point(12, 125);
+            txtSkills.Size = new Size(pnlProfileCard.Width - 24, 42);
 
             lblExpTitle = new Label();
             lblExpTitle.Text = "Work Experience:";
             lblExpTitle.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
             lblExpTitle.ForeColor = Color.DarkSlateGray;
-            lblExpTitle.Location = new Point(12, 155);
+            lblExpTitle.Location = new Point(12, 173);
             lblExpTitle.Size = new Size(120, 15);
 
             txtExperience = new TextBox();
             txtExperience.Multiline = true;
             txtExperience.ReadOnly = true;
             txtExperience.BackColor = Color.FromArgb(245, 246, 250);
-            txtExperience.BorderStyle = BorderStyle.None;
+            txtExperience.BorderStyle = BorderStyle.FixedSingle; // Styled border
+            txtExperience.ScrollBars = ScrollBars.Vertical; // Added scrollbar support
             txtExperience.Font = new Font("Segoe UI", 8.5F);
-            txtExperience.Location = new Point(12, 172);
-            txtExperience.Size = new Size(pnlProfileCard.Width - 24, 20);
+            txtExperience.Location = new Point(12, 190);
+            txtExperience.Size = new Size(pnlProfileCard.Width - 24, 42);
 
             pnlProfileCard.Controls.Add(lblProfileTitle);
             pnlProfileCard.Controls.Add(lblContactNo);
@@ -202,6 +205,11 @@ namespace HRApplicantSystem.Forms.HR
 
             pnlProfileCard.Width = widthSetting;
             grpDecision.Width = widthSetting;
+
+            // Dynamically scale inner multiline textboxes to match the container width cleanly
+            txtEducation.Width = widthSetting - 24;
+            txtSkills.Width = widthSetting - 24;
+            txtExperience.Width = widthSetting - 24;
 
             // Set a safe height for the decision groupbox to completely contain the textbox without clipping
             grpDecision.Height = 235;
@@ -277,7 +285,7 @@ namespace HRApplicantSystem.Forms.HR
                 {
                     if (conn == null) return;
 
-                    // Corrected nested JOIN grouping structure with explicit OLEDB-compliant parentheses
+                    // OLEDB join nesting syntax adjusted for 5 tables including EmploymentTypes et
                     string query = @"
                         SELECT App.ApplicationID,
                                App.ApplicantID,
@@ -286,21 +294,12 @@ namespace HRApplicantSystem.Forms.HR
                                et.TypeName AS EmploymentType,
                                Dept.DepartmentName AS Department,
                                App.Status
-                        FROM
-                            (
-                                (
-                                    (
-                                        (
-                                            Applications App
-                                            INNER JOIN Applicants Cand ON App.ApplicantID = Cand.ApplicantID
-                                        )
-                                        INNER JOIN JobVacancies Job ON App.JobID = Job.JobID
-                                    )
-                                    INNER JOIN Positions Pos ON Job.PositionID = Pos.PositionID
-                                )
-                                INNER JOIN Departments Dept ON Job.DepartmentID = Dept.DepartmentID
-                            )
-                            LEFT JOIN EmploymentTypes et ON Job.EmploymentTypeID = et.EmploymentTypeID
+                        FROM ((((Applications App
+                        INNER JOIN Applicants Cand ON App.ApplicantID = Cand.ApplicantID)
+                        INNER JOIN JobVacancies Job ON App.JobID = Job.JobID)
+                        INNER JOIN Positions Pos ON Job.PositionID = Pos.PositionID)
+                        INNER JOIN Departments Dept ON Job.DepartmentID = Dept.DepartmentID)
+                        LEFT JOIN EmploymentTypes et ON Job.EmploymentTypeID = et.EmploymentTypeID
                         WHERE App.Status = 'Under Review'";
 
                     using (OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn))
@@ -545,8 +544,7 @@ namespace HRApplicantSystem.Forms.HR
 
                     // 3. Map Date / Timestamp column variation
                     string matchedDate = null;
-                    if (columns.Contains("datecreated")) matchedDate = "DateCreated"; // Fixed: Added explicit DateCreated check
-                    else if (columns.Contains("actiondate")) matchedDate = "ActionDate";
+                    if (columns.Contains("actiondate")) matchedDate = "ActionDate";
                     else if (columns.Contains("logdate")) matchedDate = "LogDate";
                     else if (columns.Contains("datechanged")) matchedDate = "DateChanged";
                     else if (columns.Contains("datelogged")) matchedDate = "DateLogged";
@@ -633,5 +631,12 @@ namespace HRApplicantSystem.Forms.HR
         {
             this.Close();
         }
+
+        // Silent preservation of original designer events to prevent errors
+        private void dgvApplications_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void label5_Click(object sender, EventArgs e) { }
+        private void groupBox1_Enter(object sender, EventArgs e) { }
+        private void lblTitle_Click(object sender, EventArgs e) { }
+        private void groupBox2_Enter(object sender, EventArgs e) { }
     }
 }

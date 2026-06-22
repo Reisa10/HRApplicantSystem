@@ -277,6 +277,32 @@ namespace HRApplicantSystem.Forms.Login
                     updateCmd.ExecuteNonQuery();
                 }
 
+                // 7. Dynamic User ID Lookup for Audit Trail
+                // If UserSession.UserID is 0 (Password was changed from login screen), we query their database ID.
+                int logUserId = UserSession.UserID;
+                if (logUserId <= 0)
+                {
+                    string idQuery = _isHR
+                        ? "SELECT UserID FROM Users WHERE Username = ?"
+                        : "SELECT ApplicantID FROM ApplicantAccounts WHERE Email = ?";
+                    using (OleDbCommand idCmd = new OleDbCommand(idQuery, con))
+                    {
+                        idCmd.Parameters.Add("?", OleDbType.VarWChar).Value = txtIdentifier.Text.Trim();
+                        object idObj = idCmd.ExecuteScalar();
+                        if (idObj != null && idObj != DBNull.Value)
+                        {
+                            logUserId = Convert.ToInt32(idObj);
+                        }
+                        else
+                        {
+                            logUserId = 1; // Fallback default
+                        }
+                    }
+                }
+
+                string roleType = _isHR ? "Staff" : "Applicant";
+                LogAuditTrail(logUserId, $"{roleType} changed account password: '{txtIdentifier.Text.Trim()}'", con);
+
                 MessageBox.Show("Password changed successfully! Please log in with your new password on next session.",
                     "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
@@ -290,6 +316,28 @@ namespace HRApplicantSystem.Forms.Login
             {
                 if (con.State == ConnectionState.Open)
                     con.Close();
+            }
+        }
+
+        /// <summary>
+        /// Reuses the open active connection to record password modification events safely.
+        /// </summary>
+        private void LogAuditTrail(int userId, string action, OleDbConnection activeCon)
+        {
+            try
+            {
+                string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                using (OleDbCommand cmd = new OleDbCommand(query, activeCon))
+                {
+                    cmd.Parameters.Add("?", OleDbType.Integer).Value = userId;
+                    cmd.Parameters.Add("?", OleDbType.VarWChar).Value = action;
+                    cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Audit Log Error: " + ex.Message);
             }
         }
     }

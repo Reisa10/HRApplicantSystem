@@ -1,11 +1,11 @@
-﻿using HRApplicantSystem.Classes;
-using HRApplicantSystem.Database;
-using System;
+﻿using System;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using HRApplicantSystem.Classes;
+using HRApplicantSystem.Database;
 
 namespace HRApplicantSystem.Forms.Login
 {
@@ -268,6 +268,9 @@ namespace HRApplicantSystem.Forms.Login
 
                 transaction.Commit();
 
+                // Log successful applicant registration
+                LogAuditTrail(newApplicantId, $"Registered new applicant account: '{emailInput}'");
+
                 MessageBox.Show("Registration Successful! You can now log in.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
             }
@@ -289,6 +292,33 @@ namespace HRApplicantSystem.Forms.Login
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        /// <summary>
+        /// Safely registers registration events to the AuditTrail.
+        /// </summary>
+        private void LogAuditTrail(int userId, string action)
+        {
+            using (OleDbConnection conn = DBConnection.GetConnection())
+            {
+                if (conn == null) return;
+                try
+                {
+                    conn.Open();
+                    string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("?", OleDbType.Integer).Value = userId;
+                        cmd.Parameters.Add("?", OleDbType.VarWChar).Value = action;
+                        cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Audit Log Error: " + ex.Message);
+                }
+            }
         }
 
         private void lblTitle_Click(object sender, EventArgs e) { }

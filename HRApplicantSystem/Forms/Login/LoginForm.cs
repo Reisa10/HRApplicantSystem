@@ -27,7 +27,7 @@ namespace HRApplicantSystem.Forms.Login
 
             // Set default state
             rdoApplicant.Checked = true;
-            UpdateUiLayout();
+            UpdateVisualProgress();
             ApplyThemeStyles();
         }
 
@@ -71,10 +71,10 @@ namespace HRApplicantSystem.Forms.Login
 
         private void StyleControlsRecursive(Control parent)
         {
+            if (parent == pnlSidebar) return; // Skip styling sidebar controls with main form styles
+
             foreach (Control ctrl in parent.Controls)
             {
-                if (ctrl == pnlSidebar) continue; // Skip styling sidebar controls with main form styles
-
                 if (ctrl is Label lbl && lbl.Name != "lblTitle")
                 {
                     lbl.ForeColor = ColorTextSecondary;
@@ -169,6 +169,9 @@ namespace HRApplicantSystem.Forms.Login
                                 UserSession.FullName = reader["Full Name"].ToString();
                                 UserSession.Role = reader["Role"].ToString();
 
+                                // Log successful staff login
+                                LogAuditTrail(UserSession.UserID, $"Staff logged in: '{UserSession.Username}' ({UserSession.Role})");
+
                                 MessageBox.Show("Welcome, " + UserSession.FullName + "!", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                                 HRDashboard dashboard = new HRDashboard();
@@ -223,6 +226,9 @@ namespace HRApplicantSystem.Forms.Login
                                     }
                                 }
 
+                                // Log successful applicant login
+                                LogAuditTrail(UserSession.UserID, $"Applicant logged in: '{UserSession.Username}'");
+
                                 MessageBox.Show("Login Successful! Welcome, " + UserSession.FullName + ".", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                                 ApplicantDashboard dashboard = new ApplicantDashboard();
@@ -267,13 +273,13 @@ namespace HRApplicantSystem.Forms.Login
 
         private void RoleSelection_CheckedChanged(object sender, EventArgs e)
         {
-            UpdateUiLayout();
+            UpdateVisualProgress();
         }
 
         /// <summary>
         /// Updates coordinates to match the split-screen design layout when changing roles.
         /// </summary>
-        private void UpdateUiLayout()
+        private void UpdateVisualProgress()
         {
             if (rdoApplicant.Checked)
             {
@@ -290,6 +296,33 @@ namespace HRApplicantSystem.Forms.Login
                 btnRegister.Visible = false;
                 btnExit.Location = new Point(205, 295);
                 this.ClientSize = new Size(520, 350);
+            }
+        }
+
+        /// <summary>
+        /// Safely registers login events to the AuditTrail.
+        /// </summary>
+        private void LogAuditTrail(int userId, string action)
+        {
+            using (OleDbConnection conn = DBConnection.GetConnection())
+            {
+                if (conn == null) return;
+                try
+                {
+                    conn.Open();
+                    string query = "INSERT INTO AuditTrail (UserID, [Action], DateCreated) VALUES (?, ?, ?)";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.Add("?", OleDbType.Integer).Value = userId;
+                        cmd.Parameters.Add("?", OleDbType.VarWChar).Value = action;
+                        cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Audit Log Error: " + ex.Message);
+                }
             }
         }
 
